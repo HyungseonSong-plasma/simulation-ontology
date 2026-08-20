@@ -51,7 +51,7 @@ This statement describes the development process and does not imply that generat
 
 ## Status
 
-**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0017; language/schema consolidation accepted through ADR-0021.**
+**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0017; language/schema consolidation accepted through ADR-0022.**
 
 Architecture/freeze amendments:
 
@@ -67,7 +67,8 @@ Language/schema consolidation:
 - [`ADR-0019`](docs/decisions/0019-relation-target-type-constraint-semantics-and-schema.md) defines the focused relation-target Type Constraint payload and semantic-versus-representability evaluation-axis separation.
 - [`ADR-0020`](docs/decisions/0020-dimension-constraint-and-canonical-dimensionvector.md) defines the canonical DimensionVector and Unit/metrology boundary.
 - [`ADR-0021`](docs/decisions/0021-scalar-value-constraint-and-exact-decimal-normalization.md) defines scalar Value intervals/allowed sets, exact-decimal normalized numbers, Value satisfiability, and comparison-space gating.
+- [`ADR-0022`](docs/decisions/0022-compatibility-constraint-and-semantic-criterion-contract.md) defines canonical semantic Compatibility criteria, typed operands, ordered/symmetric obligation identity, semantic `INDETERMINATE`, and deterministic family aggregation.
 
-Cardinality/QRC, relation-target Type, Dimension, and scalar Value schema slices have design-stage smoke evidence and independent Validation acceptance. Backend installation, licensing, production Adapter implementation, and full backend execution V&V are intentionally outside this design-stage closure path unless they later expose a genuine architecture counterexample.
+Cardinality/QRC, relation-target Type, Dimension, scalar Value, and Compatibility schema slices have design-stage smoke evidence and independent Validation acceptance. Backend installation, licensing, production Adapter implementation, and full backend execution V&V are intentionally outside this design-stage closure path unless they later expose a genuine architecture counterexample.
 
-The immediate focus is the remaining **Compatibility** and **Conditional/predicate** Constraint families, followed by Interface serialization, accepted Value/Unit/PhysicalDimension graph transcription, canonical package/schema integration, minimal Thermal + Plasma/QRC reference models, and final independent design-stage audit.
+The immediate focus is the remaining **Conditional/predicate** Constraint family, followed by Interface serialization, accepted Value/Unit/PhysicalDimension graph transcription, canonical package/schema integration, minimal Thermal + Plasma/QRC reference models, and final independent design-stage audit.
