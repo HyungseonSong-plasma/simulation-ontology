@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/constraint-cardinality-normalized-v0.1.schema.json",
+  "title": "SOL Normalized Cardinality Constraint v0.1",
+  "description": "Canonical normalized semantic payload for source/outgoing SOL Cardinality/QRC constraints under ADR-0018.",
+  "type": "object",
+  "required": ["type", "relation", "direction", "min", "max"],
+  "properties": {
+    "type": {"const": "cardinality"},
+    "relation": {"type": "string", "minLength": 1},
+    "direction": {"const": "source"},
+    "qualifier": {
+      "type": "object",
+      "required": ["target_type"],
+      "properties": {
+        "target_type": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "min": {"type": "integer", "minimum": 0},
+    "max": {
+      "oneOf": [
+        {"type": "integer", "minimum": 0},
+        {"const": "unbounded"}
+      ]
+    }
+  },
+  "additionalProperties": false
+}
