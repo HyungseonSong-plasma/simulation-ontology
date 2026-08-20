@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/constraint-cardinality-authoring-v0.1.schema.json",
+  "title": "SOL Cardinality Constraint Authoring v0.1",
+  "description": "Structural authoring schema for SOL Cardinality/QRC constraints. Semantic interval normalization is defined by ADR-0012 and ADR-0018.",
+  "type": "object",
+  "required": ["type", "relation"],
+  "properties": {
+    "type": {"const": "cardinality"},
+    "relation": {"type": "string", "minLength": 1},
+    "qualifier": {
+      "type": "object",
+      "required": ["target_type"],
+      "properties": {
+        "target_type": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "min": {"type": "integer", "minimum": 0},
+    "max": {"type": "integer", "minimum": 0},
+    "exact": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}
