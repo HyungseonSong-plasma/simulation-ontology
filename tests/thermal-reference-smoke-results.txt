@@ -1,0 +1,30 @@
+SOL v0.1 Thermal Reference Design-Stage Smoke Evidence
+Date: 2026-08-20
+Scope: semantic-equivalent local smoke over committed ADR-0029 fixture data; not backend execution and not a repository-root unittest run.
+
+Committed fixture intent checked:
+- exact resolved package environment: PASS
+- canonical resource identity uniqueness: PASS
+- exact thermal package dependency on core reference fixture: PASS
+- model entity identity uniqueness: PASS (17 entities)
+- PropertyDefinition reference uniqueness/resolution: PASS
+- relation triple uniqueness: PASS (25 triples)
+- typed relation endpoint matching with subtype closure: PASS
+- ADR-0016 includes_component allowed-pair matching: PASS
+- source cardinality for has_model/has_task/uses_model/has_analysis/applied_to: PASS
+- Thermal Interface Property requirement references: PASS
+- Interface-targeted Dimension Constraint applicability: PASS
+- prescribed_temperature required DimensionVector Theta^1: PASS
+- thermal_conductivity_value required DimensionVector M^1 L^1 T^-3 Theta^-1: PASS
+- focused UnitReference metrology evidence K -> Theta^1: PASS
+- focused UnitReference metrology evidence W_per_m_K -> M^1 L^1 T^-3 Theta^-1: PASS
+- backend installation/license/runtime consulted: NO
+
+Counterexample notes:
+- The earlier under-specified SolidMaterial_1 and HeatEquation_1 instances were removed before this smoke per TRV-01/TRV-02.
+- Missing metrology evidence is contractually INDETERMINATE rather than backend incompatibility; dedicated committed tests cover that branch.
+- Resolved dimension mismatch is a definite semantic failure; dedicated committed tests cover that branch.
+
+Result: focused semantic smoke PASS.
+
+This evidence is supplemental only. Final domain verdict remains the responsibility of independent GitHub artifact readback Validation.
