@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/constraint-type-authoring-v0.1.schema.json",
+  "title": "SOL Relation-Target Type Constraint Authoring v0.1",
+  "description": "Structural authoring schema for the ADR-0019 relation-target Type Constraint slice.",
+  "type": "object",
+  "required": ["type", "relation", "target_type"],
+  "properties": {
+    "type": {"const": "type"},
+    "relation": {"type": "string", "minLength": 1},
+    "target_type": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}
