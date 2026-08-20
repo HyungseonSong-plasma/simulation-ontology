@@ -1,0 +1,29 @@
+{
+  "ontology_version": "0.1",
+  "model": {
+    "id": "model.unresolved_reference",
+    "physics": [
+      {
+        "id": "thermal.transport",
+        "kind": "physics_model",
+        "semantic_type": "ThermalTransport",
+        "label": "Thermal transport"
+      }
+    ],
+    "mathematical": [],
+    "constitutive": [],
+    "spatial": [],
+    "material": [],
+    "conditions": [],
+    "numerical": [],
+    "observations": []
+  },
+  "tasks": [],
+  "relations": [
+    {
+      "kind": "represented_by",
+      "source": "thermal.transport",
+      "target": "thermal.missing_equation"
+    }
+  ]
+}
