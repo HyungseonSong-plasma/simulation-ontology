@@ -1,0 +1,11 @@
+[package]
+name = "sol-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+description = "Command-line client for the Simulation Ontology semantic Core"
+
+[dependencies]
+sol-core-model = { path = "../sol-core-model" }
