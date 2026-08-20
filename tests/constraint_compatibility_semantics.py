@@ -107,17 +107,20 @@ def evaluate_obligation(
     *,
     semantic_context_resolved: bool,
     binary_result: str | None,
-) -> str:
+) -> dict[str, str]:
     if not semantic_context_resolved:
         if binary_result is not None:
             raise CompatibilityConstraintError("COMPATIBILITY_BINARY_RESULT_WITHOUT_CONTEXT")
-        return "INDETERMINATE"
+        return {
+            "state": "INDETERMINATE",
+            "code": "COMPATIBILITY_EVALUATION_CONTEXT_UNRESOLVED",
+        }
     if binary_result not in {"compatible", "incompatible"}:
         raise CompatibilityConstraintError("COMPATIBILITY_BINARY_RESULT_REQUIRED")
     expect = payload.get("expect")
     if expect not in {"compatible", "incompatible"}:
         raise CompatibilityConstraintError("COMPATIBILITY_EXPECT_INVALID")
-    return "PASS" if expect == binary_result else "FAIL"
+    return {"state": "PASS" if expect == binary_result else "FAIL"}
 
 
 def aggregate_states(states: Sequence[str]) -> str:
