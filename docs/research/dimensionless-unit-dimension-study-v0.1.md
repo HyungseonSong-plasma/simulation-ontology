@@ -3,174 +3,157 @@
 **Status:** Research evidence  
 **Date:** 2026-08-20  
 **Reference backends:** MOOSE, COMSOL, Ansys  
-**Purpose:** Test whether SOL should equate dimensionless quantities with missing units, and refine the proposed Unit/PhysicalDimension boundary.
+**Purpose:** Refine the SOL boundary among `SemanticQuantity`, `PhysicalDimension`, `Unit`, and `Value`, with special attention to dimensionless quantities.
 
 ## 1. Research question
 
 A provisional SOL rule proposed:
 
-- semantic quantities require a physical dimension;
-- concrete values carry units compatible with that dimension.
+- semantic quantities require or imply a physical dimension;
+- concrete values may carry units compatible with that dimension.
 
 The unresolved case is a dimensionless quantity such as Poisson ratio, relative permittivity, Mach number, emissivity, or a nondimensional group.
 
-The key question is:
+The key questions are:
 
-> Does `dimensionless` mean `unit absent`, or is dimensionlessness an explicit physical-dimension state that may still have a unit-like representation?
+1. How should SOL represent a dimensionless quantity?
+2. Is missing unit metadata equivalent to dimensionlessness?
+3. Is physical-dimension compatibility sufficient for semantic unit compatibility?
+4. Can these concerns be modeled without introducing a redundant `QuantityKind` abstraction?
 
 ## 2. MOOSE evidence
 
-MOOSE solid-mechanics documentation explicitly describes Poisson ratio as unitless while other parameters such as Young's modulus, mesh length, and time require consistent units.
+MOOSE solid-mechanics documentation describes Poisson ratio as unitless while other parameters such as Young's modulus, mesh length, and time require consistent units.
 
-This supports treating Poisson ratio as a semantic quantity whose physical-dimension contract is dimensionless, even though no explicit runtime unit is required.
+This supports treating Poisson ratio as a semantic quantity whose physical-dimension contract is dimension one/dimensionless, even when no explicit runtime unit is supplied.
 
 ```text
 PoissonRatio
-    requires_dimension -> Dimensionless
+    requires_dimension -> DimensionOne
 
 Value
     magnitude = 0.3
-    unit = optional / canonical-one
+    explicit unit = optional / typically omitted
 ```
 
-MOOSE therefore provides evidence that a missing explicit unit does not mean that the quantity lacks a dimension contract.
+The absence of an explicit unit therefore does not remove the semantic dimension contract.
 
 ## 3. COMSOL evidence
 
-COMSOL explicitly marks relative permittivity and many ratios/fractions as `dimensionless`. It also defines `%` and `ppm` as units for dimensionless values.
+COMSOL explicitly treats quantities such as relative permittivity as dimensionless. It also distinguishes plane angle from ordinary dimensionless ratios by using angular units such as `rad` and allowing alternative angular representations such as degrees where appropriate.
 
-This is decisive evidence that:
-
-```text
-dimensionless != no representational unit
-```
-
-A dimensionless value may be represented as:
+This yields two important observations:
 
 ```text
-0.5
-50 %
-500000 ppm
-```
-
-while retaining the same zero-dimensional physical-dimension vector.
-
-COMSOL also treats plane angle using `rad`, while dimensional analysis still treats radians as dimensionless in SI. This shows that a dimensionless physical dimension does not erase semantic quantity kind or preferred unit representation.
-
-Therefore:
-
-```text
-PlaneAngle
-    requires_dimension -> Dimensionless
-    preferred/compatible unit -> rad
-
 RelativePermittivity
-    requires_dimension -> Dimensionless
-    ordinary representation -> unit one / no explicit symbol
+    physical dimension -> DimensionOne
+
+PlaneAngle
+    physical dimension -> DimensionOne
+    permitted representation -> rad / deg
 ```
 
-These are not the same semantic quantity even though their base-dimension vectors are identical.
+The quantities remain semantically distinct even though their SI physical dimension is one.
+
+The earlier draft incorrectly connected COMSOL relative permittivity directly with `%` and `ppm` representations. That claim has been removed; it is not required for the SOL conclusion.
 
 ## 4. Ansys evidence
 
-Ansys documentation identifies Mach number as dimensionless and commonly displays its unit field as empty (`[ ]` or `—`). Ansys also describes relative permittivity as a dimensionless ratio.
+Ansys documentation identifies quantities such as Mach number and relative permittivity as dimensionless. User interfaces may display such values without a visible unit symbol.
 
-This supports the same distinction:
+This supports the distinction:
 
 ```text
 MachNumber
     semantic identity = MachNumber
-    physical dimension = Dimensionless
-    explicit unit symbol = usually absent
+    physical dimension = DimensionOne
+    explicit unit symbol = commonly omitted
 ```
 
-The absence of a display unit is therefore a presentation choice, not evidence that the quantity has no physical-dimension classification.
+A missing display unit is therefore a representation choice, not the definition of dimensionlessness.
 
 ## 5. Cross-backend matrix
 
 | Case | MOOSE | COMSOL | Ansys | SOL implication |
 |---|---|---|---|---|
-| Poisson ratio | explicitly unitless | dimensionless material ratio | typically dimensionless Engineering Data quantity | explicit `Dimensionless` contract |
-| Relative permittivity | backend-dependent metadata | explicitly dimensionless | explicitly dimensionless | semantic quantity distinct from its value/unit |
-| Mach number | not primary reference case | dimensionless in CFD contexts | explicitly dimensionless, unit field empty | dimensionless does not require explicit unit symbol |
-| Percent / ppm | may be represented numerically/conversion mechanisms | explicit units for dimensionless values | representation depends on product/context | dimensionless may still have representational units |
-| Plane angle | unit handling depends on model | SI unit `rad`; zero-dimensional in base SI dimensions | often degree/radian representations | quantity kind must remain distinct from base dimension |
+| Poisson ratio | explicitly unitless | dimensionless ratio | dimensionless material quantity | explicit `DimensionOne` contract |
+| Relative permittivity | backend-dependent metadata | explicitly dimensionless | explicitly dimensionless | semantic quantity distinct from dimension/value |
+| Mach number | not primary reference case | dimensionless in CFD contexts | explicitly dimensionless | missing visible unit does not define dimension |
+| Plane angle | unit handling depends on model | represented with `rad`/`deg` while SI dimension is one | typically degree/radian representations | dimension compatibility alone may be insufficient for semantic unit validation |
 
 ## 6. Main findings
 
-### Finding D1 — Dimensionless is a real dimension contract
+### Finding D1 — Dimensionless is an explicit dimension contract
 
-`Dimensionless` should be represented explicitly in SOL rather than inferred from the absence of a unit.
+A dimensionless quantity should be represented as having physical dimension one rather than as having no dimension.
 
 Conceptually:
 
 ```text
 PhysicalDimension
-    Dimensionless = [0,0,0,0,0,0,0,...]
+    DimensionOne = [0,0,0,0,0,0,0,...]
 ```
 
 The exact base-dimension vector convention remains an implementation choice.
 
-### Finding D2 — Unit absence and dimensionlessness are not equivalent
+### Finding D2 — Unit absence is not dimensionlessness
 
-A value can be dimensionless and have no visible unit, but a missing unit alone does not determine whether the quantity is dimensionless.
+A dimensionless value may have no visible unit symbol, but the absence of an explicit Unit cannot by itself determine the PhysicalDimension.
 
 ```text
 unit = absent
     !=
-dimension = Dimensionless
+dimension = DimensionOne
 ```
 
-### Finding D3 — Dimensionless quantities may have representational units
+### Finding D3 — Semantic quantity remains distinct from physical dimension
 
-Percent and ppm are representational units/scales for dimensionless values. Radian is another important case: its base physical dimension is dimensionless, while the semantic quantity remains plane angle.
-
-Therefore a Unit must not be assumed to correspond one-to-one with a unique semantic quantity.
-
-### Finding D4 — Semantic quantity remains necessary even when dimensions match
-
-Poisson ratio, Mach number, relative permittivity, refractive index, emissivity, and plane angle may all share a dimensionless base-dimension contract while remaining semantically different quantities.
+Different quantities may share the same PhysicalDimension while remaining semantically distinct.
 
 ```text
-SemanticQuantity != PhysicalDimension
+MachNumber
+PoissonRatio
+RelativePermittivity
+PlaneAngle
 ```
 
-This generalizes the earlier insight that stress and Young's modulus share dimensions but not semantic identity.
+may all map to `DimensionOne`, but they are not interchangeable semantic concepts.
+
+This generalizes the same pattern for dimensional quantities, for example Stress and Young's modulus sharing the same physical dimension while retaining distinct semantics.
+
+### Finding D4 — Dimension compatibility may be insufficient for unit compatibility
+
+Because plane angle and ordinary dimensionless ratios both have dimension one, dimension checking alone could incorrectly accept semantically inappropriate units.
+
+Therefore a semantic quantity MAY impose additional unit constraints beyond physical-dimension compatibility.
+
+This does **not** require a separate `QuantityKind` object. The semantic quantity Entity itself already carries the needed identity.
 
 ## 7. Refined candidate rules
 
 ### U1 — Dimension as semantic contract
 
-> A physical semantic quantity SHOULD declare or imply a `PhysicalDimension`, including an explicit `Dimensionless` dimension where applicable.
+> A physical semantic quantity SHOULD declare or imply a `PhysicalDimension`, including `DimensionOne` where applicable.
 
 ### U2 — Unit as value representation
 
-> A concrete dimensional or dimensionless `Value` MAY carry an explicit `Unit`; when present, the Unit SHALL be dimensionally compatible with the semantic quantity's required PhysicalDimension.
+> A concrete `Value` MAY carry an explicit `Unit`; when present, that Unit SHALL be dimensionally compatible with the semantic quantity's required PhysicalDimension.
 
-This refines the previous wording that implied every dimensional Value must necessarily carry an explicit unit. A unit may be omitted when the surrounding model/backend context supplies the unit contract or when the canonical representation is unit one.
+A unit may be omitted where the surrounding model/backend context supplies the unit contract or where serialization convention suppresses an explicit unit symbol.
 
 ### U3 — Unit absence is not semantic dimension
 
-> The absence of an explicit Unit SHALL NOT be used by itself to infer `Dimensionless`.
+> The absence of an explicit Unit SHALL NOT by itself be used to infer `DimensionOne` or any other PhysicalDimension.
 
-### U4 — Quantity kind is independent of physical dimension
+### U4 — Semantic quantity is independent of physical dimension
 
-> Semantic quantities with identical PhysicalDimensions SHALL remain distinct ontology concepts when their domain meaning differs.
+> Semantic quantities with identical PhysicalDimensions SHALL remain distinct ontology concepts when their domain meanings differ.
 
-Examples:
+### U5 — Semantic unit compatibility
 
-```text
-MachNumber          -> Dimensionless
-PoissonRatio        -> Dimensionless
-RelativePermittivity-> Dimensionless
-PlaneAngle          -> Dimensionless
-```
+> Physical-dimension compatibility is necessary but may not always be sufficient for unit compatibility. A semantic quantity MAY impose additional constraints on units used to represent its Values.
 
-but:
-
-```text
-MachNumber != PoissonRatio != RelativePermittivity != PlaneAngle
-```
+`U5` is expressed as a constraint on the existing SemanticQuantity Entity. No `QuantityKind` abstraction is introduced.
 
 ## 8. Candidate core graph
 
@@ -178,6 +161,8 @@ MachNumber != PoissonRatio != RelativePermittivity != PlaneAngle
 SemanticQuantity
       │
       ├── requires_dimension ──> PhysicalDimension
+      │
+      ├── may constrain ───────> Unit / UnitSet
       │
       └── has_value_definition
                     │
@@ -196,30 +181,23 @@ SemanticQuantity
                                               PhysicalDimension
 ```
 
-For a dimensionless quantity:
+Examples:
 
 ```text
-MachNumber
-    └── requires_dimension -> Dimensionless
+RelativePermittivity
+    ├── requires_dimension -> DimensionOne
+    └── allowed representation -> ordinary dimension-one value
 
-Value(0.8)
-    └── expressed_in -> UnitOne / omitted by serialization policy
+PlaneAngle
+    ├── requires_dimension -> DimensionOne
+    └── allowed_units -> {rad, deg}
 ```
 
-For percentage representation:
-
-```text
-Porosity
-    └── requires_dimension -> Dimensionless
-
-Value(50)
-    └── expressed_in -> Percent
-           └── has_dimension -> Dimensionless
-```
+No intermediate `QuantityKind` node is required because the SemanticQuantity itself already distinguishes `RelativePermittivity` from `PlaneAngle`.
 
 ## 9. Important modeling implication
 
-`PhysicalDimension`, `Unit`, `SemanticQuantity`, and `Value` are four distinct concepts:
+`SemanticQuantity`, `PhysicalDimension`, `Unit`, and `Value` remain distinct concepts:
 
 ```text
 SemanticQuantity
@@ -231,10 +209,18 @@ Unit
 Value
 ```
 
-Dimension compatibility is a validation relation between them, not an identity relation.
+Dimension compatibility and semantic unit compatibility are validation relations between these concepts, not identity relations.
 
-## 10. Decision status
+## 10. Minimal-abstraction principle
 
-This document is research evidence, not yet an ADR.
+This study provides a concrete application of the SOL Entity boundary rule:
 
-The cross-backend dimensionless test strengthens U1 and supports revised U2 plus new U3/U4. These rules are suitable candidates for a dedicated Unit/PhysicalDimension ADR after review.
+> Do not introduce a new Entity when existing semantic identity plus Relations and Constraints already express the required meaning.
+
+The proposed `QuantityKind` abstraction duplicated SemanticQuantity identity and has therefore been rejected.
+
+## 11. Decision status
+
+This document remains research evidence, not yet an ADR.
+
+The corrected cross-backend evidence supports U1-U5 as candidates for a dedicated Unit/PhysicalDimension ADR. `QuantityKind` is explicitly excluded from the candidate core model.
