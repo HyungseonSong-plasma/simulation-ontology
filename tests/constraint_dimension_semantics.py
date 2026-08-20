@@ -20,15 +20,33 @@ class DimensionConstraintError(ValueError):
     """Deterministic ADR-0020 semantic diagnostic."""
 
 
-def normalize_dimension_vector(vector: Mapping[str, int]) -> dict[str, int]:
+def _normalize_integer_exponent(value: object) -> int:
+    """Match JSON Schema integer-value semantics for ordinary JSON decoders.
+
+    JSON Schema treats numbers such as 1 and 1.0 as integer instances when their
+    mathematical value is integral. Booleans are not numbers for this purpose.
+    """
+    if isinstance(value, bool):
+        raise DimensionConstraintError("DIMENSION_EXPONENT_INVALID")
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    raise DimensionConstraintError("DIMENSION_EXPONENT_INVALID")
+
+
+def normalize_dimension_vector(vector: Mapping[str, object]) -> dict[str, int]:
     """Expand sparse authoring to the canonical full seven-axis vector."""
     unknown = set(vector) - set(DIMENSION_AXES)
     if unknown:
         raise DimensionConstraintError("DIMENSION_AXIS_UNKNOWN")
-    for exponent in vector.values():
-        if isinstance(exponent, bool) or not isinstance(exponent, int):
-            raise DimensionConstraintError("DIMENSION_EXPONENT_INVALID")
-    return {axis: int(vector.get(axis, 0)) for axis in DIMENSION_AXES}
+    normalized: dict[str, int] = {}
+    for axis in DIMENSION_AXES:
+        if axis in vector:
+            normalized[axis] = _normalize_integer_exponent(vector[axis])
+        else:
+            normalized[axis] = 0
+    return normalized
 
 
 def normalize_dimension_payload(authored: Mapping[str, object]) -> dict[str, object]:
@@ -43,8 +61,8 @@ def normalize_dimension_payload(authored: Mapping[str, object]) -> dict[str, obj
 
 
 def intersect_dimension_vectors(
-    left: Mapping[str, int],
-    right: Mapping[str, int],
+    left: Mapping[str, object],
+    right: Mapping[str, object],
 ) -> dict[str, int]:
     """Dimension constraints intersect iff their normalized vectors are equal."""
     left_normalized = normalize_dimension_vector(left)
@@ -54,5 +72,5 @@ def intersect_dimension_vectors(
     return left_normalized
 
 
-def is_dimension_one(vector: Mapping[str, int]) -> bool:
+def is_dimension_one(vector: Mapping[str, object]) -> bool:
     return all(exponent == 0 for exponent in normalize_dimension_vector(vector).values())
