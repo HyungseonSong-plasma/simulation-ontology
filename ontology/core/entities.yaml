@@ -1,0 +1,62 @@
+version: "0.1"
+status: draft
+
+entities:
+  Simulation:
+    children:
+      - SimulationModel
+      - SimulationTask
+
+  SimulationModel:
+    children:
+      - PhysicsModel
+      - MathematicalModel
+      - ConstitutiveModel
+      - SpatialModel
+      - MaterialModel
+      - ConditionModel
+      - NumericalModel
+      - ObservationModel
+
+  PhysicsModel:
+    children: [Phenomenon, Process, Interaction]
+
+  MathematicalModel:
+    children: [Formulation, Equation, Field, Operator, MathematicalParameter]
+
+  ConstitutiveModel:
+    children: [ClosureRelation, PropertyModel]
+
+  SpatialModel:
+    children: [Geometry, Domain, Boundary, Interface, Scope]
+
+  MaterialModel:
+    children: [Material, Species, MaterialProperty]
+
+  ConditionModel:
+    children: [BoundaryCondition, InitialCondition, Source, Load]
+
+  NumericalModel:
+    children: [Discretization, Mesh, NumericalApproximation]
+
+  ObservationModel:
+    children: [Quantity, Probe, Integral, Dataset, Output]
+
+  SimulationTask:
+    children: [Analysis, SolverConfiguration]
+
+  Analysis:
+    children:
+      - StationaryAnalysis
+      - TransientAnalysis
+      - FrequencyDomainAnalysis
+      - EigenvalueAnalysis
+      - ParametricAnalysis
+      - OptimizationAnalysis
+
+  SolverConfiguration:
+    children: [NonlinearSolver, LinearSolver, Preconditioner, ConvergenceCriterion]
+
+notes:
+  - Software-specific concepts such as MOOSE Kernel, COMSOL Physics Feature, and Ansys analysis objects are excluded from the core taxonomy.
+  - This file is a draft machine-readable representation of the v0.1 architecture and will evolve as relations and constraints are formalized.
