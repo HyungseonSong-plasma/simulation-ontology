@@ -1,0 +1,25 @@
+version: "0.1"
+status: draft
+
+constraints:
+  backend_independence:
+    description: Core ontology entities and relations must not require software-specific object types.
+
+  model_task_separation:
+    description: SimulationModel defines the model; SimulationTask defines computations performed on it.
+
+  physics_math_separation:
+    description: Physical meaning and mathematical representation must remain distinct and connected through explicit relations.
+
+  analysis_solver_separation:
+    description: Analysis defines the computational question; SolverConfiguration defines the numerical algorithm used to solve it.
+
+  explicit_scope:
+    description: Conditions and spatially applied model entities should reference an explicit Scope where applicable.
+
+pending:
+  - Define relation cardinalities.
+  - Define required versus optional relations.
+  - Define acyclicity and dependency constraints.
+  - Define identifiers and namespace rules.
+  - Define unit and dimensional-consistency constraints.
