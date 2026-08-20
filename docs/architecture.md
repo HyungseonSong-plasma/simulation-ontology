@@ -1,7 +1,7 @@
 # Core Simulation Ontology Architecture
 
 **Version:** 0.1  
-**Status:** Design-stage architecture frozen through ADR-0017; focused language/schema/package/model-snapshot representation accepted through ADR-0029; Thermal and Plasma/QRC reference gates accepted.
+**Status:** **DESIGN-STAGE CLOSED by ADR-0030.** Core architecture is frozen through ADR-0017; focused language/schema/package/model-snapshot representation is accepted through ADR-0029; Thermal and Plasma/QRC reference gates are accepted.
 
 ## 1. Purpose
 
@@ -257,9 +257,11 @@ Simulation IR / MappingPlan
 
 Backend-native ownership, solver trees, feature tags, installation, licenses, runtime APIs, and executable Adapter details remain outside Core semantics. Backend execution V&V belongs to the Adapter/integration stage unless execution reveals a genuine architecture counterexample.
 
-## 14. Design-stage closure boundary
+## 14. Closed design-stage boundary
 
-The following are **deferred or outside v0.1 design-stage closure**, not unresolved Core architecture blockers:
+ADR-0030 closes SOL v0.1 design-stage architecture/language/package/reference-model design. Reopen requires evidence of a genuine architecture defect, normative contradiction, independent-validator nondeterminism, cross-backend semantic counterexample, or required reference-model impossibility not attributable to an explicitly deferred/Profile/Adapter/backend limitation.
+
+The following remain post-design/deferred and do not reopen the baseline by default:
 
 - production Adapter implementation and backend runtime execution V&V;
 - installation/license availability;
@@ -269,4 +271,4 @@ The following are **deferred or outside v0.1 design-stage closure**, not unresol
 - production Profile/backend package authoring beyond accepted mapping contracts;
 - complete general application/model-document syntax beyond the ADR-0029 reference snapshot.
 
-The remaining closure activity is focused readback/traceability verification, not new architecture invention.
+The next project stage is implementation, Adapter integration, and executable V&V against this closed semantic baseline.
