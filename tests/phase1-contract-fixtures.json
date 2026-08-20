@@ -1,0 +1,18 @@
+{
+  "qrc": {
+    "negative_ion": {"qualifier": {"target_type": "NegativeIonSpecies"}, "min": 1},
+    "open_snapshot": {"complete": false},
+    "closed_snapshot_duplicate_edge": {
+      "complete": true,
+      "available_types": ["NegativeIonSpecies", "OminusType"],
+      "edges": ["o2", "om", "om"],
+      "target_types": {"o2": ["O2Type"], "om": ["OminusType", "NegativeIonSpecies"]},
+      "subtype_closure": {"OminusType": ["NegativeIonSpecies"]}
+    }
+  },
+  "decision_precedence": ["PASS", "BLOCKED", "FAIL", "INDETERMINATE"],
+  "loss_policy": {
+    "losses": ["L1"],
+    "policies": [{"loss_key": "L1", "decision": "allow"}, {"loss_key": "L1", "decision": "deny"}]
+  }
+}
