@@ -1,23 +1,29 @@
-SOL v0.1 ADR-0020 Dimension Constraint smoke validation
+SOL v0.1 ADR-0020 Dimension Constraint focused smoke validation
 Date: 2026-08-20
 Branch: validation/sol-v0.1-independent-review
 Scope: design-stage Dimension schema/semantic helper only; no backend runtime or metrology registry
 
-Result: 10 PASS / 0 FAIL
+Result: 11 PASS / 0 FAIL
 
 PASS sparse normalization
 PASS explicit DimensionOne
 PASS missing vector rejected
 PASS unknown axis rejected
-PASS noninteger rejected
+PASS integral JSON numbers normalize to canonical integer exponents
+PASS noninteger/bool exponent rejected
 PASS thermal conductivity roundtrip
 PASS normalized all axes required
 PASS equal vector intersection
 PASS unequal intersection fails
 PASS backend metadata independent
 
+DIV-05 closure:
+- Draft 2020-12 integer-valued JSON numbers such as 1.0 and -2.0 are accepted by the structural schema.
+- The semantic helper now normalizes those integral numeric representations to canonical integer values.
+- Genuine non-integer numbers (for example 1.5 and -0.5) and booleans remain invalid.
+
 Validation boundary:
 - Authoring may omit recognized zero axes; normalization expands all seven axes.
 - Explicit vector: {} means DimensionOne; absence of vector is invalid/missing, not dimensionless.
-- v0.1 exponent domain is integer-only by ADR-0020.
+- v0.1 exponent domain is integer-valued by ADR-0020.
 - Unit/backend metadata is not part of the normalized Dimension semantic payload.
