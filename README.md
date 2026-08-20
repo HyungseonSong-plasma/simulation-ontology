@@ -51,7 +51,7 @@ This statement describes the development process and does not imply that generat
 
 ## Status
 
-**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0017; language/schema consolidation and canonical ontology-package integration accepted through ADR-0028.**
+**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0017; focused language/schema/package/model-snapshot consolidation accepted through ADR-0029. Minimal Thermal and Plasma/QRC reference-model gates are accepted. Final design-stage closure audit is in transcription-only remediation/readback.**
 
 Architecture/freeze amendments:
 
@@ -61,20 +61,26 @@ Architecture/freeze amendments:
 - [`ADR-0016`](docs/decisions/0016-model-component-membership-and-condition-target-semantics.md) defines direct model-component membership and repairs condition/forcing `applied_to` semantics.
 - [`ADR-0017`](docs/decisions/0017-core-relation-cardinality-requiredness-baseline.md) fixes the remaining generic Core relation cardinality baseline and the Constraint-authority / relation-projection rule.
 
-Language/schema consolidation:
+Language/schema/package consolidation:
 
 - [`ADR-0018`](docs/decisions/0018-constraint-authoring-normalization-and-cardinality-schema-boundary.md) separates Constraint authoring from normalized semantic payloads and consolidates Cardinality/QRC schema boundaries.
-- [`ADR-0019`](docs/decisions/0019-relation-target-type-constraint-semantics-and-schema.md) defines the focused relation-target Type Constraint payload and semantic-versus-representability evaluation-axis separation.
-- [`ADR-0020`](docs/decisions/0020-dimension-constraint-and-canonical-dimensionvector.md) defines the canonical DimensionVector and Unit/metrology boundary.
-- [`ADR-0021`](docs/decisions/0021-scalar-value-constraint-and-exact-decimal-normalization.md) defines scalar Value intervals/allowed sets, exact-decimal normalized numbers, Value satisfiability, and comparison-space gating.
-- [`ADR-0022`](docs/decisions/0022-compatibility-constraint-and-semantic-criterion-contract.md) defines canonical semantic Compatibility criteria, typed operands, ordered/symmetric obligation identity, semantic `INDETERMINATE`, and deterministic family aggregation.
-- [`ADR-0023`](docs/decisions/0023-conditional-constraint-and-predicate-evaluation-contract.md) defines Conditional activation, EvaluationReference lookup, Compare/Membership/Exists/Boolean predicates, strong-Kleene truth, and EvaluationFailure semantics.
-- [`ADR-0024`](docs/decisions/0024-cross-family-validation-state-aggregation.md) clarifies cross-family `FAIL > INDETERMINATE > PASS` propagation for the common design-stage validation-state slice.
-- [`ADR-0025`](docs/decisions/0025-interface-serialization-and-inherited-capability-conformance.md) defines InterfaceDefinition/InterfaceImplementation serialization, targeted reusable ConstraintApplications, mapping convergence, and inherited Interface guarantees through Entity specialization.
-- [`ADR-0026`](docs/decisions/0026-value-unit-dimension-and-valuedefinition-transcription-boundary.md) fixes the graph-versus-typed-data boundary for DimensionVector, UnitReference, Value, and reified ValueDefinition.
-- [`ADR-0027`](docs/decisions/0027-inline-valuedefinition-format-provider-boundary.md) defines the format-provider normalization boundary for nonliteral inline ValueDefinitions and deterministic semantic-dependency extraction.
-- [`ADR-0028`](docs/decisions/0028-canonical-ontology-package-and-resource-integration.md) defines normalized ontology-package resources, namespace exports, canonical identity continuity, resolved dependencies, referential completeness, and the package/schema integration boundary.
+- [`ADR-0019`](docs/decisions/0019-relation-target-type-constraint-semantics-and-schema.md) defines focused relation-target Type Constraint semantics.
+- [`ADR-0020`](docs/decisions/0020-dimension-constraint-and-canonical-dimensionvector.md) defines canonical DimensionVector semantics.
+- [`ADR-0021`](docs/decisions/0021-scalar-value-constraint-and-exact-decimal-normalization.md) defines scalar Value constraints and exact-decimal normalization.
+- [`ADR-0022`](docs/decisions/0022-compatibility-constraint-and-semantic-criterion-contract.md) defines Compatibility Constraint semantics.
+- [`ADR-0023`](docs/decisions/0023-conditional-constraint-and-predicate-evaluation-contract.md) defines Conditional/Predicate semantics.
+- [`ADR-0024`](docs/decisions/0024-cross-family-validation-state-aggregation.md) defines common cross-family validation-state propagation.
+- [`ADR-0025`](docs/decisions/0025-interface-serialization-and-inherited-capability-conformance.md) defines Interface serialization and inherited conformance.
+- [`ADR-0026`](docs/decisions/0026-value-unit-dimension-and-valuedefinition-transcription-boundary.md) fixes Value/Unit/Dimension/ValueDefinition representation boundaries.
+- [`ADR-0027`](docs/decisions/0027-inline-valuedefinition-format-provider-boundary.md) defines nonliteral InlineValueDefinition format-provider semantics.
+- [`ADR-0028`](docs/decisions/0028-canonical-ontology-package-and-resource-integration.md) defines normalized ontology-package/resource integration.
+- [`ADR-0029`](docs/decisions/0029-resolved-model-snapshot-and-reference-validation-environment.md) defines the closed `ResolvedModelSnapshot` reference-validation boundary.
 
-All six Constraint families, the focused Interface slice, Value/Unit/Dimension/ValueDefinition transcription, and canonical normalized ontology-package/resource integration now have accepted design-stage contracts and independent Validation readback. Backend installation, licensing, production Adapter implementation, and full backend execution V&V are intentionally outside this design-stage closure path unless they later expose a genuine architecture counterexample.
+## Reference gates
 
-The immediate focus is **Minimal Thermal Reference Model validation**, followed by a minimal Plasma/QRC stress model and final independent design-stage audit.
+- **Minimal Thermal reference model — PASS.** Exercises task/model semantics, component membership, condition targeting, PropertyDefinition assignment, Value/UnitReference, Interface-targeted Dimension Constraints, and metrology boundaries.
+- **Minimal Plasma/QRC reference model — PASS.** Exercises subtype-specialized Reaction/Species semantics, explicit reaction relations, Interface relation mapping, two independent QRC obligations, closed-snapshot distinct-identity counting, subtype qualification, and counterexamples.
+
+Backend installation, licensing, production Adapter implementation, full backend execution V&V, and repository-network availability are intentionally outside this design-stage closure gate unless they expose a genuine semantic counterexample.
+
+The immediate focus is **focused final closure readback after transcription remediation**.
