@@ -1,6 +1,6 @@
 # SOL v0.1 Executable Validation Harness Plan v0.1
 
-**Status:** Research implementation plan  
+**Status:** Research implementation plan — revised after independent scope review  
 **Date:** 2026-08-20
 
 ## Objective
@@ -24,9 +24,17 @@ Implement:
    - comparator exactly-one registry resolution;
    - local versus cross-component comparison context;
    - complete effect-pair enumeration and proof-only pruning;
+   - executable-descriptor versus declared-effect coverage through a deterministic synthetic `describe_effects` adapter procedure;
+   - adapter-contract-only non-semantic bookkeeping classification;
    - producer/prerequisite/cycle checks;
-   - component-keyed target resolution boundaries.
+   - state-independent idempotency guarantee and state-dependent idempotency PASS/FAIL/BLOCKED/INDETERMINATE boundaries;
+   - immutable evaluation revision transitions and runtime-drift/new-revision behavior;
+   - representability aggregation only after validation PASS and evaluation `complete`;
+   - canonical semantic-loss keys, conjunctive loss policy, and execution-permission derivation;
+   - component-keyed target, release, capability, formulation, and orchestration resolution boundaries.
 5. Deterministic fixtures proving declaration/serialization/component order independence.
+
+Synthetic adapter procedures in Phase 1 validate contract mechanics only. They SHALL NOT be reported as evidence that MOOSE, COMSOL, or Ansys actually implement or support a behavior.
 
 Reference implementation language is tooling-only and SHALL NOT become part of the SOL language contract.
 
@@ -38,7 +46,13 @@ Reference implementation language is tooling-only and SHALL NOT become part of t
 - comparator zero or multiple matches always FAIL;
 - unproved-disjoint effects are retained;
 - local/cross-component comparator context is unique;
+- executable descriptor and declared semantic effects must match except adapter-authorized bookkeeping;
+- bare idempotency declarations without required adapter guarantee fail; missing valid pre-state evidence blocks; complete evidence with undecidable procedure is indeterminate;
 - mixed `FAIL + BLOCKED` aggregates to FAIL;
+- blocked/indeterminate/completed historical evaluation revisions are immutable and reevaluation produces a new revision;
+- terminal representability is absent unless validation PASSes and evaluation is complete;
+- unsupported > lossy > transformed > exact aggregation is deterministic once complete;
+- loss policy is order-independent, conjunctive, and default-deny;
 - QRC open snapshot => `BLOCKED: QRC_CLOSED_SNAPSHOT_REQUIRED`;
 - QRC `min:1,max:3,exact:2` normalizes to `[2,2]`;
 - QRC `min:3,exact:2` => `FAIL: QRC_EMPTY_INTERVAL`;
