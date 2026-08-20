@@ -43,6 +43,16 @@ Interface schemas accepted under ADR-0025:
 
 The Interface slice structurally represents direct extension, canonical Property/Relation requirements, targeted reusable ConstraintApplications, and direct Entity Type implementation mappings. Extension closure, canonical reference resolution, target-admissibility, mapping completeness/convergence, and inherited Entity-type Interface guarantees remain semantic-validation responsibilities.
 
-The repository intentionally does not expose permissive opaque schemas for unfinished language areas.
+Value/Unit/Dimension schemas accepted under ADR-0026/0027:
 
-Next planned schema work includes accepted Value/Unit/PhysicalDimension graph representations, canonical entities/relations and identifiers/packages, canonical package integration, and Profile/mapping authoring contracts.
+- `dimension-vector-v0.1.schema.json`
+- `unit-reference-v0.1.schema.json`
+- `exact-decimal-v0.1.schema.json`
+- `value-v0.1.schema.json`
+- `value-definition-inline-v0.1.schema.json`
+
+The existing normalized Dimension and Value Constraint schemas reuse the shared DimensionVector and exact-decimal primitives. Tensor component-count validation, semantic metrology resolution, missing-unit policy, nonliteral format-provider normalization, dependency-driven reification, and reified ValueDefinition graph consistency remain semantic-validator/compiler responsibilities.
+
+The repository intentionally does not expose an unqualified opaque Core expression/function/tabular payload. Nonliteral InlineValueDefinition payloads are owned by an explicitly identified format provider under ADR-0027.
+
+Next planned schema work is **canonical entities/relations/constraints/Interfaces/package integration**, followed by minimal reference-model validation. Profile/mapping authoring contracts remain separate backend-facing consolidation work where required by the design-stage closure criteria.
