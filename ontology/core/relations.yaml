@@ -1,5 +1,5 @@
 version: "0.1"
-status: draft
+status: consolidating
 
 relations:
   represented_by:
@@ -46,15 +46,26 @@ relations:
     range: SolverConfiguration
 
   produces:
-    description: Indicates that execution of a simulation task produces a result.
+    description: Indicates that a simulation task produces a simulation result.
     domain: SimulationTask
     range: Result
 
   observed_by:
-    description: Associates simulation results with observation or output definitions.
+    description: Associates a simulation result with observation or output definitions.
     domain: Result
     range: ObservationModel
 
+accepted_semantics_not_yet_transcribed:
+  - Relation/constraint provenance requirements accepted by prior ADRs.
+  - Namespace-qualified identity requirements for exported relation terms.
+
+open_language_schema_decisions:
+  - Complete relation cardinalities.
+  - Required versus optional Core relations.
+  - Explicit top-level composition relations connecting Simulation, SimulationModel, and SimulationTask.
+  - Whether selected broad domains/ranges should later be narrowed by Interface requirements or subtype constraints.
+
 notes:
-  - Cardinalities are intentionally not fixed in v0.1.
-  - Domain and range definitions are provisional and will be tested against reference models and backend mappings.
+  - `produces` is normatively `SimulationTask -> Result` under ADR-0014; diagram indentation under SolverConfiguration is not semantic.
+  - Domain/range entries remain the current design baseline and should only be narrowed with focused evidence.
+  - Backend-local relations and handles belong to backend ontologies/Profile/Adapter layers, not this Core registry.
