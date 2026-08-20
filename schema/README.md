@@ -23,15 +23,18 @@ Implemented and independently accepted for design-stage use:
 - `qrc-v0.1.schema.json` as a Cardinality authoring compatibility entry point
 - `constraint-type-authoring-v0.1.schema.json`
 - `constraint-type-normalized-v0.1.schema.json`
+- `constraint-dimension-authoring-v0.1.schema.json`
+- `constraint-dimension-normalized-v0.1.schema.json`
 
 Cardinality/QRC semantic evaluation such as closed-world counting, stable identity, qualifier subtype closure, and interval normalization remains semantic-validator work rather than JSON Schema logic.
 
 The ADR-0019 Type slice likewise leaves canonical identity resolution, Entity-Type-versus-Interface identity, subtype closure, finite target-family/allowed-pair narrowing, Type intersection, and semantic-versus-representability axis separation to semantic validation.
 
+The ADR-0020 Dimension slice uses sparse seven-axis authoring, full normalized vectors, explicit `vector: {}` DimensionOne, integer-valued exponents, and equality-based Dimension intersection. Unit conversion/metrology metadata is outside the Dimension payload.
+
 Still under focused consolidation:
 
 - Value
-- Dimension
 - Compatibility
 - Conditional / predicate syntax
 
