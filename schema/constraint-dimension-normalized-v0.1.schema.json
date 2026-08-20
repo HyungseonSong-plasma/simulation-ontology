@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/constraint-dimension-normalized-v0.1.schema.json",
+  "title": "SOL Normalized Dimension Constraint v0.1",
+  "description": "Canonical seven-axis integer-exponent Dimension payload for ADR-0020.",
+  "type": "object",
+  "required": ["type", "vector"],
+  "properties": {
+    "type": {"const": "dimension"},
+    "vector": {
+      "type": "object",
+      "required": [
+        "time",
+        "length",
+        "mass",
+        "electric_current",
+        "thermodynamic_temperature",
+        "amount_of_substance",
+        "luminous_intensity"
+      ],
+      "properties": {
+        "time": {"type": "integer"},
+        "length": {"type": "integer"},
+        "mass": {"type": "integer"},
+        "electric_current": {"type": "integer"},
+        "thermodynamic_temperature": {"type": "integer"},
+        "amount_of_substance": {"type": "integer"},
+        "luminous_intensity": {"type": "integer"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
