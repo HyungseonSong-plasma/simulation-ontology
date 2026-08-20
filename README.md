@@ -51,7 +51,9 @@ This statement describes the development process and does not imply that generat
 
 ## Status
 
-**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0017.**
+**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0017; language/schema consolidation accepted through ADR-0019.**
+
+Architecture/freeze amendments:
 
 - [`ADR-0013`](docs/decisions/0013-sol-v0.1-design-stage-architecture-freeze.md) records the design-stage freeze.
 - [`ADR-0014`](docs/decisions/0014-interface-disambiguation-and-machine-readable-taxonomy-semantics.md) separates capability `Interface` from `SpatialInterface` and makes taxonomy explicit.
@@ -59,8 +61,11 @@ This statement describes the development process and does not imply that generat
 - [`ADR-0016`](docs/decisions/0016-model-component-membership-and-condition-target-semantics.md) defines direct model-component membership and repairs condition/forcing `applied_to` semantics.
 - [`ADR-0017`](docs/decisions/0017-core-relation-cardinality-requiredness-baseline.md) fixes the remaining generic Core relation cardinality baseline and the Constraint-authority / relation-projection rule.
 
-ADR-0017 assigns generic Core `0..*` source cardinality to `represented_by`, `closed_by`, `parameterized_by`, `defined_on`, `discretized_by`, `solved_by`, and `observed_by`. Domain/Interface/Profile constraints may narrow these intervals conjunctively without rewriting the Core projection.
+Language/schema consolidation:
 
-Backend installation, licensing, production Adapter implementation, and full backend execution V&V are intentionally outside this design-stage freeze unless they later expose a genuine architecture counterexample.
+- [`ADR-0018`](docs/decisions/0018-constraint-authoring-normalization-and-cardinality-schema-boundary.md) separates Constraint authoring from normalized semantic payloads and consolidates Cardinality/QRC schema boundaries.
+- [`ADR-0019`](docs/decisions/0019-relation-target-type-constraint-semantics-and-schema.md) defines the focused relation-target Type Constraint payload, subtype intersection, allowed-family narrowing, and semantic-versus-representability evaluation-axis separation.
 
-The immediate focus is **language/schema consolidation and small reference-model validation** against the frozen baseline. Remaining work is primarily canonical schema enforcement, Interface serialization, accepted Value/Unit/Dimension transcription, and domain/profile refinements rather than unresolved generic Core relation cardinality.
+Cardinality/QRC and relation-target Type schema slices have design-stage smoke evidence and independent Validation acceptance. Backend installation, licensing, production Adapter implementation, and full backend execution V&V are intentionally outside this design-stage closure path unless they later expose a genuine architecture counterexample.
+
+The immediate focus is **remaining Constraint-family consolidation**, followed by Interface serialization, accepted Value/Unit/PhysicalDimension transcription, canonical package/schema integration, minimal Thermal + Plasma/QRC reference models, and final independent design-stage audit.
