@@ -102,6 +102,33 @@ class ConstraintValueSchemaTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             self.normalized_validator.validate(bad_zero)
 
+    def test_normalized_exponent_matches_json_schema_integer_value_semantics(self):
+        payload = {
+            "type": "value",
+            "form": "allowed_set",
+            "scalar_kind": "number",
+            "values": [{"coefficient": "1", "exponent10": 1.0}],
+        }
+        self.normalized_validator.validate(payload)
+        self.assertEqual(
+            compare_decimal(
+                {"coefficient": "1", "exponent10": 1.0},
+                {"coefficient": "1", "exponent10": 1},
+            ),
+            0,
+        )
+        for exponent in (1.5, True):
+            with self.subTest(exponent=exponent):
+                bad = dict(payload)
+                bad["values"] = [{"coefficient": "1", "exponent10": exponent}]
+                with self.assertRaises(ValidationError):
+                    self.normalized_validator.validate(bad)
+                with self.assertRaisesRegex(ValueConstraintError, "VALUE_NUMBER_CANONICAL_INVALID"):
+                    compare_decimal(
+                        {"coefficient": "1", "exponent10": exponent},
+                        {"coefficient": "1", "exponent10": 1},
+                    )
+
     def test_open_closed_interval_empty_boundary(self):
         empty = normalize_numeric_interval(
             lower={"value_lexeme": "1", "inclusive": True},
