@@ -4,7 +4,7 @@ Machine-readable structural schemas for the SOL v0.1 language live here.
 
 ## Authority boundary
 
-Schemas implement accepted ADR semantics; they do not define or override semantic truth.
+Schemas implement accepted ADR semantics; they do not define or override semantic truth. Semantic validators handle invariants that JSON Schema cannot express deterministically.
 
 ADR-0018 distinguishes:
 
@@ -16,7 +16,7 @@ Normalized composition evidence retains contributor/context provenance outside o
 
 ## Current accepted design-stage coverage
 
-Constraint and Predicate schemas:
+### Constraint and Predicate schemas
 
 - `constraint-cardinality-authoring-v0.1.schema.json`
 - `constraint-cardinality-normalized-v0.1.schema.json`
@@ -34,16 +34,16 @@ Constraint and Predicate schemas:
 - `constraint-conditional-authoring-v0.1.schema.json`
 - `constraint-conditional-normalized-v0.1.schema.json`
 
-All six ADR-0007 Constraint families have accepted focused schema slices. Family-specific normalization/intersection semantics remain semantic-validator work where JSON Schema is insufficient.
+All six ADR-0007 Constraint families have accepted focused schema slices.
 
-Interface schemas accepted under ADR-0025:
+### Interface schemas — ADR-0025
 
 - `interface-definition-v0.1.schema.json`
 - `interface-implementation-v0.1.schema.json`
 
-The Interface slice structurally represents direct extension, canonical Property/Relation requirements, targeted reusable ConstraintApplications, and direct Entity Type implementation mappings. Extension closure, canonical reference resolution, target-admissibility, mapping completeness/convergence, and inherited Entity-type Interface guarantees remain semantic-validation responsibilities.
+Semantic validation owns extension closure, canonical reference resolution, target admissibility, mapping completeness/convergence, and inherited Entity-type Interface guarantees.
 
-Value/Unit/Dimension schemas accepted under ADR-0026/0027:
+### Value / Unit / Dimension / ValueDefinition schemas — ADR-0026/0027
 
 - `dimension-vector-v0.1.schema.json`
 - `unit-reference-v0.1.schema.json`
@@ -51,11 +51,9 @@ Value/Unit/Dimension schemas accepted under ADR-0026/0027:
 - `value-v0.1.schema.json`
 - `value-definition-inline-v0.1.schema.json`
 
-The existing normalized Dimension and Value Constraint schemas reuse the shared DimensionVector and exact-decimal primitives. Tensor component-count validation, semantic metrology resolution, missing-unit policy, nonliteral format-provider normalization, dependency-driven reification, and reified ValueDefinition graph consistency remain semantic-validator/compiler responsibilities.
+Semantic validation/compiler logic owns tensor component-count validation, metrology resolution, missing-unit policy, nonliteral format-provider normalization, dependency-driven reification, and reified ValueDefinition graph consistency.
 
-The repository intentionally does not expose an unqualified opaque Core expression/function/tabular payload. Nonliteral InlineValueDefinition payloads are owned by an explicitly identified format provider under ADR-0027.
-
-Canonical package/resource schemas accepted under ADR-0028:
+### Canonical package/resource schemas — ADR-0028
 
 - `entity-type-definition-v0.1.schema.json`
 - `property-definition-v0.1.schema.json`
@@ -63,6 +61,25 @@ Canonical package/resource schemas accepted under ADR-0028:
 - `constraint-definition-v0.1.schema.json`
 - `ontology-package-normalized-v0.1.schema.json`
 
-The normalized package boundary separates distribution metadata from semantic namespaces and canonical resource identity. It requires exact resolved package dependencies, explicit namespace export tables, closed resource collections, canonical references, and reusable ConstraintDefinition wrappers. Cross-resource identity uniqueness, namespace-provider uniqueness, reference kind resolution, relation endpoint resolution, cardinality projection authority, Interface referential completeness, normalized allowed-pair convergence, and resolved-environment dependency checks remain semantic-validator responsibilities.
+Semantic validation owns cross-resource identity uniqueness, namespace-provider uniqueness, exact resolved-dependency checks, reference kind resolution, relation endpoint resolution, cardinality projection authority, Interface referential completeness, and normalized allowed-pair convergence.
 
-The next schema work is driven only by the **Minimal Thermal and Plasma/QRC reference-model validation** if those cases expose a genuine missing normalized resource/model-document boundary. Production Profile/Adapter schemas and backend execution contracts remain outside the current design-stage closure gate.
+### Resolved model snapshot — ADR-0029
+
+- `resolved-model-snapshot-v0.1.schema.json`
+
+A design-stage reference snapshot is closed, names an exact normalized ontology environment, contains typed model-instance entities with canonical PropertyDefinition assignments, and stores explicit canonical RelationDefinition edges. Instance uniqueness, endpoint/subtype validation, cardinality, Interface applications, Dimension/metrology, and QRC evaluation remain semantic-validator responsibilities.
+
+## Accepted reference gates
+
+- **Minimal Thermal reference model — PASS**
+- **Minimal Plasma/QRC reference model — PASS**
+
+These fixtures validate the focused design-stage package/model boundary; they are not production Adapter or backend runtime schemas.
+
+## Explicitly deferred / outside current closure gate
+
+- production Profile/Adapter package authoring;
+- backend execution/runtime schemas;
+- namespace federation/augmentation;
+- complete general-purpose model-document/application syntax beyond ADR-0029 reference snapshots;
+- richer future PropertyDefinition metadata where not required by current reference cases.
