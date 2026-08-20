@@ -40,27 +40,15 @@ Ontology
 └── Interface   [provisional]
 ```
 
-`Value` and `ValueDefinition` now have accepted semantic rules (ADR 0002), but their final language-level representation is intentionally not yet classified as a normative construct. `Action` is also deferred.
+`Value` and `ValueDefinition` have accepted semantic rules (ADR 0002), but their final language-level representation is not yet fixed. `PhysicalDimension` and `Unit` also have accepted semantic boundaries (ADR 0004), while their final representation remains open. `Action` is deferred.
 
 ### 3.1 Namespace
 
 A `Namespace` provides stable identity and prevents naming collisions across independently developed ontologies.
 
-Conceptual example:
-
-```text
-sim:Equation
-plasma:ElectronTransport
-moose:ADDiffusion
-```
-
-A namespace MUST identify the ontology that owns a term.
-
 ### 3.2 Entity
 
 An `Entity` represents a semantic concept with independent identity in the ontology graph.
-
-An entity MAY specialize another entity, declare properties, participate in relations, be constrained by validation rules, or be extended by another ontology.
 
 #### Entity boundary rule
 
@@ -76,15 +64,11 @@ A `Property` represents an intrinsic characteristic or value-bearing attribute o
 
 Use a Property when the information primarily answers what characteristic or value an Entity has. Use a Relation when the information primarily answers how one independently identifiable Entity is semantically connected to another.
 
-A value-bearing concept MAY be promoted from Property to Entity when it requires its own identity, relations, provenance, functional dependence, uncertainty model, or reusable metadata.
-
 ### 3.4 Relation
 
 A `Relation` is a first-class semantic link between independently identifiable ontology Entities.
 
 A relation SHOULD specify its identifier, semantic description, allowed domain/range, optional inverse, and cardinality where applicable.
-
-Core examples include `represented_by`, `closed_by`, `parameterized_by`, `defined_on`, `discretized_by`, `applied_to`, `analyzed_by`, `solved_by`, `produces`, and `observed_by`.
 
 #### Relation boundary rule
 
@@ -152,41 +136,70 @@ If multiple unrelated Entity types must satisfy the same reusable semantic shape
 
 `Value` is an evaluated typed datum and MUST NOT be identified with the semantic quantity or simulation concept whose value it represents.
 
-```text
-ThermalConductivity ≠ 400 W/(m K)
-```
-
-The former is a semantic concept; the latter is a concrete evaluated datum.
-
 ### Rule 7 — ValueDefinition defines evaluation
 
 `ValueDefinition` describes how a `Value` is obtained. Candidate mechanisms include literal, expression, function, tabular/interpolation, and external-data definitions. This subtype taxonomy is not yet normative.
-
-```text
-Semantic Concept
-      │ has_value_definition
-      ▼
-ValueDefinition
-      │ evaluates_to
-      ▼
-Value
-```
 
 ### Rule 8 — Value shape and evaluation mechanism are orthogonal
 
 The shape/type of an evaluated datum and the mechanism by which it is obtained MUST be modeled as independent dimensions.
 
-```text
-Value shape:
-  Scalar | Vector | Tensor
+### Rule 9 — Reference as Relation
 
-Evaluation mechanism:
-  Literal | Expression | Function | Tabular | ...
+A reference to an independently identifiable semantic concept SHALL normally be represented by a semantic `Relation`, not by a generic `ReferenceDefinition`.
+
+### Rule 10 — Value dependency
+
+When one concept obtains its value from another concept, the dependency SHALL be represented semantically as a value-dependency Relation. A `ValueDefinition` is required only when an evaluation or transformation mechanism itself must be represented.
+
+### Rule 11 — PhysicalDimension as semantic contract
+
+A physical semantic quantity SHOULD declare or imply a `PhysicalDimension`. Dimension-one quantities SHALL be represented explicitly as having physical dimension one rather than inferred from missing unit metadata.
+
+Examples:
+
+```text
+Pressure             -> M L^-1 T^-2
+ThermalConductivity  -> M L T^-3 Θ^-1
+RelativePermittivity -> 1
+PoissonRatio         -> 1
+PlaneAngle           -> 1
 ```
 
-A tensor-valued quantity may therefore be literal, functional, tabulated, or otherwise evaluated without changing its tensor shape.
+### Rule 12 — Unit as value representation
 
-These value rules are accepted in ADR 0002 and supported by the cross-backend semantic mapping evidence in `docs/research/cross-backend-semantic-mapping-matrix-v0.1.md`.
+A concrete `Value` MAY carry an explicit `Unit`. When a Unit is present, it SHALL be compatible with the `PhysicalDimension` required by the semantic quantity or evaluation context.
+
+Unit absence SHALL NOT by itself imply physical dimension one.
+
+### Rule 13 — Semantic quantity identity is independent of dimension
+
+Two semantic quantities MAY share the same `PhysicalDimension` while remaining distinct ontology concepts.
+
+```text
+Pressure      != Stress       != YoungsModulus
+PoissonRatio  != PlaneAngle   != RelativePermittivity
+```
+
+### Rule 14 — Quantity-specific unit constraints
+
+Physical-dimension compatibility is necessary but may not always be sufficient for semantic unit compatibility. A semantic quantity MAY impose additional constraints on units used to represent its Values.
+
+For example:
+
+```text
+PlaneAngle
+    dimension -> 1
+    allowed/compatible units -> rad, deg
+
+RelativePermittivity
+    dimension -> 1
+    canonical unit representation -> one / omitted symbol
+```
+
+SOL does not introduce a separate `QuantityKind` layer for this purpose; the semantic quantity Entity already carries the relevant identity.
+
+The value rules are accepted in ADR 0002, reference/dependency rules in ADR 0003, and unit/dimension rules in ADR 0004.
 
 ## 5. Ontology package model
 
@@ -227,22 +240,31 @@ Every exported ontology term MUST have a stable namespaced identifier. Reference
 
 ## 8. Semantic graph model
 
-An instantiated simulation ontology forms a graph in which semantic Entities are connected by Relations and may carry intrinsic Properties. Values are explicitly distinguished from the semantic concepts they quantify.
-
 ```text
-Entity ──Relation──> Entity
-  │
-  └── has_value_definition
-              │
-              ▼
-       ValueDefinition
-              │
-          evaluates_to
-              ▼
-            Value
+SemanticQuantity
+      │
+      ├── requires_dimension ──> PhysicalDimension
+      │
+      ├── unit_constraint ─────> Unit / Constraint   [optional]
+      │
+      └── has_value_definition
+                    │
+                    ▼
+             ValueDefinition
+                    │
+               evaluates_to
+                    ▼
+                  Value
+                    │
+                    └── expressed_in ──> Unit   [optional]
+                                             │
+                                             └── has_dimension
+                                                      │
+                                                      ▼
+                                              PhysicalDimension
 ```
 
-The final graph-level representation of `Value` and `ValueDefinition` remains an implementation/design question; the semantic distinction is normative.
+The final graph-level representation of `Value`, `ValueDefinition`, `PhysicalDimension`, and `Unit` remains an implementation/design question; their semantic distinctions are normative.
 
 ## 9. Candidate implementation stack
 
@@ -297,19 +319,20 @@ The following questions remain unresolved:
 
 1. Whether `Value` is a first-class language construct, typed data object, or graph Entity.
 2. Normative subtype taxonomy of `ValueDefinition`.
-3. Whether `Reference` is a `ValueDefinition` or remains a Relation.
-4. Exact unit and physical-dimension ownership and validation semantics.
-5. Provenance/data-source representation for value definitions.
-6. Whether `Result` is a core Entity type or runtime artifact type.
-7. Formal inheritance semantics.
-8. Relation domain/range and cardinality semantics.
-9. Required versus optional constraints.
-10. Namespace and URI convention.
-11. Ontology package version compatibility rules.
-12. Extension conflict-resolution rules.
-13. Profile binding semantics and when bindings must be reified as `BackendBinding` entities.
-14. Whether `Interface` becomes normative in v0.1.
-15. Whether actions/transformations should become a first-class construct in a later version.
+3. Canonical representation of `PhysicalDimension`.
+4. Canonical Unit ontology/registry and whether Unit is a Core Entity or external vocabulary reference.
+5. Affine/offset unit semantics and conversion policy.
+6. Provenance/data-source representation for ValueDefinitions.
+7. Whether `Result` is a core Entity type or runtime artifact type.
+8. Formal inheritance semantics.
+9. Relation domain/range and cardinality semantics.
+10. Required versus optional constraints.
+11. Namespace and URI convention.
+12. Ontology package version compatibility rules.
+13. Extension conflict-resolution rules.
+14. Profile binding semantics and when bindings must be reified as `BackendBinding` entities.
+15. Whether `Interface` becomes normative in v0.1.
+16. Whether actions/transformations should become a first-class construct in a later version.
 
 ## 12. v0.1 success criterion
 
