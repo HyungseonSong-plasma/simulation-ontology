@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/constraint-value-authoring-v0.1.schema.json",
+  "title": "SOL Scalar Value Constraint Authoring v0.1",
+  "description": "Structural authoring schema for ADR-0021 scalar Value constraints. Exact numeric normalization is a compiler responsibility.",
+  "$defs": {
+    "numericBound": {
+      "type": "object",
+      "required": ["value", "inclusive"],
+      "properties": {
+        "value": {"type": "number"},
+        "inclusive": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "numericInterval": {
+      "type": "object",
+      "required": ["type", "form"],
+      "properties": {
+        "type": {"const": "value"},
+        "form": {"const": "numeric_interval"},
+        "lower": {"$ref": "#/$defs/numericBound"},
+        "upper": {"$ref": "#/$defs/numericBound"}
+      },
+      "additionalProperties": false
+    },
+    "allowedSet": {
+      "type": "object",
+      "required": ["type", "form", "scalar_kind", "values"],
+      "properties": {
+        "type": {"const": "value"},
+        "form": {"const": "allowed_set"},
+        "scalar_kind": {"enum": ["number", "string", "boolean"]},
+        "values": {"type": "array"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"scalar_kind": {"const": "number"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"values": {"items": {"type": "number"}}}}
+        },
+        {
+          "if": {"properties": {"scalar_kind": {"const": "string"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"values": {"items": {"type": "string"}}}}
+        },
+        {
+          "if": {"properties": {"scalar_kind": {"const": "boolean"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"values": {"items": {"type": "boolean"}}}}
+        }
+      ],
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {"$ref": "#/$defs/numericInterval"},
+    {"$ref": "#/$defs/allowedSet"}
+  ]
+}
