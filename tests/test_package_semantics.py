@@ -78,6 +78,20 @@ def base_package():
     }
 
 
+def empty_package(name="dep", version="0.1.0", namespace="dep"):
+    return {
+        "package": {"name": name, "version": version},
+        "namespaces": [{"name": namespace, "exports": []}],
+        "resolved_dependencies": [],
+        "entity_types": [],
+        "properties": [],
+        "relations": [],
+        "constraint_definitions": [],
+        "interfaces": [],
+        "interface_implementations": [],
+    }
+
+
 class PackageSemanticsTests(unittest.TestCase):
     def test_valid_package_passes(self):
         index = validate_resolved_environment([base_package()])
@@ -98,19 +112,31 @@ class PackageSemanticsTests(unittest.TestCase):
 
     def test_two_active_namespace_providers_fail(self):
         first = base_package()
-        second = {
-            "package": {"name": "other", "version": "0.1.0"},
-            "namespaces": [{"name": "sol", "exports": []}],
-            "resolved_dependencies": [],
-            "entity_types": [],
-            "properties": [],
-            "relations": [],
-            "constraint_definitions": [],
-            "interfaces": [],
-            "interface_implementations": [],
-        }
+        second = empty_package(name="other", namespace="sol")
         with self.assertRaisesRegex(PackageContractError, "NAMESPACE_PROVIDER_AMBIGUOUS"):
             validate_resolved_environment([first, second])
+
+    def test_duplicate_active_package_identity_fails(self):
+        first = empty_package(name="dep", namespace="dep-a")
+        second = empty_package(name="dep", namespace="dep-b")
+        with self.assertRaisesRegex(PackageContractError, "PACKAGE_IDENTITY_DUPLICATE_ACTIVE"):
+            validate_resolved_environment([first, second])
+
+    def test_exact_resolved_dependency_must_be_active(self):
+        package = base_package()
+        package["resolved_dependencies"] = [{"package": "dep", "version": "0.1.0"}]
+        with self.assertRaisesRegex(PackageContractError, "RESOLVED_DEPENDENCY_UNRESOLVED"):
+            validate_resolved_environment([package])
+
+        dependency = empty_package(name="dep", version="0.1.0", namespace="dep")
+        validate_resolved_environment([package, dependency])
+
+    def test_resolved_dependency_wrong_active_version_is_unresolved(self):
+        package = base_package()
+        package["resolved_dependencies"] = [{"package": "dep", "version": "0.1.0"}]
+        dependency = empty_package(name="dep", version="0.2.0", namespace="dep")
+        with self.assertRaisesRegex(PackageContractError, "RESOLVED_DEPENDENCY_UNRESOLVED"):
+            validate_resolved_environment([package, dependency])
 
     def test_relation_endpoint_property_id_is_kind_mismatch(self):
         package = base_package()
@@ -131,6 +157,20 @@ class PackageSemanticsTests(unittest.TestCase):
             "pairs": [{"source": E, "targets": [E]}],
         }
         validate_resolved_environment([package])
+
+    def test_allowed_pairs_duplicate_source_is_not_normalized(self):
+        package = base_package()
+        package["entity_types"].append({"id": E2})
+        package["relations"][0]["endpoint_contract"] = {
+            "kind": "allowed_pairs",
+            "matching": "canonical_type_or_subtype",
+            "pairs": [
+                {"source": E, "targets": [E]},
+                {"source": E, "targets": [E2]},
+            ],
+        }
+        with self.assertRaisesRegex(PackageContractError, "RELATION_ALLOWED_PAIRS_NOT_NORMALIZED"):
+            validate_resolved_environment([package])
 
     def test_cardinality_projection_wrong_relation_fails(self):
         package = base_package()
