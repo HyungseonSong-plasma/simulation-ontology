@@ -1,5 +1,5 @@
 version: "0.1"
-status: consolidating
+status: design_stage_consolidated
 
 # Canonical Core Entity Type registry.
 #
@@ -90,14 +90,14 @@ entities:
   Result: {}
   ValueDefinition: {}
 
-accepted_semantics_not_yet_transcribed:
-  - Complete taxonomic is_a edges for model/numerical/observation concepts where taxonomy is normatively justified.
-  - Full machine-schema enforcement of SimulationTask relation/cardinality semantics from ADR-0015.
+accepted_semantics_not_yet_transcribed: []
 
-open_language_schema_decisions:
-  - Whether additional Core concepts require explicit is_a edges versus composition/association relations.
-  - Final schema representation for relation cardinalities and derived-relation invariants.
-  - Final package placement of typed Value, UnitReference, DimensionVector, and inline ValueDefinition fields.
+open_language_schema_decisions: []
+
+deferred_post_v0_1:
+  - Additional Core is_a edges beyond the accepted Analysis specializations require independent substitutability evidence; absence is not an unfinished v0.1 inheritance assertion.
+  - Richer Result, material/species, numerical, observation, and solver sub-taxonomies remain extension/future work unless a later use case requires them.
+  - Multi-model/co-simulation taxonomy and composition remain deferred.
 
 notes:
   - `SimulationTask` is a distinct Entity Type that reifies application of one Analysis to one SimulationModel under ADR-0015; Analysis does not inherit from SimulationTask.
