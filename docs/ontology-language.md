@@ -1,7 +1,7 @@
 # Simulation Ontology Language
 
 **Version:** 0.1  
-**Status:** Frozen semantic baseline; machine-readable consolidation in progress
+**Status:** Frozen semantic baseline through ADR-0015; machine-readable consolidation in progress
 
 ## 1. Purpose
 
@@ -50,17 +50,11 @@ A `Namespace` provides stable identity and prevents naming collisions across ind
 
 An `Entity` represents a semantic concept with independent identity in the ontology graph.
 
-#### Entity boundary rule
-
-A concept SHOULD be modeled as an Entity when it needs independent semantic identity: it can be referenced by multiple other concepts, participate in relations of its own, carry non-trivial metadata, or evolve independently from the entity that uses it.
-
-A concept SHOULD NOT be promoted to an Entity merely because it has a value.
+A concept SHOULD be modeled as an Entity when it needs independent semantic identity: it can be referenced by multiple other concepts, participate in relations of its own, carry non-trivial metadata, or evolve independently from the entity that uses it. A concept SHOULD NOT be promoted to an Entity merely because it has a value.
 
 ### 3.3 Property
 
 A `Property` represents an intrinsic characteristic or value-bearing attribute of an Entity. It does not represent an independently meaningful semantic connection between two entities.
-
-#### Property boundary rule
 
 Use a Property when the information primarily answers what characteristic or value an Entity has. Use a Relation when the information primarily answers how one independently identifiable Entity is semantically connected to another.
 
@@ -70,11 +64,7 @@ A `Relation` is a first-class semantic link between independently identifiable o
 
 A relation SHOULD specify its identifier, semantic description, allowed domain/range, optional inverse, and cardinality where applicable.
 
-#### Relation boundary rule
-
-Use a Relation when both endpoints have independent semantic identity and the connection itself has domain meaning.
-
-A Relation SHOULD remain lightweight. If the connection itself needs substantial properties, provenance, version constraints, parameter mappings, state, or relations of its own, the connection SHOULD be reified as an Entity.
+Use a Relation when both endpoints have independent semantic identity and the connection itself has domain meaning. A Relation SHOULD remain lightweight. If the connection itself needs substantial properties, provenance, version constraints, state, mappings, or relations of its own, the connection SHOULD be reified as an Entity.
 
 ### 3.5 Constraint
 
@@ -89,10 +79,10 @@ An `Extension` allows an ontology to add specialized concepts while depending on
 Extensions MUST obey the inward dependency rule:
 
 ```text
-specialized ontology → simulation-ontology
+specialized ontology -> simulation-ontology
 ```
 
-The core MUST NOT depend on an extension.
+The Core MUST NOT depend on an extension.
 
 ### 3.7 Profile
 
@@ -166,7 +156,7 @@ Examples:
 
 ```text
 Pressure             -> M L^-1 T^-2
-ThermalConductivity  -> M L T^-3 Θ^-1
+ThermalConductivity  -> M L T^-3 Theta^-1
 RelativePermittivity -> 1
 PoissonRatio         -> 1
 PlaneAngle           -> 1
@@ -174,9 +164,7 @@ PlaneAngle           -> 1
 
 ### Rule 12 — Unit as value representation
 
-A concrete `Value` MAY carry an explicit `Unit`. When a Unit is present, it SHALL be compatible with the `PhysicalDimension` required by the semantic quantity or evaluation context.
-
-Unit absence SHALL NOT by itself imply physical dimension one.
+A concrete `Value` MAY carry an explicit `Unit`. When a Unit is present, it SHALL be compatible with the `PhysicalDimension` required by the semantic quantity or evaluation context. Unit absence SHALL NOT by itself imply physical dimension one.
 
 ### Rule 13 — Semantic quantity identity is independent of dimension
 
@@ -189,33 +177,55 @@ PoissonRatio  != PlaneAngle   != RelativePermittivity
 
 ### Rule 14 — Quantity-specific unit constraints
 
-Physical-dimension compatibility is necessary but may not always be sufficient for semantic unit compatibility. A semantic quantity MAY impose additional constraints on units used to represent its Values.
-
-For example:
-
-```text
-PlaneAngle
-    dimension -> 1
-    allowed/compatible units -> rad, deg
-
-RelativePermittivity
-    dimension -> 1
-    canonical unit representation -> one / omitted symbol
-```
-
-SOL does not introduce a separate `QuantityKind` layer for this purpose; the semantic quantity Entity already carries the relevant identity.
+Physical-dimension compatibility is necessary but may not always be sufficient for semantic unit compatibility. A semantic quantity MAY impose additional constraints on units used to represent its Values. SOL does not introduce a separate `QuantityKind` layer for this purpose; the semantic quantity Entity already carries the relevant identity.
 
 ### Rule 15 — Explicit taxonomy
 
-Taxonomic inheritance MUST be represented by explicit `is_a` semantics and SHALL NOT be inferred from diagram indentation, file hierarchy, declaration order, or generic `children` grouping.
-
-Composition and association are represented through Relations, not taxonomic inference.
+Taxonomic inheritance MUST be represented by explicit `is_a` semantics and SHALL NOT be inferred from diagram indentation, file hierarchy, declaration order, or generic `children` grouping. Composition and association are represented through Relations, not taxonomic inference.
 
 ### Rule 16 — Canonical Interface identity
 
 The unqualified language identifier `Interface` denotes the ADR-0008 capability contract. The spatial entity concept is `SpatialInterface`. The two meanings SHALL NOT share one canonical identifier.
 
-The value rules are accepted in ADR-0002, reference/dependency rules in ADR-0003, unit/dimension rules in ADR-0004/0005, Constraint composition in ADR-0007, Interface/inheritance rules in ADR-0008, identity/package rules in ADR-0009, Profile/backend mapping in ADR-0010/0011, QRC in ADR-0012, and naming/taxonomy disambiguation in ADR-0014.
+### Rule 17 — SimulationTask reifies model–Analysis application
+
+`SimulationTask` is an Entity Type representing the identifiable application of exactly one `Analysis` to exactly one `SimulationModel`.
+
+```text
+Simulation --has_model--> exactly 1 SimulationModel
+Simulation --has_task--> 1..* SimulationTask
+SimulationTask --uses_model--> exactly 1 SimulationModel
+SimulationTask --has_analysis--> exactly 1 Analysis
+SimulationTask --produces--> 0..* Result
+```
+
+`Analysis` and `SolverConfiguration` do not inherit from SimulationTask. Analysis defines the computational question; SolverConfiguration defines how it is solved.
+
+For every Simulation `S`, task `T`, and model `M`:
+
+```text
+S has_model M
+AND S has_task T
+=> T uses_model M
+```
+
+`has_model` and `has_task` are non-owning references.
+
+### Rule 18 — `analyzed_by` is derived
+
+`SimulationModel -> analyzed_by -> Analysis` is derived from SimulationTask bindings:
+
+```text
+M analyzed_by A
+IFF
+exists T:
+  T uses_model M
+  AND T has_analysis A
+```
+
+Task bindings are authoritative. A materialized `analyzed_by` edge without a supporting task is inconsistent derived data.
+
+The value rules are accepted in ADR-0002, reference/dependency rules in ADR-0003, unit/dimension rules in ADR-0004/0005, Constraint composition in ADR-0007, Interface/inheritance rules in ADR-0008, identity/package rules in ADR-0009, Profile/backend mapping in ADR-0010/0011, QRC in ADR-0012, naming/taxonomy disambiguation in ADR-0014, and Simulation/Model/Task relations in ADR-0015.
 
 ## 5. Ontology package model
 
@@ -234,11 +244,9 @@ constraints
 
 A domain or backend extension additionally declares its extension type and parent/core dependency. A profile declares the ontology packages it composes and the bindings required to make that composition executable or generatable.
 
-Language-level Interface definitions and implementation mappings must also be representable in packages that use them; the exact canonical serialization location is part of the ongoing machine-readable consolidation.
+Language-level Interface definitions and implementation mappings must also be representable in packages that use them; the exact canonical serialization location is part of ongoing machine-readable consolidation.
 
 ## 6. Dependency model
-
-Allowed dependency direction:
 
 ```text
 Application
@@ -260,13 +268,28 @@ Canonical identity, namespace, alias/rename/deprecation, package, and versioning
 
 ## 8. Semantic graph model
 
+### 8.1 Task/model graph
+
+```text
+Simulation
+  ├── has_model -> SimulationModel
+  └── has_task  -> SimulationTask
+                        ├── uses_model -> SimulationModel
+                        ├── has_analysis -> Analysis
+                        │                    └── solved_by -> SolverConfiguration
+                        └── produces -> Result
+                                         └── observed_by -> ObservationModel
+```
+
+`analyzed_by` is the derived Model-to-Analysis traversal implied by the task bindings.
+
+### 8.2 Value/dimension graph
+
 ```text
 SemanticQuantity
       │
-      ├── requires_dimension ──> PhysicalDimension
-      │
-      ├── unit_constraint ─────> Unit / Constraint   [optional]
-      │
+      ├── requires_dimension -> PhysicalDimension
+      ├── unit_constraint ---> Unit / Constraint   [optional]
       └── has_value_definition
                     │
                     ▼
@@ -276,7 +299,7 @@ SemanticQuantity
                     ▼
                   Value
                     │
-                    └── expressed_in ──> Unit   [optional]
+                    └── expressed_in -> Unit   [optional]
                                              │
                                              └── has_dimension
                                                       │
@@ -286,14 +309,7 @@ SemanticQuantity
 
 The final graph-level representation of `Value`, `ValueDefinition`, `PhysicalDimension`, and `Unit` remains an implementation/language-representation question; their semantic distinctions are normative.
 
-`Result` is a Core semantic Entity Type under ADR-0014 and participates in the accepted relations:
-
-```text
-SimulationTask -> produces -> Result
-Result -> observed_by -> ObservationModel
-```
-
-No Result subtype taxonomy is required in v0.1.
+`Result` is a Core semantic Entity Type; no Result subtype taxonomy is required in v0.1.
 
 ## 9. Candidate implementation stack
 
@@ -348,33 +364,31 @@ MappingPlan / BackendAdapter layer
 
 ### Accepted semantics not yet fully transcribed
 
-The following semantics are accepted but still need complete canonical machine-readable representation:
-
 1. `Value` / `ValueDefinition` representation boundaries from ADR-0002/0003.
 2. `PhysicalDimension` / `Unit` final serialization from ADR-0004/0005.
 3. Complete six-family Constraint schema/composition from ADR-0007, including QRC from ADR-0012.
 4. Interface definitions, Interface extension, `implements`, and implementation mappings from ADR-0008.
 5. Full identity/namespace/package/version metadata from ADR-0009.
 6. Profile/MappingRule/MappingClaim authoring schemas consistent with ADR-0010/0011.
+7. Canonical structural/semantic schema enforcement for ADR-0015 relation cardinalities and derived `analyzed_by` consistency.
 
 These are transcription/representation tasks unless implementation evidence exposes a new normative contradiction.
 
 ### Open language/schema decisions
 
-The following remain genuinely open:
-
 1. Final language-level representation of `Value`, `ValueDefinition`, `PhysicalDimension`, and `Unit` within the canonical graph/authoring schema.
 2. Normative subtype taxonomy of `ValueDefinition`, if any.
 3. Provenance/data-source representation for ValueDefinitions beyond already accepted semantic boundaries.
-4. Complete Core relation domain/range/cardinality and required/optional relation matrix.
-5. Explicit composition relations/cardinalities connecting `Simulation`, `SimulationModel`, and `SimulationTask` instead of diagram grouping.
-6. Final canonical serialization layout for Interface definitions and implementation mappings.
+4. Complete Core relation domain/range/cardinality and required/optional relation matrix beyond ADR-0015.
+5. Final canonical serialization layout for Interface definitions and implementation mappings.
+6. SolverConfiguration cardinality/default/task-specific override semantics.
 7. Whether additional generic actions/transformations become a first-class Core construct in a later SOL version; v0.1 does not require one.
+8. Multi-model/co-simulation semantics if later justified by evidence.
 
 Backend installation, licensing, production Adapter implementation, and backend execution V&V are not SOL language-design blockers.
 
 ## 12. v0.1 success criterion
 
-The v0.1 semantic architecture is frozen through ADR-0014. Language/schema consolidation succeeds when the accepted contracts can be represented and independently validated without adding semantics not present in the ADR baseline.
+The v0.1 semantic architecture is frozen through ADR-0015. Language/schema consolidation succeeds when accepted contracts can be represented and independently validated without adding semantics not present in the ADR baseline.
 
-A minimal reference model should continue to use small thermal and plasma/QRC cases for structural validation. Production-quality Adapter execution belongs to separate Adapter projects and may reopen the language/architecture only if it produces a genuine semantic counterexample.
+Small thermal and plasma/QRC models remain sufficient design-stage structural stress cases. Production-quality Adapter execution belongs to separate Adapter projects and may reopen the language/architecture only if it produces a genuine semantic counterexample.
