@@ -1,5 +1,5 @@
 version: "0.1"
-status: consolidating
+status: design_stage_consolidated
 
 constraints:
   backend_independence:
@@ -39,10 +39,10 @@ constraints:
     description: includes_component does not imply exclusive ownership or deletion/lifecycle cascade; compatible component reuse is permitted unless another constraint forbids it.
 
   relation_endpoint_subtype_matching:
-    description: For ADR-0016 includes_component and applied_to endpoint checks, an instance matches an allowed type when at least one consistent canonical semantic type is equal to or a subtype of the allowed type; type inconsistency fails before relation matching.
+    description: For ADR-0016 includes_component and applied_to endpoint checks, an instance matches an allowed type when its consistent canonical semantic type is equal to or a subtype of the allowed type.
 
   condition_target_required:
-    description: Every BoundaryCondition, InitialCondition, Source, or Load instance must have at least one applied_to target that is equal to or a subtype of Field, Equation, or Scope.
+    description: Every BoundaryCondition, InitialCondition, Source, or Load instance must have at least one applied_to target equal to or a subtype of Field, Equation, or Scope.
 
   condition_model_not_applied_directly:
     description: ConditionModel is an aggregate context and is not itself an applied_to source merely because it includes condition or forcing components.
@@ -129,27 +129,23 @@ constraints:
     description: Interface denotes the capability-contract language construct; the spatial entity is SpatialInterface under ADR-0014.
 
   qrc_closed_snapshot:
-    description: Qualified Relation Cardinality instance PASS/FAIL evaluation requires a complete immutable relation snapshot under ADR-0012.
+    description: Qualified Relation Cardinality instance PASS/FAIL evaluation requires a complete immutable relation snapshot under ADR-0012/0029.
 
-accepted_semantics_not_yet_transcribed:
-  - Namespace and stable exported-identity validation from ADR-0009.
-  - Unit and PhysicalDimension compatibility rules from ADR-0004 and ADR-0005.
-  - Full six-family Constraint structural schema and composition algebra from ADR-0007.
-  - Interface requirement/extension/implementation validation from ADR-0008.
-  - Qualified Relation Cardinality schema and deterministic diagnostics from ADR-0012.
-  - Canonical machine-schema encoding/tests for ADR-0015 relation cardinalities and derived relation consistency.
-  - Canonical machine-schema enforcement/tests for ADR-0016 allowed-pair and endpoint-matching rules.
-  - Final schema enforcement/tests for ADR-0017 canonical cardinality authority and relation projection consistency.
+accepted_semantics_not_yet_transcribed: []
 
-open_language_schema_decisions:
-  - Required versus optional relation refinements supplied by domain/interface/profile contracts beyond the generic Core baseline.
-  - Core graph acyclicity rules beyond already accepted specialized contracts.
-  - Final canonical authoring/serialization schema for the complete Core package.
-  - Stable package-level serialization mechanism for canonical Constraint identity and deduplication.
-  - Multi-model/co-simulation semantics, if later justified by evidence.
+open_language_schema_decisions: []
+
+deferred_post_v0_1:
+  - Domain/Interface/Profile refinements may narrow generic Core constraints conjunctively without changing Core authorities.
+  - Core graph acyclicity rules beyond accepted specialized contracts require future evidence.
+  - Multi-model/co-simulation semantics remain deferred.
+  - Production Profile/backend constraint packaging and runtime execution diagnostics remain outside the design-stage closure gate.
 
 notes:
   - Cardinality semantics remain normative Constraints under ADR-0007.
   - ADR-0017 relation-side cardinality fields are projections only and must equal the normalized canonical Core Constraint.
-  - Accepted semantics are not considered pending architecture questions merely because their final JSON Schema/SHACL transcription is incomplete.
+  - ADR-0018 through ADR-0024 provide focused machine-readable schemas/semantic validators for all six Constraint families and common validation-state behavior.
+  - ADR-0025 provides Interface-targeted reusable Constraint applications.
+  - ADR-0028 provides canonical ConstraintDefinition/package serialization and reference-kind checks.
+  - ADR-0029 provides the closed resolved-model snapshot boundary used by Thermal and Plasma/QRC reference validation.
   - Backend installation, licensing, and production Adapter execution do not participate in these Core model-instance constraints.
