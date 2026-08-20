@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/value-definition-inline-v0.1.schema.json",
+  "title": "SOL Normalized InlineValueDefinition v0.1",
+  "description": "Core-native literal or format-owned nonliteral inline ValueDefinition envelope from ADR-0026/0027.",
+  "$defs": {
+    "literal": {
+      "type": "object",
+      "required": ["mechanism", "value"],
+      "properties": {
+        "mechanism": {"const": "literal"},
+        "value": {"$ref": "value-v0.1.schema.json"}
+      },
+      "additionalProperties": false
+    },
+    "formattedNonliteral": {
+      "type": "object",
+      "required": ["mechanism", "format", "payload"],
+      "properties": {
+        "mechanism": {"enum": ["expression", "function", "tabular"]},
+        "format": {"type": "string", "minLength": 1},
+        "payload": true
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {"$ref": "#/$defs/literal"},
+    {"$ref": "#/$defs/formattedNonliteral"}
+  ]
+}
