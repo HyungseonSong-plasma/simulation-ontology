@@ -27,7 +27,9 @@ mod tests {
 
     #[test]
     fn backend_dependency_marker_is_detected() {
-        assert!(violates_backend_boundary("moose-adapter = { path = \"../moose\" }"));
+        assert!(violates_backend_boundary(
+            "moose-adapter = { path = \"../moose\" }"
+        ));
     }
 
     #[test]
