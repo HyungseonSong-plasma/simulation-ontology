@@ -1,7 +1,7 @@
 # Simulation Ontology Language
 
 **Version:** 0.1  
-**Status:** Frozen semantic baseline through ADR-0015; machine-readable consolidation in progress
+**Status:** Frozen semantic baseline through ADR-0016; machine-readable consolidation in progress
 
 ## 1. Purpose
 
@@ -62,9 +62,11 @@ Use a Property when the information primarily answers what characteristic or val
 
 A `Relation` is a first-class semantic link between independently identifiable ontology Entities.
 
-A relation SHOULD specify its identifier, semantic description, allowed domain/range, optional inverse, and cardinality where applicable.
+A relation SHOULD specify its identifier, semantic description, endpoint constraints, optional inverse, and cardinality where applicable.
 
 Use a Relation when both endpoints have independent semantic identity and the connection itself has domain meaning. A Relation SHOULD remain lightweight. If the connection itself needs substantial properties, provenance, version constraints, state, mappings, or relations of its own, the connection SHOULD be reified as an Entity.
+
+Endpoint constraints may be expressed as explicit domain/range types or, where a single broad range would be ambiguous, as an authoritative allowed-pair matrix. ADR-0016 uses the latter for `includes_component`.
 
 ### 3.5 Constraint
 
@@ -225,7 +227,46 @@ exists T:
 
 Task bindings are authoritative. A materialized `analyzed_by` edge without a supporting task is inconsistent derived data.
 
-The value rules are accepted in ADR-0002, reference/dependency rules in ADR-0003, unit/dimension rules in ADR-0004/0005, Constraint composition in ADR-0007, Interface/inheritance rules in ADR-0008, identity/package rules in ADR-0009, Profile/backend mapping in ADR-0010/0011, QRC in ADR-0012, naming/taxonomy disambiguation in ADR-0014, and Simulation/Model/Task relations in ADR-0015.
+### Rule 19 — Direct structural membership uses `includes_component`
+
+SOL v0.1 represents direct aggregate/model membership with the non-owning, non-transitive, unordered relation:
+
+```text
+includes_component
+```
+
+Its generic cardinality is `0..*`. Valid source-target combinations are governed by the authoritative allowed-pair matrix in ADR-0016. Derived domain/range summaries cannot broaden that matrix.
+
+The relation does not replace semantic relations such as `represented_by`, `closed_by`, `parameterized_by`, `defined_on`, `discretized_by`, `applied_to`, or `solved_by`.
+
+### Rule 20 — ADR-0016 endpoint matching and condition targeting
+
+For `includes_component` and `applied_to`, endpoint matching uses canonical semantic identity and subtype closure:
+
+```text
+matches(x,T)
+IFF
+exists consistent canonical type X of x:
+  X = T OR X <: T
+```
+
+Type inconsistency fails before endpoint matching; backend inheritance and declaration order are irrelevant.
+
+`applied_to` has source family:
+
+```text
+BoundaryCondition | InitialCondition | Source | Load
+```
+
+and target family:
+
+```text
+Field | Equation | Scope
+```
+
+Each conforming source requires `1..*` `applied_to` targets. `ConditionModel` itself is an aggregate and is not a direct `applied_to` source.
+
+The value rules are accepted in ADR-0002, reference/dependency rules in ADR-0003, unit/dimension rules in ADR-0004/0005, Constraint composition in ADR-0007, Interface/inheritance rules in ADR-0008, identity/package rules in ADR-0009, Profile/backend mapping in ADR-0010/0011, QRC in ADR-0012, naming/taxonomy disambiguation in ADR-0014, Simulation/Model/Task relations in ADR-0015, and direct component/condition-target semantics in ADR-0016.
 
 ## 5. Ontology package model
 
@@ -283,7 +324,18 @@ Simulation
 
 `analyzed_by` is the derived Model-to-Analysis traversal implied by the task bindings.
 
-### 8.2 Value/dimension graph
+### 8.2 Direct model-component graph
+
+```text
+SimulationModel --includes_component--> MathematicalModel
+MathematicalModel --includes_component--> Field
+ConditionModel --includes_component--> BoundaryCondition
+BoundaryCondition --applied_to--> Field / Scope
+```
+
+`includes_component` is direct-only. The first two edges do not imply `SimulationModel --includes_component--> Field`.
+
+### 8.3 Value/dimension graph
 
 ```text
 SemanticQuantity
@@ -371,6 +423,7 @@ MappingPlan / BackendAdapter layer
 5. Full identity/namespace/package/version metadata from ADR-0009.
 6. Profile/MappingRule/MappingClaim authoring schemas consistent with ADR-0010/0011.
 7. Canonical structural/semantic schema enforcement for ADR-0015 relation cardinalities and derived `analyzed_by` consistency.
+8. Canonical schema enforcement for ADR-0016 allowed-pair and subtype-aware relation endpoint semantics.
 
 These are transcription/representation tasks unless implementation evidence exposes a new normative contradiction.
 
@@ -379,7 +432,7 @@ These are transcription/representation tasks unless implementation evidence expo
 1. Final language-level representation of `Value`, `ValueDefinition`, `PhysicalDimension`, and `Unit` within the canonical graph/authoring schema.
 2. Normative subtype taxonomy of `ValueDefinition`, if any.
 3. Provenance/data-source representation for ValueDefinitions beyond already accepted semantic boundaries.
-4. Complete Core relation domain/range/cardinality and required/optional relation matrix beyond ADR-0015.
+4. Complete Core relation cardinalities and required/optional relation matrix beyond ADR-0015/0016.
 5. Final canonical serialization layout for Interface definitions and implementation mappings.
 6. SolverConfiguration cardinality/default/task-specific override semantics.
 7. Whether additional generic actions/transformations become a first-class Core construct in a later SOL version; v0.1 does not require one.
@@ -389,6 +442,6 @@ Backend installation, licensing, production Adapter implementation, and backend 
 
 ## 12. v0.1 success criterion
 
-The v0.1 semantic architecture is frozen through ADR-0015. Language/schema consolidation succeeds when accepted contracts can be represented and independently validated without adding semantics not present in the ADR baseline.
+The v0.1 semantic architecture is frozen through ADR-0016. Language/schema consolidation succeeds when accepted contracts can be represented and independently validated without adding semantics not present in the ADR baseline.
 
 Small thermal and plasma/QRC models remain sufficient design-stage structural stress cases. Production-quality Adapter execution belongs to separate Adapter projects and may reopen the language/architecture only if it produces a genuine semantic counterexample.
