@@ -27,6 +27,8 @@ Implemented and independently accepted for design-stage use:
 - `constraint-dimension-normalized-v0.1.schema.json`
 - `constraint-value-authoring-v0.1.schema.json`
 - `constraint-value-normalized-v0.1.schema.json`
+- `constraint-compatibility-authoring-v0.1.schema.json`
+- `constraint-compatibility-normalized-v0.1.schema.json`
 
 Cardinality/QRC semantic evaluation such as closed-world counting, stable identity, qualifier subtype closure, and interval normalization remains semantic-validator work rather than JSON Schema logic.
 
@@ -36,9 +38,10 @@ The ADR-0020 Dimension slice uses sparse seven-axis authoring, full normalized v
 
 The ADR-0021 Value slice uses numeric intervals and finite scalar allowed sets. Every normalized numeric operand uses an exact-decimal coefficient/exponent representation; empty Value results are separated from conflict classification; numeric normalization requires a resolved or not-required comparison space.
 
+The ADR-0022 Compatibility slice uses canonical semantic criterion identity, typed `schema | model_instance` operands, ordered/symmetric binary obligation identity, explicit semantic `INDETERMINATE`, and deterministic empty-set / mixed-state aggregation. Backend identity and backend runtime/license state are outside the semantic payload.
+
 Still under focused consolidation:
 
-- Compatibility
 - Conditional / predicate syntax
 
 The repository intentionally does not expose permissive opaque schemas for unfinished Constraint families.
