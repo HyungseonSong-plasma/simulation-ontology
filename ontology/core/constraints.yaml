@@ -47,6 +47,72 @@ constraints:
   condition_model_not_applied_directly:
     description: ConditionModel is an aggregate context and is not itself an applied_to source merely because it includes condition or forcing components.
 
+  core_cardinality_represented_by_source:
+    type: cardinality
+    canonical_id: core.cardinality.represented_by.source
+    relation: represented_by
+    direction: source
+    min: 0
+    max: unbounded
+    description: Canonical ADR-0017 Core outgoing cardinality authority for represented_by.
+
+  core_cardinality_closed_by_source:
+    type: cardinality
+    canonical_id: core.cardinality.closed_by.source
+    relation: closed_by
+    direction: source
+    min: 0
+    max: unbounded
+    description: Canonical ADR-0017 Core outgoing cardinality authority for closed_by.
+
+  core_cardinality_parameterized_by_source:
+    type: cardinality
+    canonical_id: core.cardinality.parameterized_by.source
+    relation: parameterized_by
+    direction: source
+    min: 0
+    max: unbounded
+    description: Canonical ADR-0017 Core outgoing cardinality authority for parameterized_by.
+
+  core_cardinality_defined_on_source:
+    type: cardinality
+    canonical_id: core.cardinality.defined_on.source
+    relation: defined_on
+    direction: source
+    min: 0
+    max: unbounded
+    description: Canonical ADR-0017 Core outgoing cardinality authority for defined_on.
+
+  core_cardinality_discretized_by_source:
+    type: cardinality
+    canonical_id: core.cardinality.discretized_by.source
+    relation: discretized_by
+    direction: source
+    min: 0
+    max: unbounded
+    description: Canonical ADR-0017 Core outgoing cardinality authority for discretized_by.
+
+  core_cardinality_solved_by_source:
+    type: cardinality
+    canonical_id: core.cardinality.solved_by.source
+    relation: solved_by
+    direction: source
+    min: 0
+    max: unbounded
+    description: Canonical ADR-0017 Core outgoing cardinality authority for solved_by.
+
+  core_cardinality_observed_by_source:
+    type: cardinality
+    canonical_id: core.cardinality.observed_by.source
+    relation: observed_by
+    direction: source
+    min: 0
+    max: unbounded
+    description: Canonical ADR-0017 Core outgoing cardinality authority for observed_by.
+
+  cardinality_projection_consistency:
+    description: For ADR-0017 relations, relation-side source_cardinality is a required projection of the canonical Core Cardinality Constraint; missing or mismatched projection is a transcription failure and never an override/intersection contributor.
+
   physics_math_separation:
     description: Physical meaning and mathematical representation must remain distinct and connected through explicit relations.
 
@@ -73,15 +139,17 @@ accepted_semantics_not_yet_transcribed:
   - Qualified Relation Cardinality schema and deterministic diagnostics from ADR-0012.
   - Canonical machine-schema encoding/tests for ADR-0015 relation cardinalities and derived relation consistency.
   - Canonical machine-schema enforcement/tests for ADR-0016 allowed-pair and endpoint-matching rules.
+  - Final schema enforcement/tests for ADR-0017 canonical cardinality authority and relation projection consistency.
 
 open_language_schema_decisions:
-  - Complete cardinalities for Core relations beyond ADR-0015 and ADR-0016.
-  - Required versus optional relation matrix beyond focused accepted contracts.
+  - Required versus optional relation refinements supplied by domain/interface/profile contracts beyond the generic Core baseline.
   - Core graph acyclicity rules beyond already accepted specialized contracts.
   - Final canonical authoring/serialization schema for the complete Core package.
+  - Stable package-level serialization mechanism for canonical Constraint identity and deduplication.
   - Multi-model/co-simulation semantics, if later justified by evidence.
 
 notes:
-  - Accepted semantics are not considered pending architecture questions merely because their final YAML/JSON Schema transcription is incomplete.
-  - Machine-readable schema/tooling work must not silently strengthen or weaken the accepted ADR semantics.
+  - Cardinality semantics remain normative Constraints under ADR-0007.
+  - ADR-0017 relation-side cardinality fields are projections only and must equal the normalized canonical Core Constraint.
+  - Accepted semantics are not considered pending architecture questions merely because their final JSON Schema/SHACL transcription is incomplete.
   - Backend installation, licensing, and production Adapter execution do not participate in these Core model-instance constraints.
