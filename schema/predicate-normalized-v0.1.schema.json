@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/predicate-normalized-v0.1.schema.json",
+  "title": "SOL Normalized Predicate v0.1",
+  "description": "Normalized ADR-0023 Predicate syntax over resolved EvaluationReferences. Exact numeric semantics reuse ADR-0021.",
+  "$defs": {
+    "evaluationReference": {
+      "type": "object",
+      "required": ["key"],
+      "properties": {
+        "key": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "compare": {
+      "type": "object",
+      "required": ["predicate", "ref", "scalar_kind", "op", "value"],
+      "properties": {
+        "predicate": {"const": "compare"},
+        "ref": {"$ref": "#/$defs/evaluationReference"},
+        "scalar_kind": {"enum": ["number", "string", "boolean"]},
+        "op": {"enum": ["eq", "ne", "lt", "le", "gt", "ge"]},
+        "value": {}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"scalar_kind": {"const": "number"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"value": {"$ref": "constraint-value-normalized-v0.1.schema.json#/$defs/decimalScalar"}}}
+        },
+        {
+          "if": {"properties": {"scalar_kind": {"const": "string"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"value": {"type": "string"}, "op": {"enum": ["eq", "ne"]}}}
+        },
+        {
+          "if": {"properties": {"scalar_kind": {"const": "boolean"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"value": {"type": "boolean"}, "op": {"enum": ["eq", "ne"]}}}
+        }
+      ],
+      "additionalProperties": false
+    },
+    "membership": {
+      "type": "object",
+      "required": ["predicate", "ref", "scalar_kind", "values"],
+      "properties": {
+        "predicate": {"const": "membership"},
+        "ref": {"$ref": "#/$defs/evaluationReference"},
+        "scalar_kind": {"enum": ["number", "string", "boolean"]},
+        "values": {"type": "array"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"scalar_kind": {"const": "number"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"values": {"items": {"$ref": "constraint-value-normalized-v0.1.schema.json#/$defs/decimalScalar"}}}}
+        },
+        {
+          "if": {"properties": {"scalar_kind": {"const": "string"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"values": {"items": {"type": "string"}}}}
+        },
+        {
+          "if": {"properties": {"scalar_kind": {"const": "boolean"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"values": {"items": {"type": "boolean"}}}}
+        }
+      ],
+      "additionalProperties": false
+    },
+    "exists": {
+      "type": "object",
+      "required": ["predicate", "ref"],
+      "properties": {
+        "predicate": {"const": "exists"},
+        "ref": {"$ref": "#/$defs/evaluationReference"}
+      },
+      "additionalProperties": false
+    },
+    "andOr": {
+      "type": "object",
+      "required": ["predicate", "operands"],
+      "properties": {
+        "predicate": {"enum": ["and", "or"]},
+        "operands": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/predicate"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "not": {
+      "type": "object",
+      "required": ["predicate", "operand"],
+      "properties": {
+        "predicate": {"const": "not"},
+        "operand": {"$ref": "#/$defs/predicate"}
+      },
+      "additionalProperties": false
+    },
+    "predicate": {
+      "oneOf": [
+        {"$ref": "#/$defs/compare"},
+        {"$ref": "#/$defs/membership"},
+        {"$ref": "#/$defs/exists"},
+        {"$ref": "#/$defs/andOr"},
+        {"$ref": "#/$defs/not"}
+      ]
+    }
+  },
+  "$ref": "#/$defs/predicate"
+}
