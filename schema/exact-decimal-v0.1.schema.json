@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/exact-decimal-v0.1.schema.json",
+  "title": "SOL Exact Decimal Scalar v0.1",
+  "description": "Canonical coefficient/exponent10 decimal scalar shared by ADR-0021/0026 payloads.",
+  "type": "object",
+  "required": ["coefficient", "exponent10"],
+  "properties": {
+    "coefficient": {
+      "type": "string",
+      "pattern": "^(?:0|-?[1-9](?:[0-9]*[1-9])?)$"
+    },
+    "exponent10": {"type": "integer"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"coefficient": {"const": "0"}}, "required": ["coefficient"]},
+      "then": {"properties": {"exponent10": {"const": 0}}}
+    }
+  ],
+  "additionalProperties": false
+}
