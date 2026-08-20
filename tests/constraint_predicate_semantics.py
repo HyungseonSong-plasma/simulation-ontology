@@ -67,6 +67,23 @@ def _same_scalar(left: object, right: object, kind: str) -> bool:
     return left == right
 
 
+def normalize_membership_values(values: Sequence[object], scalar_kind: str) -> list[object]:
+    """Collapse duplicate normalized Membership values under ADR-0023 scalar equality.
+
+    Input values are already in normalized scalar representation. Authoring numeric-lexeme
+    capture remains the compiler/reader responsibility, as in ADR-0021.
+    """
+    if scalar_kind not in {"number", "string", "boolean"}:
+        raise PredicateEvaluationError("PREDICATE_SCALAR_KIND_INVALID")
+    normalized: list[object] = []
+    for value in values:
+        if _scalar_kind(value) != scalar_kind:
+            raise PredicateEvaluationError("PREDICATE_SCALAR_KIND_MISMATCH")
+        if not any(_same_scalar(value, existing, scalar_kind) for existing in normalized):
+            normalized.append(value)
+    return normalized
+
+
 def evaluate_compare(predicate: Mapping[str, object], lookup: Mapping[str, object]):
     state = lookup.get("state")
     if state == "ABSENT":
