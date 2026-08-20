@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 import re
-from typing import Iterable, Mapping, Sequence
+from typing import Mapping, Sequence
 
 
 _NUMBER_RE = re.compile(r"^(-?)(0|[1-9][0-9]*)(?:\.([0-9]+))?(?:[eE]([+-]?[0-9]+))?$")
@@ -44,14 +44,22 @@ def canonicalize_decimal_lexeme(text: str) -> dict[str, object]:
     return {"coefficient": coefficient, "exponent10": exponent10}
 
 
+def _normalize_integer_value(value: object) -> int:
+    """Match JSON Schema integer-value semantics for normalized exponent10."""
+    if isinstance(value, bool):
+        raise ValueConstraintError("VALUE_NUMBER_CANONICAL_INVALID")
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    raise ValueConstraintError("VALUE_NUMBER_CANONICAL_INVALID")
+
+
 def _decimal_value(value: Mapping[str, object]) -> Decimal:
     coefficient = value.get("coefficient")
-    exponent10 = value.get("exponent10")
     if not isinstance(coefficient, str):
         raise ValueConstraintError("VALUE_NUMBER_CANONICAL_INVALID")
-    if isinstance(exponent10, bool) or not isinstance(exponent10, int):
-        raise ValueConstraintError("VALUE_NUMBER_CANONICAL_INVALID")
-    # Re-run canonical shape checks through a synthetic exact decimal value.
+    exponent10 = _normalize_integer_value(value.get("exponent10"))
     if coefficient == "0":
         if exponent10 != 0:
             raise ValueConstraintError("VALUE_NUMBER_CANONICAL_INVALID")
