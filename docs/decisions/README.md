@@ -39,13 +39,17 @@ Each accepted decision states the semantic problem, considered alternatives, dec
 | [0027](0027-inline-valuedefinition-format-provider-boundary.md) | InlineValueDefinition format-provider boundary |
 | [0028](0028-canonical-ontology-package-and-resource-integration.md) | Canonical ontology package/resource integration |
 | [0029](0029-resolved-model-snapshot-and-reference-validation-environment.md) | Resolved model snapshot and reference-validation environment |
+| [0030](0030-sol-v0.1-design-stage-closure.md) | SOL v0.1 design-stage closure |
 
 ## Current design-stage state
+
+**SOL v0.1 DESIGN-STAGE CLOSED by ADR-0030.**
 
 - Core architecture is frozen through ADR-0017.
 - Focused language/schema/package/model-snapshot consolidation is accepted through ADR-0029.
 - Minimal Thermal and Plasma/QRC reference gates are accepted.
-- Final closure is gated by focused transcription/readback, not backend installation or production Adapter execution.
+- Final independent closure readback is Accept.
+- Implementation, Profile/BackendAdapter integration, and executable backend V&V are post-design work unless they reveal a genuine ADR-0030 reopen condition.
 
 ## Traceability rule
 
