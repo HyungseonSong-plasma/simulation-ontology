@@ -12,6 +12,9 @@ status: consolidating
 #   is not encoded with `children`.
 # - Interface is a separate language-level schema construct under ADR-0025 and
 #   is intentionally not listed as an Entity Type here.
+# - Value, UnitReference, and DimensionVector are typed payloads under
+#   ADR-0026; only identified/relation-participating ValueDefinition instances
+#   are Entity instances.
 
 entities:
   Simulation: {}
@@ -85,19 +88,22 @@ entities:
   ConvergenceCriterion: {}
 
   Result: {}
+  ValueDefinition: {}
 
 accepted_semantics_not_yet_transcribed:
   - Complete taxonomic is_a edges for model/numerical/observation concepts where taxonomy is normatively justified.
-  - Value, ValueDefinition, PhysicalDimension, and Unit final language-level representation as permitted by their accepted ADR boundaries.
   - Full machine-schema enforcement of SimulationTask relation/cardinality semantics from ADR-0015.
 
 open_language_schema_decisions:
   - Whether additional Core concepts require explicit is_a edges versus composition/association relations.
   - Final schema representation for relation cardinalities and derived-relation invariants.
+  - Final package placement of typed Value, UnitReference, DimensionVector, and inline ValueDefinition fields.
 
 notes:
   - `SimulationTask` is a distinct Entity Type that reifies application of one Analysis to one SimulationModel under ADR-0015; Analysis does not inherit from SimulationTask.
   - `Interface` is reserved for the ADR-0008 capability-contract language construct and has focused schemas under ADR-0025.
   - The former spatial concept named `Interface` is `SpatialInterface` under ADR-0014.
   - `Result` is declared to make the existing `produces` and `observed_by` relation contracts referentially complete.
+  - `ValueDefinition` denotes only reified identified/relation-participating definition instances under ADR-0026; dependency-free local definitions may remain typed InlineValueDefinition payloads.
+  - `Value`, `UnitReference`, and `DimensionVector` are not Core Entity Types in v0.1.
   - Software-specific concepts such as MOOSE Kernel, COMSOL Physics Feature, and Ansys analysis objects remain excluded from the Core taxonomy.
