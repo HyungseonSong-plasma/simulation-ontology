@@ -54,6 +54,8 @@ This statement describes the development process and does not imply that generat
 
 ## Status
 
-**Core Simulation Ontology v0.1 — design phase.**
+**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0012.**
 
-The immediate focus is defining the core entity vocabulary, semantic relations, cardinalities, and constraints before implementing detailed backend mappings.
+The freeze is recorded in [`ADR-0013`](docs/decisions/0013-sol-v0.1-design-stage-architecture-freeze.md). Backend installation, licensing, production Adapter implementation, and full backend execution V&V are intentionally outside this design-stage freeze.
+
+The immediate focus is **language/schema consolidation and minimal reference-model implementation** against the frozen architecture baseline. Production BackendAdapter development should proceed in separate Adapter workstreams and return to the architecture process only when it produces a genuine architecture counterexample.
