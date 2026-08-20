@@ -1,7 +1,7 @@
 # Core Simulation Ontology Architecture
 
 **Version:** 0.1  
-**Status:** Design baseline
+**Status:** Frozen design baseline, amended by ADR-0014
 
 ## 1. Purpose
 
@@ -104,15 +104,26 @@ Simulation
 
 `SimulationModel` defines **what is modeled**. `SimulationTask` defines **what computation is performed on the model**.
 
+Tree formatting in this document is descriptive grouping unless an explicit relation or `is_a` rule is stated. Under ADR-0014, indentation alone is not taxonomic inheritance.
+
+The current accepted task/result relations are:
+
 ```text
 SimulationModel
       │ analyzed_by
       ▼
+    Analysis
+      │ solved_by
+      ▼
+SolverConfiguration
+
 SimulationTask
       │ produces
       ▼
-Result
+    Result
 ```
+
+The exact canonical composition relations connecting `Simulation`, `SimulationModel`, and `SimulationTask` remain a language/schema consolidation decision and SHALL NOT be inferred from the tree diagram.
 
 ## 5. SimulationModel
 
@@ -205,9 +216,11 @@ SpatialModel
 ├── Geometry
 ├── Domain
 ├── Boundary
-├── Interface
+├── SpatialInterface
 └── Scope
 ```
+
+`SpatialInterface` denotes an interface between spatial regions/domains. The unqualified language term `Interface` is reserved for the reusable capability-contract construct defined by ADR-0008 and disambiguated by ADR-0014.
 
 `Scope` is a first-class concept. It generalizes concepts such as MOOSE block/boundary identifiers, COMSOL selections, and Ansys geometry scoping or Named Selections.
 
@@ -256,13 +269,15 @@ ObservationModel
 └── Output
 ```
 
-## 6. SimulationTask
+## 6. SimulationTask and Result
 
 ```text
 SimulationTask
 ├── Analysis
 └── SolverConfiguration
 ```
+
+The diagram groups task-layer concepts and does not by itself assert `is_a` inheritance.
 
 ### 6.1 Analysis
 
@@ -296,6 +311,22 @@ Analysis
     ▼
 SolverConfiguration
 ```
+
+### 6.3 Result
+
+`Result` is the semantic output produced by a `SimulationTask` and may be associated with observation/output definitions.
+
+```text
+SimulationTask
+      │ produces
+      ▼
+    Result
+      │ observed_by
+      ▼
+ObservationModel
+```
+
+SOL v0.1 does not define a mandatory `Result` subtype taxonomy.
 
 ## 7. Core relationship graph
 
@@ -341,6 +372,8 @@ SolverConfiguration
                      solved_by
                          ▼
                 SolverConfiguration
+
+                  SimulationTask
                          │
                       produces
                          ▼
@@ -392,7 +425,11 @@ This separation allows the implementation stack to evolve without changing the c
 12. Keep domain and backend extension axes orthogonal and compose them through Simulation Profiles.
 13. Enforce inward-only dependencies: specialized layers depend on the core, never the reverse.
 14. Keep ontology semantics independent of implementation technologies.
+15. Do not infer `is_a` inheritance from diagram indentation or machine-readable grouping shorthand.
+16. Reserve `Interface` for reusable capability contracts; use `SpatialInterface` for the spatial entity concept.
 
-## 11. Next design step
+## 11. Next consolidation step
 
-The next design artifact is the **Simulation Ontology Language v0.1**. It will define the minimum language constructs required to express the framework: Entity, Property, Relation, Constraint, Extension, Namespace, and Profile composition semantics. Only after this contract is stable should the project standardize the YAML authoring form and its JSON-LD/RDF/SHACL implementation pipeline.
+The design-stage architecture is frozen through ADR-0014. The next task is **Simulation Ontology Language / schema consolidation**: make the accepted Entity, Property, Relation, Constraint, Extension, Namespace, Profile, and Interface contracts machine-readable without inventing semantics that are not present in the ADR baseline.
+
+The immediate open language questions are the explicit composition relations/cardinalities connecting top-level simulation structures and the final serialization of accepted language constructs. YAML, JSON-LD/RDF/OWL, SHACL, JSON Schema, Python, and TypeScript remain implementation choices rather than semantic authorities.
