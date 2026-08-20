@@ -107,7 +107,17 @@ cross_component(
 
 where a component binding includes stable component identity and adapter contract identity/version.
 
-Local comparisons are bound by the local component adapter contract. Cross-component comparisons are bound by the selected versioned orchestration adapter contract and include both component bindings. Symmetric purposes SHALL use canonical operand ordering; directional purposes SHALL preserve semantic source/target direction.
+Every registry lookup SHALL additionally include the canonical `comparison_purpose` and the normalized left/right operand kinds. Therefore the normative resolution context is equivalent to:
+
+```text
+comparison scope
++ component binding(s)
++ comparison purpose
++ normalized left kind
++ normalized right kind
+```
+
+Local comparisons are bound by the local component adapter contract. Cross-component comparisons are bound by the selected versioned orchestration adapter contract and include both component bindings. Symmetric purposes SHALL canonicalize operand component/kind pairs before lookup; directional purposes SHALL preserve semantic source/target direction.
 
 Registry resolution SHALL produce exactly one matching implementation:
 
@@ -117,7 +127,7 @@ Registry resolution SHALL produce exactly one matching implementation:
 >1 matches => FAIL
 ```
 
-Iteration order, newest-version choice, declaration order, or validator-specific preference SHALL NOT resolve ambiguity.
+Iteration order, newest-version choice, declaration order, generic/specific preference, or validator-specific preference SHALL NOT resolve ambiguity. Comparison evidence SHALL preserve exact comparator identity/version and normalized input fingerprints.
 
 ### 6. Executable PlanAction contract
 
@@ -150,7 +160,7 @@ Every required handle SHALL resolve to an external binding, exactly one accepted
 
 Ordering direction SHALL come only from prerequisite/producer relations or provenance-bearing versioned `must_precede` evidence. Noncommutativity alone SHALL NOT invent A→B or B→A. The final action dependency graph MUST be acyclic.
 
-`state_independent_idempotent` SHALL require a versioned adapter guarantee. State-dependent idempotency SHALL use exactly one bound procedure and immutable pre-state evidence. Bare author/Profile assertions do not establish idempotency.
+`state_independent_idempotent` SHALL require a versioned adapter guarantee. State-dependent idempotency SHALL use exactly one bound procedure and immutable pre-state evidence. Missing required pre-state evidence is `BLOCKED`; missing/ambiguous required procedure is `FAIL`; a uniquely selected procedure returning no decision on complete evidence is `INDETERMINATE`. Bare author/Profile assertions do not establish idempotency.
 
 A compound action MAY be treated as atomic only when the selected adapter contract guarantees semantic all-or-none visibility: all declared semantic effects are committed on success and none are externally visible on failure. Otherwise the action must be decomposed; unavailable required decomposition is `FAIL`.
 
@@ -181,6 +191,16 @@ permitted
 prohibited
 ```
 
+Within one immutable evaluation revision, the only terminal transitions from initial state are:
+
+```text
+pending -> blocked
+pending -> indeterminate
+pending -> complete
+```
+
+A finished synchronous evaluation SHALL NOT remain `pending`. Resolution of evidence for a historical `blocked` or `indeterminate` result SHALL create a new evaluation revision referencing the prior revision rather than mutating it. Runtime drift after `complete` invalidates the evaluated target snapshot and requires a new plan/evaluation revision.
+
 A terminal representability outcome SHALL be asserted only when plan validation is `PASS` and evaluation is `complete`.
 
 Representability SHALL first be evaluated per required semantic mapping obligation, then aggregated:
@@ -192,7 +212,7 @@ else any transformed => transformed
 else exact
 ```
 
-Optional non-semantic reporting omissions SHALL NOT weaken semantic representability.
+Semantic model obligations SHALL be required. Optional non-semantic items are restricted to information whose omission does not weaken SOL semantic truth and SHALL be reported separately rather than weakening representability.
 
 ### 9. Loss policy and execution permission
 
@@ -224,9 +244,9 @@ For a composite target:
 
 For each component, observed release SHALL satisfy the declared release compatibility contract. Missing runtime release evidence is `BLOCKED`; malformed/ambiguous matching or a resolved target mismatch is `FAIL` before execution.
 
-Capabilities remain adapter-owned canonical identities. Per-component effective requirements are the normalized conjunction/union of target-floor, selected-rule, formulation, and applicable orchestration requirements. Conflicting requirement intersections are `FAIL`; unresolved runtime evidence is `BLOCKED`; authoritative absence produces terminal `unsupported` after successful validation/evaluation completion.
+Capabilities remain adapter-owned canonical identities. Per-component effective requirements are the normalized union/intersection of target-floor, selected-rule, formulation, and applicable orchestration requirements. Conflicting requirement intersections are `FAIL`; unresolved runtime evidence is `BLOCKED`; authoritative absence produces terminal `unsupported` after successful validation/evaluation completion.
 
-SOL mathematical/analysis semantics remain authoritative. Backend formulation identifiers are realization bindings only. Relevant target components are derived from the selected MappingRule → PlanAction graph, not vendor heuristics. For each relevant formulation obligation/component pair, exactly one compatible binding SHALL resolve.
+SOL mathematical/analysis semantics remain authoritative. Backend formulation identifiers are realization bindings only. Relevant target components are derived from the selected MappingRule → PlanAction graph, not vendor heuristics. For each relevant formulation obligation/component pair, exactly one compatible binding SHALL resolve. Missing declared binding is `FAIL` unless the binding depends on valid unresolved external evidence, which is `BLOCKED`; multiple competing bindings are `FAIL`; an authoritatively incompatible resolved formulation produces `unsupported` after successful validation/completion.
 
 ### 12. Backend semantics remain outside Core
 
@@ -265,4 +285,4 @@ Acceptance of this contract does not authorize SOL v0.1 architecture freeze. Fre
 
 ## Decision summary
 
-SOL v0.1 supplements ADR-0010 with deterministic effect-pair validation, unique local/cross-component comparator binding, executable PlanAction dependency semantics, explicit evaluation lifecycle, component-keyed BackendTarget resolution, and strict separation between contract validation, terminal representability, and execution permission while preserving five-field `MappingRule` and four-field `MappingClaim` public shapes.
+SOL v0.1 supplements ADR-0010 with deterministic effect-pair validation, unique local/cross-component comparator binding, executable PlanAction dependency semantics, immutable evaluation lifecycle, component-keyed BackendTarget resolution, and strict separation between contract validation, terminal representability, and execution permission while preserving five-field `MappingRule` and four-field `MappingClaim` public shapes.
