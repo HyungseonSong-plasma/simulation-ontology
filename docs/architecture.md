@@ -1,7 +1,7 @@
 # Core Simulation Ontology Architecture
 
 **Version:** 0.1  
-**Status:** Frozen design baseline, amended through ADR-0016
+**Status:** Frozen design baseline, amended through ADR-0017
 
 ## 1. Purpose
 
@@ -290,12 +290,12 @@ SolverConfiguration includes_component:
 
 ```text
 Analysis
-    │ solved_by
+    │ solved_by (generic Core 0..*)
     ▼
 SolverConfiguration
 ```
 
-Solver cardinality, default selection, and task-specific solver overrides remain separate language/schema questions.
+ADR-0017 makes solver selection optional/unbounded at generic Core level. Domain/Interface/Profile constraints may require or narrow solver configuration for a more complete or executable context. Default selection and task-specific solver override semantics remain separate language/schema questions.
 
 ### 6.4 Derived `analyzed_by`
 
@@ -321,7 +321,7 @@ SimulationTask
       │ produces (0..*)
       ▼
     Result
-      │ observed_by
+      │ observed_by (generic Core 0..*)
       ▼
 ObservationModel
 ```
@@ -360,6 +360,24 @@ Simulation
 SimulationModel -- analyzed_by (derived) --> Analysis
 ```
 
+### 7.1 Generic Core cardinality baseline
+
+ADR-0017 assigns generic Core source interval `0..*` to:
+
+```text
+represented_by
+closed_by
+parameterized_by
+defined_on
+discretized_by
+solved_by
+observed_by
+```
+
+These intervals mean deliberately unconstrained/optional at generic Core level, not unknown. Cardinality remains normatively a Constraint. Relation-side `source_cardinality` fields are matching projections of canonical Core Cardinality Constraints for artifact readability/state recovery and are not a second authority.
+
+Domain/Interface/Profile constraints may narrow these intervals conjunctively under ADR-0007. Incoming cardinality remains unconstrained by generic Core unless another accepted contract states otherwise.
+
 ## 8. Backend boundary
 
 MOOSE, COMSOL, and Ansys concepts do not belong directly in the Core ontology.
@@ -375,7 +393,7 @@ Simulation IR / MappingPlan
 MOOSE COMSOL ANSYS
 ```
 
-Backend adapters and backend ontologies map Core semantic concepts to native software representations. Backend object trees, native ownership, installation/runtime availability, and licensing do not define Core component membership semantics.
+Backend adapters and backend ontologies map Core semantic concepts to native software representations. Backend object trees, native ownership, installation/runtime availability, and licensing do not define Core component membership or relation-requiredness semantics.
 
 ## 9. Ontology language versus implementation technology
 
@@ -405,14 +423,18 @@ The project may use YAML for authoring, JSON-LD/RDF/OWL for graph representation
 18. Treat task bindings as authoritative for model–Analysis application; `analyzed_by` is derived.
 19. Use `includes_component` only for direct structural membership; semantic relations such as `represented_by`, `closed_by`, `applied_to`, and `solved_by` remain distinct.
 20. Validate ADR-0016 relation endpoints through canonical semantic type identity/subtype closure, not backend inheritance or declaration order.
+21. Treat cardinality as a Constraint; relation-side cardinality fields mirror the canonical Core Constraint and cannot override or independently intersect with it.
+22. Do not promote backend executability requirements into generic Core relation requiredness.
 
 ## 11. Consolidation state
 
-The design-stage architecture is frozen through ADR-0016. Immediate machine-readable consolidation priorities are:
+The design-stage architecture is frozen through ADR-0017. Immediate machine-readable consolidation priorities are:
 
-- transcribe accepted relation cardinalities, allowed-pair constraints, and derived-relation invariants into the final structural/semantic schema;
+- enforce accepted cardinality projection/authority, allowed-pair, and derived-relation invariants in the final structural/semantic schema;
 - complete Interface serialization/validation;
 - complete accepted Value/ValueDefinition/PhysicalDimension/Unit representation;
-- define remaining Core relation cardinalities only where evidence requires them.
+- define domain/interface/profile completeness refinements only where evidence requires them.
+
+Generic Core cardinality for the relations covered by ADR-0017 is no longer an open design question.
 
 Backend installation, licensing, production Adapter implementation, and full execution V&V remain outside the design-stage architecture gate.
