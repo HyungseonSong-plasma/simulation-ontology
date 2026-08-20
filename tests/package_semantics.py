@@ -26,6 +26,43 @@ def require_canonical_id(value: object) -> str:
     return value
 
 
+def _package_identity(package: Mapping[str, object]) -> tuple[str, str]:
+    package_identity = package.get("package")
+    if not isinstance(package_identity, Mapping):
+        raise PackageContractError("PACKAGE_IDENTITY_INVALID")
+    package_name = package_identity.get("name")
+    package_version = package_identity.get("version")
+    if not isinstance(package_name, str) or not package_name or not isinstance(package_version, str) or not package_version:
+        raise PackageContractError("PACKAGE_IDENTITY_INVALID")
+    return package_name, package_version
+
+
+def build_active_package_index(packages: Sequence[Mapping[str, object]]):
+    active: dict[tuple[str, str], Mapping[str, object]] = {}
+    for package in packages:
+        key = _package_identity(package)
+        if key in active:
+            raise PackageContractError("PACKAGE_IDENTITY_DUPLICATE_ACTIVE")
+        active[key] = package
+    return active
+
+
+def validate_resolved_dependencies(package: Mapping[str, object], active_packages):
+    dependencies = package.get("resolved_dependencies", [])
+    if not isinstance(dependencies, list):
+        raise PackageContractError("RESOLVED_DEPENDENCY_INVALID")
+    for dependency in dependencies:
+        if not isinstance(dependency, Mapping):
+            raise PackageContractError("RESOLVED_DEPENDENCY_INVALID")
+        name = dependency.get("package")
+        version = dependency.get("version")
+        if not isinstance(name, str) or not name or not isinstance(version, str) or not version:
+            raise PackageContractError("RESOLVED_DEPENDENCY_INVALID")
+        if (name, version) not in active_packages:
+            raise PackageContractError("RESOLVED_DEPENDENCY_UNRESOLVED")
+    return True
+
+
 def build_resource_index(packages: Sequence[Mapping[str, object]]):
     index: dict[str, tuple[str, Mapping[str, object]]] = {}
     for package in packages:
@@ -50,13 +87,7 @@ def build_resource_index(packages: Sequence[Mapping[str, object]]):
 def validate_namespace_providers(packages: Sequence[Mapping[str, object]]):
     providers: dict[str, list[tuple[str, str]]] = defaultdict(list)
     for package in packages:
-        package_identity = package.get("package")
-        if not isinstance(package_identity, Mapping):
-            raise PackageContractError("PACKAGE_IDENTITY_INVALID")
-        package_name = package_identity.get("name")
-        package_version = package_identity.get("version")
-        if not isinstance(package_name, str) or not package_name or not isinstance(package_version, str) or not package_version:
-            raise PackageContractError("PACKAGE_IDENTITY_INVALID")
+        package_name, package_version = _package_identity(package)
         for namespace in package.get("namespaces", []):
             if not isinstance(namespace, Mapping):
                 raise PackageContractError("NAMESPACE_PROVIDER_INVALID")
@@ -142,10 +173,15 @@ def validate_relations(package: Mapping[str, object], resource_index):
                         mismatch_code="RELATION_ENDPOINT_KIND_MISMATCH",
                     )
         elif kind == "allowed_pairs":
+            seen_sources: set[str] = set()
             for pair in endpoint.get("pairs", []):
+                source = require_canonical_id(pair.get("source"))
+                if source in seen_sources:
+                    raise PackageContractError("RELATION_ALLOWED_PAIRS_NOT_NORMALIZED")
+                seen_sources.add(source)
                 _require_kind(
                     resource_index,
-                    pair.get("source"),
+                    source,
                     "entity_type",
                     unresolved_code="RELATION_ENDPOINT_UNRESOLVED",
                     mismatch_code="RELATION_ENDPOINT_KIND_MISMATCH",
@@ -209,7 +245,11 @@ def validate_interfaces(package: Mapping[str, object], resource_index):
 
 
 def validate_resolved_environment(packages: Sequence[Mapping[str, object]]):
+    active_packages = build_active_package_index(packages)
     validate_namespace_providers(packages)
+    for package in packages:
+        validate_resolved_dependencies(package, active_packages)
+
     resource_index = build_resource_index(packages)
     for package in packages:
         validate_namespace_exports(package, resource_index)
