@@ -72,26 +72,41 @@ relations:
     description: Connects a physical model or concept to a mathematical representation.
     domain: PhysicsModel
     range: MathematicalModel
+    source_cardinality:
+      min: 0
+      max: unbounded
 
   closed_by:
     description: Connects a mathematical model to a constitutive or closure model required to close it.
     domain: MathematicalModel
     range: ConstitutiveModel
+    source_cardinality:
+      min: 0
+      max: unbounded
 
   parameterized_by:
     description: Connects a model to material or physical properties used as parameters.
     domain: ConstitutiveModel
     range: MaterialModel
+    source_cardinality:
+      min: 0
+      max: unbounded
 
   defined_on:
     description: Associates a model entity with its spatial definition or scope.
     domain: MathematicalModel
     range: SpatialModel
+    source_cardinality:
+      min: 0
+      max: unbounded
 
   discretized_by:
     description: Connects a mathematical model to its numerical representation.
     domain: MathematicalModel
     range: NumericalModel
+    source_cardinality:
+      min: 0
+      max: unbounded
 
   applied_to:
     description: Associates an individual condition or forcing with at least one field, equation, or spatial scope it constrains or forces.
@@ -122,6 +137,9 @@ relations:
     description: Associates an analysis with its numerical solver configuration.
     domain: Analysis
     range: SolverConfiguration
+    source_cardinality:
+      min: 0
+      max: unbounded
 
   produces:
     description: Indicates that a simulation task produces a simulation result.
@@ -135,23 +153,27 @@ relations:
     description: Associates a simulation result with observation or output definitions.
     domain: Result
     range: ObservationModel
+    source_cardinality:
+      min: 0
+      max: unbounded
 
 accepted_semantics_not_yet_transcribed:
   - Relation/constraint provenance requirements accepted by prior ADRs.
   - Namespace-qualified identity requirements for exported relation terms.
   - Complete machine-schema validation for ADR-0015 cardinality and derived-relation metadata.
   - Final structural schema enforcement for ADR-0016 allowed-pair and subtype-aware endpoint matching semantics.
+  - Final schema enforcement of ADR-0017 cardinality authority/projection consistency.
 
 open_language_schema_decisions:
-  - Complete relation cardinalities beyond ADR-0015 and ADR-0016.
-  - Required versus optional Core relations beyond accepted focused contracts.
+  - Required versus optional Core relations beyond accepted cardinality constraints supplied by domain/interface/profile refinements.
   - Whether selected broad domains/ranges should later be narrowed by Interface requirements or additional subtype constraints.
   - Final canonical YAML/JSON Schema field spelling for relation cardinality, derived-relation, allowed-pair, and endpoint-matching rules.
+  - Canonical stable serialization identity for Cardinality Constraint authorities.
 
 notes:
   - ADR-0015 defines `has_model`, `has_task`, `uses_model`, `has_analysis`, the derived `analyzed_by` rule, and `produces` minimum-zero semantics.
   - ADR-0016 defines `includes_component`, its authoritative allowed-pair matrix, canonical subtype-aware endpoint matching for this contract, and the repaired `applied_to` domain/cardinality.
+  - ADR-0017 defines explicit Core `0..*` projections for `represented_by`, `closed_by`, `parameterized_by`, `defined_on`, `discretized_by`, `solved_by`, and `observed_by`; these projections mirror canonical Core Cardinality Constraints rather than acting as a second authority.
   - `includes_component` is direct-only, non-owning, non-transitive, and unordered; recursive traversal is a query/view rather than an inferred stored relation.
-  - Allowed-pair entries are the authority for `includes_component`; tools must not broaden them from a derived range summary.
   - `produces` is normatively `SimulationTask -> Result`; backend execution structure does not narrow its domain.
   - Backend-local relations and handles belong to backend ontologies/Profile/Adapter layers, not this Core registry.
