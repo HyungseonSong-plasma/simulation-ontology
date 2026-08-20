@@ -29,6 +29,24 @@ constraints:
   result_not_required_pre_execution:
     description: A SimulationTask may have zero produces edges before execution; produces cardinality is 0..*.
 
+  component_allowed_pair:
+    description: Every includes_component edge must satisfy one authoritative ADR-0016 allowed source-target pair after canonical equal-or-subtype endpoint matching.
+
+  component_membership_direct_only:
+    description: includes_component is non-transitive; recursive traversal does not create additional stored semantic edges.
+
+  component_membership_non_owning:
+    description: includes_component does not imply exclusive ownership or deletion/lifecycle cascade; compatible component reuse is permitted unless another constraint forbids it.
+
+  relation_endpoint_subtype_matching:
+    description: For ADR-0016 includes_component and applied_to endpoint checks, an instance matches an allowed type when at least one consistent canonical semantic type is equal to or a subtype of the allowed type; type inconsistency fails before relation matching.
+
+  condition_target_required:
+    description: Every BoundaryCondition, InitialCondition, Source, or Load instance must have at least one applied_to target that is equal to or a subtype of Field, Equation, or Scope.
+
+  condition_model_not_applied_directly:
+    description: ConditionModel is an aggregate context and is not itself an applied_to source merely because it includes condition or forcing components.
+
   physics_math_separation:
     description: Physical meaning and mathematical representation must remain distinct and connected through explicit relations.
 
@@ -54,10 +72,11 @@ accepted_semantics_not_yet_transcribed:
   - Interface requirement/extension/implementation validation from ADR-0008.
   - Qualified Relation Cardinality schema and deterministic diagnostics from ADR-0012.
   - Canonical machine-schema encoding/tests for ADR-0015 relation cardinalities and derived relation consistency.
+  - Canonical machine-schema enforcement/tests for ADR-0016 allowed-pair and endpoint-matching rules.
 
 open_language_schema_decisions:
-  - Complete cardinalities for Core relations beyond ADR-0015.
-  - Required versus optional relation matrix beyond ADR-0015.
+  - Complete cardinalities for Core relations beyond ADR-0015 and ADR-0016.
+  - Required versus optional relation matrix beyond focused accepted contracts.
   - Core graph acyclicity rules beyond already accepted specialized contracts.
   - Final canonical authoring/serialization schema for the complete Core package.
   - Multi-model/co-simulation semantics, if later justified by evidence.
