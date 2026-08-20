@@ -29,6 +29,12 @@ Implemented and independently accepted for design-stage use:
 - `constraint-value-normalized-v0.1.schema.json`
 - `constraint-compatibility-authoring-v0.1.schema.json`
 - `constraint-compatibility-normalized-v0.1.schema.json`
+- `predicate-authoring-v0.1.schema.json`
+- `predicate-normalized-v0.1.schema.json`
+- `constraint-conditional-authoring-v0.1.schema.json`
+- `constraint-conditional-normalized-v0.1.schema.json`
+
+All six ADR-0007 Constraint families now have accepted focused schema slices.
 
 Cardinality/QRC semantic evaluation such as closed-world counting, stable identity, qualifier subtype closure, and interval normalization remains semantic-validator work rather than JSON Schema logic.
 
@@ -40,10 +46,8 @@ The ADR-0021 Value slice uses numeric intervals and finite scalar allowed sets. 
 
 The ADR-0022 Compatibility slice uses canonical semantic criterion identity, typed `schema | model_instance` operands, ordered/symmetric binary obligation identity, explicit semantic `INDETERMINATE`, and deterministic empty-set / mixed-state aggregation. Backend identity and backend runtime/license state are outside the semantic payload.
 
-Still under focused consolidation:
+The ADR-0023/0024 Conditional slice uses exact-one EvaluationReference bindings, `PRESENT | ABSENT | UNRESOLVED` lookup, Compare/Membership/Exists/Boolean predicates, three-valued truth plus separate EvaluationFailure, nonempty ordinary-only consequents, and cross-family `FAIL > INDETERMINATE > PASS` aggregation. Normalized Membership has set semantics and cannot retain duplicates.
 
-- Conditional / predicate syntax
+The repository intentionally does not expose permissive opaque schemas for unfinished language areas.
 
-The repository intentionally does not expose permissive opaque schemas for unfinished Constraint families.
-
-Other planned schema work includes canonical entities/relations, identifiers/packages, Interfaces, accepted Value/Unit/PhysicalDimension graph representations, and Profile/mapping authoring contracts.
+Next planned schema work includes canonical entities/relations, identifiers/packages, **Interfaces**, accepted Value/Unit/PhysicalDimension graph representations, and Profile/mapping authoring contracts.
