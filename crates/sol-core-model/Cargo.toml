@@ -1,0 +1,10 @@
+[package]
+name = "sol-core-model"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+description = "Solver-independent semantic core model for Simulation Ontology"
+
+[dependencies]
