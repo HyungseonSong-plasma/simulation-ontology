@@ -157,6 +157,18 @@ relations:
       min: 0
       max: unbounded
 
+  has_value_definition:
+    description: Associates a value-bearing semantic Entity with an identified/reified ValueDefinition instance under ADR-0026. InlineValueDefinition payloads do not participate in this relation.
+    range: ValueDefinition
+    ownership: non_owning_reference
+    domain_semantics: admissible value-bearing Entity types are determined by the owning schema/use-site contract; no synthetic universal superclass is introduced in v0.1.
+
+  depends_on:
+    description: Preserves a computational semantic dependency from a reified ValueDefinition to an independently identifiable semantic Entity under ADR-0003/0026.
+    domain: ValueDefinition
+    range_semantics: independently identifiable semantic Entity resolved under ADR-0009; the broad machine range is finalized during canonical package integration.
+    order_semantics: none
+
 accepted_semantics_not_yet_transcribed:
   - Relation/constraint provenance requirements accepted by prior ADRs.
   - Namespace-qualified identity requirements for exported relation terms.
@@ -169,11 +181,13 @@ open_language_schema_decisions:
   - Whether selected broad domains/ranges should later be narrowed by Interface requirements or additional subtype constraints.
   - Final canonical YAML/JSON Schema field spelling for relation cardinality, derived-relation, allowed-pair, and endpoint-matching rules.
   - Canonical stable serialization identity for Cardinality Constraint authorities.
+  - Final package-level domain/range encoding for broad value-bearing and dependency relations introduced by ADR-0026.
 
 notes:
   - ADR-0015 defines `has_model`, `has_task`, `uses_model`, `has_analysis`, the derived `analyzed_by` rule, and `produces` minimum-zero semantics.
   - ADR-0016 defines `includes_component`, its authoritative allowed-pair matrix, canonical subtype-aware endpoint matching for this contract, and the repaired `applied_to` domain/cardinality.
   - ADR-0017 defines explicit Core `0..*` projections for `represented_by`, `closed_by`, `parameterized_by`, `defined_on`, `discretized_by`, `solved_by`, and `observed_by`; these projections mirror canonical Core Cardinality Constraints rather than acting as a second authority.
+  - ADR-0026 defines `has_value_definition` and `depends_on` only for reified ValueDefinition graph instances; `Value`, UnitReference, DimensionVector, and InlineValueDefinition remain typed payloads rather than Entity endpoints.
   - `includes_component` is direct-only, non-owning, non-transitive, and unordered; recursive traversal is a query/view rather than an inferred stored relation.
   - `produces` is normatively `SimulationTask -> Result`; backend execution structure does not narrow its domain.
   - Backend-local relations and handles belong to backend ontologies/Profile/Adapter layers, not this Core registry.
