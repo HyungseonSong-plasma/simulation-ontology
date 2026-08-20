@@ -1,10 +1,10 @@
 # Schema
 
-Machine-readable structural schemas for the SOL v0.1 language live here.
+**SOL v0.1 design-stage schema baseline is CLOSED by ADR-0030.**
+
+Machine-readable structural schemas for the SOL v0.1 language live here. These schemas implement accepted ADR semantics; they do not define or override semantic truth. Semantic validators handle invariants that JSON Schema cannot express deterministically.
 
 ## Authority boundary
-
-Schemas implement accepted ADR semantics; they do not define or override semantic truth. Semantic validators handle invariants that JSON Schema cannot express deterministically.
 
 ADR-0018 distinguishes:
 
@@ -14,7 +14,7 @@ AuthoringConstraint -> normalization -> NormalizedConstraintPayload
 
 Normalized composition evidence retains contributor/context provenance outside or around the semantic payload.
 
-## Current accepted design-stage coverage
+## Closed v0.1 design-stage coverage
 
 ### Constraint and Predicate schemas
 
@@ -76,10 +76,12 @@ A design-stage reference snapshot is closed, names an exact normalized ontology 
 
 These fixtures validate the focused design-stage package/model boundary; they are not production Adapter or backend runtime schemas.
 
-## Explicitly deferred / outside current closure gate
+## Post-design / deferred
+
+The following are outside the closed v0.1 design-stage schema baseline unless new evidence triggers the ADR-0030 reopen criteria:
 
 - production Profile/Adapter package authoring;
 - backend execution/runtime schemas;
 - namespace federation/augmentation;
 - complete general-purpose model-document/application syntax beyond ADR-0029 reference snapshots;
-- richer future PropertyDefinition metadata where not required by current reference cases.
+- richer future PropertyDefinition metadata where not required by the closed reference cases.
