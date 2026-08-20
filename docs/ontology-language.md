@@ -1,7 +1,7 @@
 # Simulation Ontology Language
 
 **Version:** 0.1  
-**Status:** Frozen semantic baseline through ADR-0016; machine-readable consolidation in progress
+**Status:** Frozen semantic baseline through ADR-0017; machine-readable consolidation in progress
 
 ## 1. Purpose
 
@@ -72,7 +72,7 @@ Endpoint constraints may be expressed as explicit domain/range types or, where a
 
 A `Constraint` expresses a machine-verifiable requirement on an ontology or model graph, including required properties/relations, cardinality, allowed entity types, dimensional consistency, namespace rules, dependency restrictions, and graph invariants.
 
-The SOL v0.1 Constraint architecture is governed by ADR-0007. Qualified Relation Cardinality is the accepted typed-target cardinality extension defined by ADR-0012.
+The SOL v0.1 Constraint architecture is governed by ADR-0007. Qualified Relation Cardinality is the accepted typed-target cardinality extension defined by ADR-0012. Cardinality remains normatively a Constraint even when a RelationDefinition carries a machine-readable cardinality projection for authoring/state recovery.
 
 ### 3.6 Extension
 
@@ -266,7 +266,33 @@ Field | Equation | Scope
 
 Each conforming source requires `1..*` `applied_to` targets. `ConditionModel` itself is an aggregate and is not a direct `applied_to` source.
 
-The value rules are accepted in ADR-0002, reference/dependency rules in ADR-0003, unit/dimension rules in ADR-0004/0005, Constraint composition in ADR-0007, Interface/inheritance rules in ADR-0008, identity/package rules in ADR-0009, Profile/backend mapping in ADR-0010/0011, QRC in ADR-0012, naming/taxonomy disambiguation in ADR-0014, Simulation/Model/Task relations in ADR-0015, and direct component/condition-target semantics in ADR-0016.
+### Rule 21 — Generic Core cardinality baseline and projection authority
+
+ADR-0017 assigns generic Core source interval `0..*` to:
+
+```text
+represented_by
+closed_by
+parameterized_by
+defined_on
+discretized_by
+solved_by
+observed_by
+```
+
+This interval means deliberately unconstrained/optional at generic Core level, not unknown. Domain/Interface/Profile constraints may narrow it conjunctively under ADR-0007.
+
+For these frozen Core relations, the canonical Cardinality Constraint is the semantic authority. A relation-side `source_cardinality` field is a required matching projection/cache only:
+
+```text
+projection missing  -> FAIL: CARDINALITY_PROJECTION_MISSING
+projection mismatch -> FAIL: CARDINALITY_PROJECTION_MISMATCH
+projection matches  -> PASS
+```
+
+The projection is not intersected as a second Constraint and is not rewritten when a domain/interface/profile refinement narrows the effective interval.
+
+The value rules are accepted in ADR-0002, reference/dependency rules in ADR-0003, unit/dimension rules in ADR-0004/0005, Constraint composition in ADR-0007, Interface/inheritance rules in ADR-0008, identity/package rules in ADR-0009, Profile/backend mapping in ADR-0010/0011, QRC in ADR-0012, naming/taxonomy disambiguation in ADR-0014, Simulation/Model/Task relations in ADR-0015, direct component/condition-target semantics in ADR-0016, and generic Core relation cardinality in ADR-0017.
 
 ## 5. Ontology package model
 
@@ -424,6 +450,7 @@ MappingPlan / BackendAdapter layer
 6. Profile/MappingRule/MappingClaim authoring schemas consistent with ADR-0010/0011.
 7. Canonical structural/semantic schema enforcement for ADR-0015 relation cardinalities and derived `analyzed_by` consistency.
 8. Canonical schema enforcement for ADR-0016 allowed-pair and subtype-aware relation endpoint semantics.
+9. Canonical schema enforcement for ADR-0017 Cardinality Constraint authority, projection presence, and projection consistency.
 
 These are transcription/representation tasks unless implementation evidence exposes a new normative contradiction.
 
@@ -432,16 +459,18 @@ These are transcription/representation tasks unless implementation evidence expo
 1. Final language-level representation of `Value`, `ValueDefinition`, `PhysicalDimension`, and `Unit` within the canonical graph/authoring schema.
 2. Normative subtype taxonomy of `ValueDefinition`, if any.
 3. Provenance/data-source representation for ValueDefinitions beyond already accepted semantic boundaries.
-4. Complete Core relation cardinalities and required/optional relation matrix beyond ADR-0015/0016.
-5. Final canonical serialization layout for Interface definitions and implementation mappings.
-6. SolverConfiguration cardinality/default/task-specific override semantics.
+4. Final canonical serialization layout for Interface definitions and implementation mappings.
+5. SolverConfiguration default/task-specific override semantics beyond the generic `solved_by 0..*` Core baseline.
+6. Domain/Interface/Profile completeness refinements for relations whose generic Core cardinality is intentionally `0..*`.
 7. Whether additional generic actions/transformations become a first-class Core construct in a later SOL version; v0.1 does not require one.
 8. Multi-model/co-simulation semantics if later justified by evidence.
+
+Generic Core cardinality for the ADR-0017 relations is no longer an open language-design question.
 
 Backend installation, licensing, production Adapter implementation, and backend execution V&V are not SOL language-design blockers.
 
 ## 12. v0.1 success criterion
 
-The v0.1 semantic architecture is frozen through ADR-0016. Language/schema consolidation succeeds when accepted contracts can be represented and independently validated without adding semantics not present in the ADR baseline.
+The v0.1 semantic architecture is frozen through ADR-0017. Language/schema consolidation succeeds when accepted contracts can be represented and independently validated without adding semantics not present in the ADR baseline.
 
 Small thermal and plasma/QRC models remain sufficient design-stage structural stress cases. Production-quality Adapter execution belongs to separate Adapter projects and may reopen the language/architecture only if it produces a genuine semantic counterexample.
