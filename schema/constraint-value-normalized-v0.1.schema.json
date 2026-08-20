@@ -2,26 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://simulation-ontology.example/schema/constraint-value-normalized-v0.1.schema.json",
   "title": "SOL Normalized Scalar Value Constraint v0.1",
-  "description": "Canonical normalized scalar Value payload for ADR-0021.",
+  "description": "Canonical normalized scalar Value Constraint using the shared ADR-0021/0026 exact-decimal scalar.",
   "$defs": {
-    "decimalScalar": {
-      "type": "object",
-      "required": ["coefficient", "exponent10"],
-      "properties": {
-        "coefficient": {
-          "type": "string",
-          "pattern": "^(?:0|-?[1-9](?:[0-9]*[1-9])?)$"
-        },
-        "exponent10": {"type": "integer"}
-      },
-      "allOf": [
-        {
-          "if": {"properties": {"coefficient": {"const": "0"}}, "required": ["coefficient"]},
-          "then": {"properties": {"exponent10": {"const": 0}}}
-        }
-      ],
-      "additionalProperties": false
-    },
+    "decimalScalar": {"$ref": "exact-decimal-v0.1.schema.json"},
     "normalizedBound": {
       "type": "object",
       "required": ["value", "inclusive"],
