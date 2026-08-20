@@ -1,6 +1,6 @@
 # ADR-0011: MappingPlan Determinism and Executable Backend Target
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-08-20  
 **Supplements:** ADR-0010 Profile and Backend Mapping Contract
 
@@ -266,7 +266,7 @@ SOL mathematical/analysis semantics remain authoritative. Backend formulation id
 
 - Adapters must provide normalized effect descriptors, versioned comparator/normalizer/idempotency registries, component-keyed target resolution, and explicit orchestration contracts.
 - MappingPlan validation is intentionally conservative when disjointness cannot be proven.
-- Executable evidence is required before SOL v0.1 architecture freeze.
+- Reference implementation and backend execution evidence remain implementation/Adapter validation work and are not prerequisites for design-stage architecture freeze.
 
 ## Deferred
 
@@ -281,7 +281,9 @@ This ADR does not define:
 
 ## Validation requirement
 
-Acceptance of this contract does not authorize SOL v0.1 architecture freeze. Freeze requires executable evidence for machine-readable schemas, MappingPlan generation, comparator resolution, BackendTarget resolution, and Thermal/Plasma fixtures showing deterministic decisions and no hidden MappingRule/MappingClaim side channel.
+Design-stage acceptance requires independent contract validation plus official-document/reference-model stress testing sufficient to show that the contract is backend-independent and does not require new Core semantics. Machine-readable schemas and very small synthetic smoke cases MAY be used as supplementary implementability evidence.
+
+Full BackendAdapter implementation, backend installation/licensing, release-specific integration, and backend execution V&V are explicitly deferred to implementation/Adapter projects and SHALL NOT block SOL v0.1 design-stage architecture freeze unless they later expose a genuine architecture counterexample.
 
 ## Decision summary
 
