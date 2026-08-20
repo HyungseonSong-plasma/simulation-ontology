@@ -6,7 +6,28 @@ constraints:
     description: Core ontology entities and relations must not require software-specific object types.
 
   model_task_separation:
-    description: SimulationModel defines the model; SimulationTask defines computations performed on it.
+    description: SimulationModel defines what is modeled; SimulationTask is an identifiable application of an Analysis to a model.
+
+  simulation_single_model:
+    description: Every Simulation has exactly one has_model target under ADR-0015.
+
+  simulation_requires_task:
+    description: Every Simulation has at least one has_task target under ADR-0015.
+
+  simulation_task_model_consistency:
+    description: If Simulation S has_model M and has_task T, then T uses_model M must hold.
+
+  task_single_model:
+    description: Every SimulationTask has exactly one uses_model target under ADR-0015.
+
+  task_single_analysis:
+    description: Every SimulationTask has exactly one has_analysis target under ADR-0015.
+
+  analyzed_by_derivation:
+    description: M analyzed_by A iff at least one SimulationTask T has uses_model M and has_analysis A; materialized analyzed_by edges are derived data, not a second source of truth.
+
+  result_not_required_pre_execution:
+    description: A SimulationTask may have zero produces edges before execution; produces cardinality is 0..*.
 
   physics_math_separation:
     description: Physical meaning and mathematical representation must remain distinct and connected through explicit relations.
@@ -32,14 +53,16 @@ accepted_semantics_not_yet_transcribed:
   - Full six-family Constraint structural schema and composition algebra from ADR-0007.
   - Interface requirement/extension/implementation validation from ADR-0008.
   - Qualified Relation Cardinality schema and deterministic diagnostics from ADR-0012.
+  - Canonical machine-schema encoding/tests for ADR-0015 relation cardinalities and derived relation consistency.
 
 open_language_schema_decisions:
-  - Complete cardinalities for Core relations.
-  - Required versus optional relation matrix for Core model-instance validation.
-  - Explicit top-level composition relations for Simulation, SimulationModel, and SimulationTask.
+  - Complete cardinalities for Core relations beyond ADR-0015.
+  - Required versus optional relation matrix beyond ADR-0015.
   - Core graph acyclicity rules beyond already accepted specialized contracts.
   - Final canonical authoring/serialization schema for the complete Core package.
+  - Multi-model/co-simulation semantics, if later justified by evidence.
 
 notes:
   - Accepted semantics are not considered pending architecture questions merely because their final YAML/JSON Schema transcription is incomplete.
   - Machine-readable schema/tooling work must not silently strengthen or weaken the accepted ADR semantics.
+  - Backend installation, licensing, and production Adapter execution do not participate in these Core model-instance constraints.
