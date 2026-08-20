@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/relation-definition-v0.1.schema.json",
+  "title": "SOL RelationDefinition v0.1",
+  "$defs": {
+    "canonicalReference": {"type": "string", "minLength": 1},
+    "typedEndpointContract": {
+      "type": "object",
+      "required": ["kind", "matching"],
+      "properties": {
+        "kind": {"const": "typed"},
+        "matching": {"const": "canonical_type_or_subtype"},
+        "domain": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/canonicalReference"}
+        },
+        "range": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/canonicalReference"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "allowedPair": {
+      "type": "object",
+      "required": ["source", "targets"],
+      "properties": {
+        "source": {"$ref": "#/$defs/canonicalReference"},
+        "targets": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/canonicalReference"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "allowedPairsEndpointContract": {
+      "type": "object",
+      "required": ["kind", "matching", "pairs"],
+      "properties": {
+        "kind": {"const": "allowed_pairs"},
+        "matching": {"const": "canonical_type_or_subtype"},
+        "pairs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/allowedPair"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "cardinalityProjection": {
+      "type": "object",
+      "required": ["constraint", "min", "max"],
+      "properties": {
+        "constraint": {"$ref": "#/$defs/canonicalReference"},
+        "min": {"type": "integer", "minimum": 0},
+        "max": {
+          "oneOf": [
+            {"type": "integer", "minimum": 0},
+            {"const": "unbounded"}
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": ["id", "endpoint_contract"],
+  "properties": {
+    "id": {"$ref": "#/$defs/canonicalReference"},
+    "endpoint_contract": {
+      "oneOf": [
+        {"$ref": "#/$defs/typedEndpointContract"},
+        {"$ref": "#/$defs/allowedPairsEndpointContract"}
+      ]
+    },
+    "source_cardinality_projection": {"$ref": "#/$defs/cardinalityProjection"},
+    "derived": {"type": "boolean"},
+    "transitive": {"type": "boolean"},
+    "ownership": {"const": "non_owning_reference"},
+    "order_semantics": {"const": "none"}
+  },
+  "additionalProperties": false
+}
