@@ -45,7 +45,7 @@
         "predicate": {"const": "membership"},
         "ref": {"$ref": "#/$defs/evaluationReference"},
         "scalar_kind": {"enum": ["number", "string", "boolean"]},
-        "values": {"type": "array"}
+        "values": {"type": "array", "uniqueItems": true}
       },
       "allOf": [
         {
