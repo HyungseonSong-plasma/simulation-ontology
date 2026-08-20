@@ -16,17 +16,20 @@ Normalized composition evidence retains contributor/context provenance outside o
 
 ## Current Constraint coverage
 
-Implemented:
+Implemented and independently accepted for design-stage use:
 
 - `constraint-cardinality-authoring-v0.1.schema.json`
 - `constraint-cardinality-normalized-v0.1.schema.json`
 - `qrc-v0.1.schema.json` as a Cardinality authoring compatibility entry point
+- `constraint-type-authoring-v0.1.schema.json`
+- `constraint-type-normalized-v0.1.schema.json`
 
-The Cardinality/QRC slice is validated for design-stage use. QRC closed-world/type/identity/counting semantics remain semantic-validator responsibilities rather than JSON Schema rules.
+Cardinality/QRC semantic evaluation such as closed-world counting, stable identity, qualifier subtype closure, and interval normalization remains semantic-validator work rather than JSON Schema logic.
+
+The ADR-0019 Type slice likewise leaves canonical identity resolution, Entity-Type-versus-Interface identity, subtype closure, finite target-family/allowed-pair narrowing, Type intersection, and semantic-versus-representability axis separation to semantic validation.
 
 Still under focused consolidation:
 
-- Type
 - Value
 - Dimension
 - Compatibility
