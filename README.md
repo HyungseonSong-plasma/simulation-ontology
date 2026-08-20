@@ -51,7 +51,7 @@ This statement describes the development process and does not imply that generat
 
 ## Status
 
-**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0017; Constraint and Interface language/schema consolidation accepted through ADR-0025.**
+**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0017; Constraint, Interface, and Value/Unit/Dimension language/schema consolidation accepted through ADR-0027.**
 
 Architecture/freeze amendments:
 
@@ -71,7 +71,9 @@ Language/schema consolidation:
 - [`ADR-0023`](docs/decisions/0023-conditional-constraint-and-predicate-evaluation-contract.md) defines Conditional activation, EvaluationReference lookup, Compare/Membership/Exists/Boolean predicates, strong-Kleene truth, and EvaluationFailure semantics.
 - [`ADR-0024`](docs/decisions/0024-cross-family-validation-state-aggregation.md) clarifies cross-family `FAIL > INDETERMINATE > PASS` propagation for the common design-stage validation-state slice.
 - [`ADR-0025`](docs/decisions/0025-interface-serialization-and-inherited-capability-conformance.md) defines InterfaceDefinition/InterfaceImplementation serialization, targeted reusable ConstraintApplications, mapping convergence, and inherited Interface guarantees through Entity specialization.
+- [`ADR-0026`](docs/decisions/0026-value-unit-dimension-and-valuedefinition-transcription-boundary.md) fixes the graph-versus-typed-data boundary for DimensionVector, UnitReference, Value, and reified ValueDefinition.
+- [`ADR-0027`](docs/decisions/0027-inline-valuedefinition-format-provider-boundary.md) defines the format-provider normalization boundary for nonliteral inline ValueDefinitions and deterministic semantic-dependency extraction.
 
-All six Constraint families and the focused Interface schema/conformance slice now have accepted design-stage contracts and independent Validation readback. Backend installation, licensing, production Adapter implementation, and full backend execution V&V are intentionally outside this design-stage closure path unless they later expose a genuine architecture counterexample.
+All six Constraint families, the focused Interface slice, and Value/Unit/Dimension/ValueDefinition transcription now have accepted design-stage contracts and independent Validation readback. Backend installation, licensing, production Adapter implementation, and full backend execution V&V are intentionally outside this design-stage closure path unless they later expose a genuine architecture counterexample.
 
-The immediate focus is **accepted Value / Unit / PhysicalDimension graph transcription**, followed by canonical package/schema integration, minimal Thermal + Plasma/QRC reference models, and final independent design-stage audit.
+The immediate focus is **canonical SOL package/schema integration**, followed by minimal Thermal + Plasma/QRC reference models and final independent design-stage audit.
