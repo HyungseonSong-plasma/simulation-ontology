@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/value-v0.1.schema.json",
+  "title": "SOL Normalized Value v0.1",
+  "description": "Typed evaluated scalar/vector/tensor Value payload from ADR-0026.",
+  "$defs": {
+    "numericScalar": {"$ref": "exact-decimal-v0.1.schema.json"},
+    "unit": {"$ref": "unit-reference-v0.1.schema.json"},
+    "tensorShape": {
+      "type": "array",
+      "minItems": 2,
+      "items": {"type": "integer", "minimum": 1}
+    },
+    "numberScalar": {
+      "type": "object",
+      "required": ["shape", "scalar_kind", "data"],
+      "properties": {
+        "shape": {"const": "scalar"},
+        "scalar_kind": {"const": "number"},
+        "data": {"$ref": "#/$defs/numericScalar"},
+        "unit": {"$ref": "#/$defs/unit"}
+      },
+      "additionalProperties": false
+    },
+    "stringScalar": {
+      "type": "object",
+      "required": ["shape", "scalar_kind", "data"],
+      "properties": {
+        "shape": {"const": "scalar"},
+        "scalar_kind": {"const": "string"},
+        "data": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "booleanScalar": {
+      "type": "object",
+      "required": ["shape", "scalar_kind", "data"],
+      "properties": {
+        "shape": {"const": "scalar"},
+        "scalar_kind": {"const": "boolean"},
+        "data": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "numberVector": {
+      "type": "object",
+      "required": ["shape", "scalar_kind", "data"],
+      "properties": {
+        "shape": {"const": "vector"},
+        "scalar_kind": {"const": "number"},
+        "data": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/numericScalar"}},
+        "unit": {"$ref": "#/$defs/unit"}
+      },
+      "additionalProperties": false
+    },
+    "stringVector": {
+      "type": "object",
+      "required": ["shape", "scalar_kind", "data"],
+      "properties": {
+        "shape": {"const": "vector"},
+        "scalar_kind": {"const": "string"},
+        "data": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "booleanVector": {
+      "type": "object",
+      "required": ["shape", "scalar_kind", "data"],
+      "properties": {
+        "shape": {"const": "vector"},
+        "scalar_kind": {"const": "boolean"},
+        "data": {"type": "array", "minItems": 1, "items": {"type": "boolean"}}
+      },
+      "additionalProperties": false
+    },
+    "numberTensor": {
+      "type": "object",
+      "required": ["shape", "scalar_kind", "tensor_shape", "data"],
+      "properties": {
+        "shape": {"const": "tensor"},
+        "scalar_kind": {"const": "number"},
+        "tensor_shape": {"$ref": "#/$defs/tensorShape"},
+        "data": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/numericScalar"}},
+        "unit": {"$ref": "#/$defs/unit"}
+      },
+      "additionalProperties": false
+    },
+    "stringTensor": {
+      "type": "object",
+      "required": ["shape", "scalar_kind", "tensor_shape", "data"],
+      "properties": {
+        "shape": {"const": "tensor"},
+        "scalar_kind": {"const": "string"},
+        "tensor_shape": {"$ref": "#/$defs/tensorShape"},
+        "data": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "booleanTensor": {
+      "type": "object",
+      "required": ["shape", "scalar_kind", "tensor_shape", "data"],
+      "properties": {
+        "shape": {"const": "tensor"},
+        "scalar_kind": {"const": "boolean"},
+        "tensor_shape": {"$ref": "#/$defs/tensorShape"},
+        "data": {"type": "array", "minItems": 1, "items": {"type": "boolean"}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {"$ref": "#/$defs/numberScalar"},
+    {"$ref": "#/$defs/stringScalar"},
+    {"$ref": "#/$defs/booleanScalar"},
+    {"$ref": "#/$defs/numberVector"},
+    {"$ref": "#/$defs/stringVector"},
+    {"$ref": "#/$defs/booleanVector"},
+    {"$ref": "#/$defs/numberTensor"},
+    {"$ref": "#/$defs/stringTensor"},
+    {"$ref": "#/$defs/booleanTensor"}
+  ]
+}
