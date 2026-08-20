@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/constraint-type-normalized-v0.1.schema.json",
+  "title": "SOL Normalized Relation-Target Type Constraint v0.1",
+  "description": "Canonical semantic payload shape for the ADR-0019 relation-target Type Constraint slice. Canonical identity and subtype semantics are validated outside JSON Schema.",
+  "type": "object",
+  "required": ["type", "relation", "target_type"],
+  "properties": {
+    "type": {"const": "type"},
+    "relation": {"type": "string", "minLength": 1},
+    "target_type": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}
