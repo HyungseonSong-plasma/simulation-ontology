@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/constraint-compatibility-normalized-v0.1.schema.json",
+  "title": "SOL Normalized Compatibility Constraint v0.1",
+  "description": "Canonical structural payload for ADR-0022 Compatibility obligations.",
+  "$defs": {
+    "resolvedSemanticReference": {
+      "type": "object",
+      "required": ["identity_space", "id"],
+      "properties": {
+        "identity_space": {"enum": ["schema", "model_instance"]},
+        "id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": ["type", "criterion", "left", "right", "expect"],
+  "properties": {
+    "type": {"const": "compatibility"},
+    "criterion": {"type": "string", "minLength": 1},
+    "left": {"$ref": "#/$defs/resolvedSemanticReference"},
+    "right": {"$ref": "#/$defs/resolvedSemanticReference"},
+    "expect": {"enum": ["compatible", "incompatible"]}
+  },
+  "additionalProperties": false
+}
