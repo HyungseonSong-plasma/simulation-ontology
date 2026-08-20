@@ -1,0 +1,38 @@
+SOL v0.1 ADR-0021 Value Constraint focused smoke evidence
+Date: 2026-08-20
+Branch: validation/sol-v0.1-independent-review
+Scope: design-stage exact-decimal/Value semantic smoke plus schema artifact readback; no backend runtime or Unit registry
+
+Semantic smoke result: 16 PASS / 0 FAIL
+
+PASS equivalent decimal lexical canonicalization
+PASS large adjacent integer distinction
+PASS exact ordering beyond binary64 safe integer range
+PASS signed zero canonicalization
+PASS NaN/Infinity/non-JSON numeric extension rejection
+PASS open/closed equal-bound emptiness
+PASS closed singleton interval
+PASS stronger interval-bound intersection
+PASS numeric allowed-set decimal deduplication
+PASS empty authored set -> semantic empty result
+PASS numeric interval/set filtering
+PASS cross-kind set intersection empty/no coercion
+PASS empty static -> Schema Conflict classification
+PASS empty active Conditional -> Configuration Conflict classification
+PASS unresolved comparison space blocks numeric normalization
+PASS integral normalized exponent representations align with JSON Schema integer semantics
+
+VIV-05 regression:
+- exponent10 1.0, -2.0, and 0.0 are accepted as integer-valued numeric representations and canonicalized for semantic comparison;
+- exponent10 1.5 and Boolean are rejected.
+
+Structural schema readback:
+- authoring schema separates numeric_interval and allowed_set forms;
+- normalized schema uses exact-decimal coefficient/exponent objects for every numeric operand;
+- canonical coefficient syntax rejects leading/trailing zero ambiguity and negative zero;
+- normalized allowed sets require at least one member, while empty authoring sets are handled as semantic `empty` results.
+
+Environment note:
+- full repository clone/test execution was unavailable in the execution container because github.com DNS resolution is unavailable there;
+- this is external tooling connectivity and not a design-stage semantic/schema blocker;
+- durable GitHub artifacts were independently read back through the connected repository.
