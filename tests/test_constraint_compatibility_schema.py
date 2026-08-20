@@ -121,19 +121,18 @@ class CompatibilityConstraintTests(unittest.TestCase):
         composed = compose_obligations([(a, SYMMETRIC), (b, ORDERED)])
         self.assertEqual(len(composed), 2)
 
-    def test_unresolved_semantic_context_is_indeterminate(self):
+    def test_unresolved_semantic_context_is_indeterminate_with_code(self):
         payload = self.normalized()
-        self.assertEqual(
-            evaluate_obligation(payload, semantic_context_resolved=False, binary_result=None),
-            "INDETERMINATE",
-        )
+        result = evaluate_obligation(payload, semantic_context_resolved=False, binary_result=None)
+        self.assertEqual(result["state"], "INDETERMINATE")
+        self.assertEqual(result["code"], "COMPATIBILITY_EVALUATION_CONTEXT_UNRESOLVED")
 
     def test_binary_evaluation_matches_expectation(self):
         yes = self.normalized(expect="compatible")
         no = self.normalized(expect="incompatible")
-        self.assertEqual(evaluate_obligation(yes, semantic_context_resolved=True, binary_result="compatible"), "PASS")
-        self.assertEqual(evaluate_obligation(yes, semantic_context_resolved=True, binary_result="incompatible"), "FAIL")
-        self.assertEqual(evaluate_obligation(no, semantic_context_resolved=True, binary_result="incompatible"), "PASS")
+        self.assertEqual(evaluate_obligation(yes, semantic_context_resolved=True, binary_result="compatible")["state"], "PASS")
+        self.assertEqual(evaluate_obligation(yes, semantic_context_resolved=True, binary_result="incompatible")["state"], "FAIL")
+        self.assertEqual(evaluate_obligation(no, semantic_context_resolved=True, binary_result="incompatible")["state"], "PASS")
 
     def test_family_aggregation(self):
         self.assertEqual(aggregate_states([]), "PASS")
@@ -146,7 +145,7 @@ class CompatibilityConstraintTests(unittest.TestCase):
         payload = self.normalized()
         baseline = evaluate_obligation(payload, semantic_context_resolved=True, binary_result="compatible")
         backend_state = {"installed": False, "licensed": False, "release": None}
-        self.assertEqual(baseline, "PASS")
+        self.assertEqual(baseline["state"], "PASS")
         self.assertTrue(backend_state)
 
 
