@@ -65,12 +65,24 @@ class ConstraintDimensionSchemaTests(unittest.TestCase):
         with self.assertRaisesRegex(DimensionConstraintError, "DIMENSION_AXIS_UNKNOWN"):
             normalize_dimension_payload(authored)
 
+    def test_integral_json_numbers_are_normalized_to_integer_exponents(self):
+        for exponent, expected in ((1.0, 1), (-2.0, -2), (0.0, 0)):
+            with self.subTest(exponent=exponent):
+                authored = {"type": "dimension", "vector": {"time": exponent}}
+                self.authoring_validator.validate(authored)
+                normalized = normalize_dimension_payload(authored)
+                self.normalized_validator.validate(normalized)
+                self.assertEqual(normalized["vector"]["time"], expected)
+                self.assertIsInstance(normalized["vector"]["time"], int)
+
     def test_non_integer_exponent_is_rejected_in_v0_1(self):
         for exponent in (-0.5, 1.5, True):
             with self.subTest(exponent=exponent):
                 authored = {"type": "dimension", "vector": {"time": exponent}}
                 with self.assertRaises(ValidationError):
                     self.authoring_validator.validate(authored)
+                with self.assertRaisesRegex(DimensionConstraintError, "DIMENSION_EXPONENT_INVALID"):
+                    normalize_dimension_payload(authored)
 
     def test_thermal_conductivity_round_trip(self):
         sparse = {
