@@ -29,7 +29,10 @@ pub struct CanonicalId {
 }
 
 impl CanonicalId {
-    pub fn new(namespace: Namespace, local_name: impl Into<String>) -> Result<Self, CanonicalIdError> {
+    pub fn new(
+        namespace: Namespace,
+        local_name: impl Into<String>,
+    ) -> Result<Self, CanonicalIdError> {
         let local_name = local_name.into();
         if !valid_segment(&local_name) {
             return Err(CanonicalIdError::InvalidLocalName(local_name));
@@ -83,9 +86,15 @@ pub enum CanonicalIdError {
 impl Display for CanonicalIdError {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::MissingNamespace(value) => write!(formatter, "canonical id lacks namespace: {value}"),
-            Self::InvalidNamespace(value) => write!(formatter, "invalid canonical namespace: {value}"),
-            Self::InvalidLocalName(value) => write!(formatter, "invalid canonical local name: {value}"),
+            Self::MissingNamespace(value) => {
+                write!(formatter, "canonical id lacks namespace: {value}")
+            }
+            Self::InvalidNamespace(value) => {
+                write!(formatter, "invalid canonical namespace: {value}")
+            }
+            Self::InvalidLocalName(value) => {
+                write!(formatter, "invalid canonical local name: {value}")
+            }
         }
     }
 }
