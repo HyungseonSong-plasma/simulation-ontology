@@ -196,6 +196,23 @@ class PackageSchemaTests(unittest.TestCase):
         with self.assertRaises(ValidationError):
             validator("ontology-package-normalized-v0.1.schema.json").validate(value)
 
+    def test_semver_numeric_prerelease_leading_zero_is_invalid(self):
+        value = minimal_package()
+        value["package"]["version"] = "1.0.0-01"
+        with self.assertRaises(ValidationError):
+            validator("ontology-package-normalized-v0.1.schema.json").validate(value)
+
+    def test_semver_empty_prerelease_identifier_is_invalid(self):
+        value = minimal_package()
+        value["package"]["version"] = "1.0.0-alpha..1"
+        with self.assertRaises(ValidationError):
+            validator("ontology-package-normalized-v0.1.schema.json").validate(value)
+
+    def test_semver_valid_prerelease_and_build_passes(self):
+        value = minimal_package()
+        value["package"]["version"] = "1.0.0-alpha.1+build.7"
+        validator("ontology-package-normalized-v0.1.schema.json").validate(value)
+
 
 if __name__ == "__main__":
     unittest.main()
