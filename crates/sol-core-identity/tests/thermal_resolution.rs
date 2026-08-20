@@ -7,7 +7,8 @@ const UNRESOLVED_FIXTURE: &str =
 
 #[test]
 fn thermal_graph_resolves_deterministically() {
-    let simulation = Simulation::from_json(THERMAL_FIXTURE).expect("thermal fixture must deserialize");
+    let simulation =
+        Simulation::from_json(THERMAL_FIXTURE).expect("thermal fixture must deserialize");
 
     let first = IdentityResolver::resolve(&simulation).expect("thermal graph must resolve");
     let second = IdentityResolver::resolve(&simulation).expect("thermal graph must resolve again");
@@ -47,7 +48,8 @@ fn unresolved_relation_endpoint_is_rejected() {
 
 #[test]
 fn duplicate_canonical_id_is_rejected() {
-    let mut simulation = Simulation::from_json(THERMAL_FIXTURE).expect("thermal fixture must deserialize");
+    let mut simulation =
+        Simulation::from_json(THERMAL_FIXTURE).expect("thermal fixture must deserialize");
     simulation.tasks[0].analyses[0].id = simulation.model.physics[0].id.clone();
 
     let error = IdentityResolver::resolve(&simulation).expect_err("duplicate id must fail");
