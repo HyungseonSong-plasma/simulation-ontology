@@ -8,8 +8,8 @@ status: consolidating
 # - Taxonomic inheritance is NEVER inferred from file order or grouping.
 # - Any normative inheritance edge must be written explicitly with `is_a`
 #   and must satisfy ADR-0008 (0..1 direct Entity Type parent).
-# - Structural composition/grouping is represented by explicit Relations once
-#   those relation contracts are accepted; it is not encoded with `children`.
+# - Structural composition/grouping is represented by explicit Relations; it
+#   is not encoded with `children`.
 
 entities:
   Simulation: {}
@@ -85,17 +85,18 @@ entities:
   Result: {}
 
 accepted_semantics_not_yet_transcribed:
-  - Complete composition relations connecting Simulation, SimulationModel, and SimulationTask.
   - Complete taxonomic is_a edges for model/numerical/observation concepts where taxonomy is normatively justified.
   - Interface implementation metadata (`implements`, Interface extension) in a dedicated language-level machine representation.
   - Value, ValueDefinition, PhysicalDimension, and Unit final language-level representation as permitted by their accepted ADR boundaries.
+  - Full machine-schema enforcement of SimulationTask relation/cardinality semantics from ADR-0015.
 
 open_language_schema_decisions:
-  - Canonical relation names/cardinalities for top-level Simulation composition.
   - Whether additional Core concepts require explicit is_a edges versus composition/association relations.
   - Final serialization location for language-level Interface definitions.
+  - Final schema representation for relation cardinalities and derived-relation invariants.
 
 notes:
+  - `SimulationTask` is a distinct Entity Type that reifies application of one Analysis to one SimulationModel under ADR-0015; Analysis does not inherit from SimulationTask.
   - `Interface` is reserved for the ADR-0008 capability-contract language construct.
   - The former spatial concept named `Interface` is `SpatialInterface` under ADR-0014.
   - `Result` is declared to make the existing `produces` and `observed_by` relation contracts referentially complete.
