@@ -1,0 +1,40 @@
+name: Rust Core CI
+
+on:
+  push:
+    branches:
+      - main
+      - "impl/**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-core:
+    name: build-test-fmt-clippy-architecture
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install 1.80.1 --profile minimal --component rustfmt --component clippy
+          rustup default 1.80.1
+
+      - name: Build workspace
+        run: cargo build --workspace --all-targets --locked
+
+      - name: Test workspace
+        run: cargo test --workspace --locked
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+      - name: Run architecture counterexamples
+        run: cargo test -p sol-core-model --test architecture_counterexamples --locked
