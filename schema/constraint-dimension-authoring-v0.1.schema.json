@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/constraint-dimension-authoring-v0.1.schema.json",
+  "title": "SOL Dimension Constraint Authoring v0.1",
+  "description": "Sparse authoring schema for ADR-0020 Dimension constraints. Omitted recognized axes normalize to exponent zero; an explicit empty vector is DimensionOne.",
+  "type": "object",
+  "required": ["type", "vector"],
+  "properties": {
+    "type": {"const": "dimension"},
+    "vector": {
+      "type": "object",
+      "properties": {
+        "time": {"type": "integer"},
+        "length": {"type": "integer"},
+        "mass": {"type": "integer"},
+        "electric_current": {"type": "integer"},
+        "thermodynamic_temperature": {"type": "integer"},
+        "amount_of_substance": {"type": "integer"},
+        "luminous_intensity": {"type": "integer"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
