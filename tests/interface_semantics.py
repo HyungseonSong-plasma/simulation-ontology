@@ -108,6 +108,22 @@ def effective_interface_contract(interface_id: str, interfaces: Sequence[Mapping
     return visit(interface_id)
 
 
+def validate_requirement_definitions(contract: Mapping[str, object], definition_kinds: Mapping[str, str]):
+    for requirement in contract["properties"]:
+        kind = definition_kinds.get(requirement)
+        if kind is None:
+            raise InterfaceContractError("INTERFACE_REQUIREMENT_DEFINITION_UNRESOLVED")
+        if kind != "property":
+            raise InterfaceContractError("INTERFACE_REQUIREMENT_KIND_MISMATCH")
+    for requirement in contract["relations"]:
+        kind = definition_kinds.get(requirement)
+        if kind is None:
+            raise InterfaceContractError("INTERFACE_REQUIREMENT_DEFINITION_UNRESOLVED")
+        if kind != "relation":
+            raise InterfaceContractError("INTERFACE_REQUIREMENT_KIND_MISMATCH")
+    return True
+
+
 def validate_constraint_applications(
     contract: Mapping[str, object],
     constraint_definitions: Sequence[Mapping[str, object]],
@@ -155,11 +171,16 @@ def _entity_ancestors(entity_type: str, entity_parent: Mapping[str, str | None])
     seen: set[str] = set()
     current: str | None = entity_type
     while current is not None:
+        if current not in entity_parent:
+            raise InterfaceContractError("ENTITY_TYPE_UNRESOLVED")
         if current in seen:
             raise InterfaceContractError("ENTITY_TAXONOMY_CYCLE")
         seen.add(current)
         result.append(current)
-        current = entity_parent.get(current)
+        parent = entity_parent[current]
+        if parent is not None and not isinstance(parent, str):
+            raise InterfaceContractError("ENTITY_TYPE_REFERENCE_INVALID")
+        current = parent
     return tuple(result)
 
 
@@ -192,10 +213,23 @@ def _mapping_dict(
             raise InterfaceContractError("INTERFACE_REQUIREMENT_MAPPING_INVALID")
         if requirement not in required:
             raise InterfaceContractError("INTERFACE_REQUIREMENT_MAPPING_UNKNOWN")
-        if definition_kinds.get(concrete) != expected_kind:
+        requirement_kind = definition_kinds.get(requirement)
+        if requirement_kind is None:
+            raise InterfaceContractError("INTERFACE_REQUIREMENT_DEFINITION_UNRESOLVED")
+        if requirement_kind != expected_kind:
+            raise InterfaceContractError("INTERFACE_REQUIREMENT_KIND_MISMATCH")
+        concrete_kind = definition_kinds.get(concrete)
+        if concrete_kind is None:
+            raise InterfaceContractError("INTERFACE_CONCRETE_DEFINITION_UNRESOLVED")
+        if concrete_kind != expected_kind:
             raise InterfaceContractError("INTERFACE_REQUIREMENT_KIND_MISMATCH")
         grouped[requirement].append(concrete)
     for requirement in required:
+        requirement_kind = definition_kinds.get(requirement)
+        if requirement_kind is None:
+            raise InterfaceContractError("INTERFACE_REQUIREMENT_DEFINITION_UNRESOLVED")
+        if requirement_kind != expected_kind:
+            raise InterfaceContractError("INTERFACE_REQUIREMENT_KIND_MISMATCH")
         values = grouped.get(requirement, [])
         if not values:
             raise InterfaceContractError("INTERFACE_REQUIREMENT_MAPPING_MISSING")
@@ -213,6 +247,7 @@ def validate_direct_implementation(
     if not isinstance(interface_id, str):
         raise InterfaceContractError("INTERFACE_IMPLEMENTATION_REFERENCE_INVALID")
     contract = effective_interface_contract(interface_id, interfaces)
+    validate_requirement_definitions(contract, definition_kinds)
     properties = _mapping_dict(
         implementation.get("property_mappings", []),
         set(contract["properties"]),
