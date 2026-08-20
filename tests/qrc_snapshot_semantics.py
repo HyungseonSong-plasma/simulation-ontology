@@ -61,14 +61,15 @@ def _collect_resources(packages: Sequence[Mapping[str, object]]):
 def _contains(count: int, minimum: object, maximum: object) -> bool:
     if isinstance(minimum, bool) or not isinstance(minimum, int) or minimum < 0:
         raise SnapshotQRCError("QRC_BOUND_INVALID")
+    if maximum != "unbounded":
+        if isinstance(maximum, bool) or not isinstance(maximum, int) or maximum < 0:
+            raise SnapshotQRCError("QRC_BOUND_INVALID")
+        if minimum > maximum:
+            raise SnapshotQRCError("QRC_EMPTY_INTERVAL")
     if count < minimum:
         return False
     if maximum == "unbounded":
         return True
-    if isinstance(maximum, bool) or not isinstance(maximum, int) or maximum < 0:
-        raise SnapshotQRCError("QRC_BOUND_INVALID")
-    if minimum > maximum:
-        raise SnapshotQRCError("QRC_EMPTY_INTERVAL")
     return count <= maximum
 
 
