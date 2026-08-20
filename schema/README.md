@@ -55,4 +55,14 @@ The existing normalized Dimension and Value Constraint schemas reuse the shared 
 
 The repository intentionally does not expose an unqualified opaque Core expression/function/tabular payload. Nonliteral InlineValueDefinition payloads are owned by an explicitly identified format provider under ADR-0027.
 
-Next planned schema work is **canonical entities/relations/constraints/Interfaces/package integration**, followed by minimal reference-model validation. Profile/mapping authoring contracts remain separate backend-facing consolidation work where required by the design-stage closure criteria.
+Canonical package/resource schemas accepted under ADR-0028:
+
+- `entity-type-definition-v0.1.schema.json`
+- `property-definition-v0.1.schema.json`
+- `relation-definition-v0.1.schema.json`
+- `constraint-definition-v0.1.schema.json`
+- `ontology-package-normalized-v0.1.schema.json`
+
+The normalized package boundary separates distribution metadata from semantic namespaces and canonical resource identity. It requires exact resolved package dependencies, explicit namespace export tables, closed resource collections, canonical references, and reusable ConstraintDefinition wrappers. Cross-resource identity uniqueness, namespace-provider uniqueness, reference kind resolution, relation endpoint resolution, cardinality projection authority, Interface referential completeness, normalized allowed-pair convergence, and resolved-environment dependency checks remain semantic-validator responsibilities.
+
+The next schema work is driven only by the **Minimal Thermal and Plasma/QRC reference-model validation** if those cases expose a genuine missing normalized resource/model-document boundary. Production Profile/Adapter schemas and backend execution contracts remain outside the current design-stage closure gate.
