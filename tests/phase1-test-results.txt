@@ -1,0 +1,30 @@
+SOL v0.1 Phase 1 reference harness execution evidence
+Date: 2026-08-20
+Python: Python 3.13.5
+jsonschema: 4.26.0
+Command: python3 -m unittest -v tests.test_reference_validator tests.test_json_schemas
+---
+test_action_graph (tests.test_reference_validator.ContractHarnessTests.test_action_graph) ... ok
+test_aggregation_precedence (tests.test_reference_validator.ContractHarnessTests.test_aggregation_precedence) ... ok
+test_backend_target_component_release_capability_formulation_boundaries (tests.test_reference_validator.ContractHarnessTests.test_backend_target_component_release_capability_formulation_boundaries) ... ok
+test_closed_mapping_shapes (tests.test_reference_validator.ContractHarnessTests.test_closed_mapping_shapes) ... ok
+test_comparator_exactly_one_cross_context_and_direction (tests.test_reference_validator.ContractHarnessTests.test_comparator_exactly_one_cross_context_and_direction) ... ok
+test_effect_coverage_and_bookkeeping (tests.test_reference_validator.ContractHarnessTests.test_effect_coverage_and_bookkeeping) ... ok
+test_end_to_end_order_independence (tests.test_reference_validator.ContractHarnessTests.test_end_to_end_order_independence) ... ok
+test_idempotency_boundaries (tests.test_reference_validator.ContractHarnessTests.test_idempotency_boundaries) ... ok
+test_immutable_revision_runtime_drift_and_representability (tests.test_reference_validator.ContractHarnessTests.test_immutable_revision_runtime_drift_and_representability) ... ok
+test_loss_key_policy_conjunctive_default_deny_and_blocker (tests.test_reference_validator.ContractHarnessTests.test_loss_key_policy_conjunctive_default_deny_and_blocker) ... ok
+test_pair_universe_and_proof_only_pruning_order_independent (tests.test_reference_validator.ContractHarnessTests.test_pair_universe_and_proof_only_pruning_order_independent) ... ok
+test_qrc_bounds (tests.test_reference_validator.ContractHarnessTests.test_qrc_bounds) ... ok
+test_qrc_closed_world_stable_identity_multiple_typing_and_diagnostics (tests.test_reference_validator.ContractHarnessTests.test_qrc_closed_world_stable_identity_multiple_typing_and_diagnostics) ... ok
+test_qrc_qualifier_resolution_boundaries (tests.test_reference_validator.ContractHarnessTests.test_qrc_qualifier_resolution_boundaries) ... ok
+test_comparator_scope_conditional_shape (tests.test_json_schemas.JsonSchemaContractTests.test_comparator_scope_conditional_shape) ... ok
+test_mapping_claim_is_exactly_four_fields (tests.test_json_schemas.JsonSchemaContractTests.test_mapping_claim_is_exactly_four_fields) ... ok
+test_mapping_rule_is_exactly_five_fields (tests.test_json_schemas.JsonSchemaContractTests.test_mapping_rule_is_exactly_five_fields) ... ok
+test_qrc_schema_bounds_and_extra_fields (tests.test_json_schemas.JsonSchemaContractTests.test_qrc_schema_bounds_and_extra_fields) ... ok
+test_schemas_are_valid_draft_2020_12 (tests.test_json_schemas.JsonSchemaContractTests.test_schemas_are_valid_draft_2020_12) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.021s
+
+OK
