@@ -1,19 +1,15 @@
 # Core Simulation Ontology Architecture
 
 **Version:** 0.1  
-**Status:** Frozen design baseline, amended through ADR-0017
+**Status:** Design-stage architecture frozen through ADR-0017; focused language/schema/package/model-snapshot representation accepted through ADR-0029; Thermal and Plasma/QRC reference gates accepted.
 
 ## 1. Purpose
 
 The Core Simulation Ontology provides a solver-independent and domain-independent semantic framework for simulation models. Software-specific concepts such as a MOOSE `Kernel`, COMSOL `Physics Feature`, or Ansys analysis object are backend representations rather than Core ontology concepts.
 
-The ontology should answer:
+The Core answers what is modeled, how it is represented mathematically, what constitutive/material/spatial context applies, what computational task is performed, and how the semantic model can be validated and mapped without making backend object trees the source of truth.
 
-> What is modeled, how is it represented mathematically, what material and spatial context applies, how is it discretized, and what computational task is performed on it?
-
-The project is intended to act as a foundational framework rather than a complete ontology for any single physics domain or simulation package.
-
-## 2. Framework layering
+## 2. Layering and dependency rule
 
 ```text
 Application / Product
@@ -30,411 +26,247 @@ simulation-ontology
    Core Framework
 ```
 
-The Core Framework defines solver- and domain-independent semantic primitives, relations, constraints, extension rules, and language contracts. Domain and Backend ontologies specialize toward the Core and are composed through Simulation Profiles. The Core MUST NOT depend on domain ontologies, backend ontologies, profiles, or applications.
+Specialized layers depend inward toward Core. Core MUST NOT depend on domain ontologies, backend ontologies, profiles, applications, backend installation state, or commercial license state. Domain/backend composition belongs to a Profile and executable lowering belongs to MappingPlan/BackendAdapter contracts under ADR-0010/0011.
 
-## 3. Dependency rule
+## 3. Top-level Simulation semantics
 
-```text
-Application
-    ↓ depends on
-Simulation Profile
-    ↓
-Domain Ontology + Backend Ontology
-    ↓
-simulation-ontology
-```
-
-Domain and backend ontologies SHOULD remain independent of one another. Their composition belongs to the Simulation Profile layer. This prevents MOOSE-, COMSOL-, Ansys-, plasma-, thermal-, or other specialized concepts from leaking into the Core semantic model.
-
-## 4. Top-level Simulation semantics
-
-`SimulationModel` defines **what is modeled**. `Analysis` defines **what computational question is asked**. `SimulationTask` is the identifiable application of one Analysis to one model. `SolverConfiguration` defines **how the Analysis is solved**.
-
-ADR-0015 makes the top-level structure explicit:
+`SimulationModel` defines **what is modeled**. `Analysis` defines **what computational question is asked**. `SimulationTask` reifies the identifiable application of one Analysis to one model. `SolverConfiguration` defines **how the Analysis is solved**.
 
 ```text
 Simulation
-   │
-   ├── has_model ─────────> exactly 1 SimulationModel
-   │
-   └── has_task ──────────> 1..* SimulationTask
-                                  │
-                                  ├── uses_model ───> exactly 1 SimulationModel
-                                  └── has_analysis ─> exactly 1 Analysis
+   ├── has_model ───────> exactly 1 SimulationModel
+   └── has_task ────────> 1..* SimulationTask
+                                ├── uses_model ───> exactly 1 SimulationModel
+                                ├── has_analysis ─> exactly 1 Analysis
+                                └── produces ─────> 0..* Result
+
+Analysis ── solved_by (generic Core 0..*) ──> SolverConfiguration
 ```
 
-`has_model` and `has_task` are non-owning semantic reference/aggregation relations. A SimulationModel may exist independently and may be reused by multiple task/Simulation contexts.
+For every `Simulation S`, if `S has_model M` and `S has_task T`, then `T uses_model M`. `has_model`, `has_task`, and `includes_component` are non-owning semantic references. Analysis and SolverConfiguration do not inherit from SimulationTask.
 
-For every Simulation `S`:
-
-```text
-S has_model M
-S has_task T
-=> T uses_model M
-```
-
-Diagram indentation alone is never inheritance or ownership.
-
-## 5. SimulationModel and direct component membership
-
-ADR-0016 makes the model-side grouping relation explicit:
-
-```text
-includes_component
-```
-
-The relation is direct-only, non-owning, non-transitive, and unordered. Its generic source cardinality is `0..*`. Endpoint validity is governed by an authoritative allowed-pair matrix and canonical equal-or-subtype matching.
-
-Thus the following diagram denotes `includes_component` edges, not `is_a`:
-
-```text
-SimulationModel
-├── PhysicsModel
-├── MathematicalModel
-├── ConstitutiveModel
-├── SpatialModel
-├── MaterialModel
-├── ConditionModel
-├── NumericalModel
-└── ObservationModel
-```
-
-No transitive membership is inferred. If a `SimulationModel` includes a `MathematicalModel` and that mathematical model includes a `Field`, SOL does not automatically assert a direct `SimulationModel -> Field` component edge.
-
-### 5.1 PhysicsModel
-
-Represents physical meaning independent of mathematical or software implementation.
-
-```text
-PhysicsModel includes_component:
-  Phenomenon
-  Process
-  Interaction
-```
-
-### 5.2 MathematicalModel
-
-Defines the mathematical formulation used to represent the physical model.
-
-```text
-MathematicalModel includes_component:
-  Formulation
-  Equation
-  Field
-  Operator
-  MathematicalParameter
-```
-
-```text
-PhysicsModel
-      │ represented_by
-      ▼
-MathematicalModel
-```
-
-Physics and mathematics are intentionally separated because one physical phenomenon may have multiple mathematical formulations, while the same mathematical operator may be reused across different physical domains.
-
-### 5.3 ConstitutiveModel
-
-Defines closure relations and property models required to close the mathematical system.
-
-```text
-ConstitutiveModel includes_component:
-  ClosureRelation
-  PropertyModel
-```
-
-```text
-MathematicalModel
-      │ closed_by
-      ▼
-ConstitutiveModel
-```
-
-### 5.4 MaterialModel
-
-Represents materials, species, and material properties.
-
-```text
-MaterialModel includes_component:
-  Material
-  Species
-  MaterialProperty
-```
-
-```text
-ConstitutiveModel
-      │ parameterized_by
-      ▼
-MaterialModel
-```
-
-### 5.5 SpatialModel
-
-Represents geometry and the spatial scope on which model entities are defined or applied.
-
-```text
-SpatialModel includes_component:
-  Geometry
-  Domain
-  Boundary
-  SpatialInterface
-  Scope
-```
-
-`SpatialInterface` denotes an interface between spatial regions/domains. The unqualified language term `Interface` is reserved for the reusable capability-contract construct defined by ADR-0008 and disambiguated by ADR-0014.
-
-`Scope` is a first-class concept. It generalizes concepts such as MOOSE block/boundary identifiers, COMSOL selections, and Ansys geometry scoping or Named Selections.
-
-### 5.6 ConditionModel
-
-Defines conditions and external forcing as an aggregate context.
-
-```text
-ConditionModel includes_component:
-  BoundaryCondition
-  InitialCondition
-  Source
-  Load
-```
-
-The aggregate `ConditionModel` is not itself the thing applied to a field/equation/scope. ADR-0016 repairs the direct condition-target contract:
-
-```text
-BoundaryCondition | InitialCondition | Source | Load
-            │
-        applied_to (1..*)
-            ▼
-      Field | Equation | Scope
-```
-
-Subtype-specialized conditions and targets conform through canonical subtype closure. Backend-native selection IDs, sideset names, feature tags, and solver handles remain outside Core.
-
-### 5.7 NumericalModel
-
-Defines how the mathematical model is converted into a numerical representation.
-
-```text
-NumericalModel includes_component:
-  Discretization
-  Mesh
-  NumericalApproximation
-```
-
-```text
-MathematicalModel
-      │ discretized_by
-      ▼
-NumericalModel
-```
-
-Solver algorithms are not part of `NumericalModel`; they belong to `SolverConfiguration` in the task/analysis layer.
-
-### 5.8 ObservationModel
-
-Defines what quantities are observed, derived, or exported from a simulation.
-
-```text
-ObservationModel includes_component:
-  Quantity
-  Probe
-  Integral
-  Dataset
-  Output
-```
-
-## 6. SimulationTask, Analysis, SolverConfiguration, and Result
-
-### 6.1 SimulationTask
-
-`SimulationTask` is a Core Entity Type representing the identifiable application of exactly one Analysis to exactly one SimulationModel:
-
-```text
-SimulationTask
-   ├── uses_model ─────> exactly 1 SimulationModel
-   ├── has_analysis ───> exactly 1 Analysis
-   └── produces ───────> 0..* Result
-```
-
-A task can be valid before execution and therefore before any Result exists. Task identity remains distinct from Analysis identity so one Analysis definition can be reused by multiple tasks/models.
-
-`Analysis` does **not** inherit from `SimulationTask`. `SolverConfiguration` does **not** inherit from `SimulationTask`.
-
-### 6.2 Analysis
-
-Defines the computational question being asked.
-
-```text
-Analysis
-├── StationaryAnalysis
-├── TransientAnalysis
-├── FrequencyDomainAnalysis
-├── EigenvalueAnalysis
-├── ParametricAnalysis
-└── OptimizationAnalysis
-```
-
-The listed Analysis specializations are explicit taxonomic `is_a` relations in the current machine-readable registry.
-
-### 6.3 SolverConfiguration
-
-Defines the numerical algorithms used to solve an Analysis.
-
-```text
-SolverConfiguration includes_component:
-  NonlinearSolver
-  LinearSolver
-  Preconditioner
-  ConvergenceCriterion
-```
-
-```text
-Analysis
-    │ solved_by (generic Core 0..*)
-    ▼
-SolverConfiguration
-```
-
-ADR-0017 makes solver selection optional/unbounded at generic Core level. Domain/Interface/Profile constraints may require or narrow solver configuration for a more complete or executable context. Default selection and task-specific solver override semantics remain separate language/schema questions.
-
-### 6.4 Derived `analyzed_by`
-
-`SimulationModel -> analyzed_by -> Analysis` is a derived semantic relation:
+`SimulationModel -> analyzed_by -> Analysis` is derived only:
 
 ```text
 M analyzed_by A
 IFF
-exists SimulationTask T:
+exists T:
   T uses_model M
-  AND
-  T has_analysis A
+  AND T has_analysis A
 ```
 
-Task bindings are authoritative. Implementations may materialize `analyzed_by` for indexing/traversal, but a materialized edge without a supporting task is inconsistent derived data.
+Task bindings are authoritative.
 
-### 6.5 Result
+## 4. Direct model-component membership
 
-`Result` is the semantic output produced by a SimulationTask and may be associated with observation/output definitions.
+ADR-0016 defines `includes_component` as direct-only, non-owning, non-transitive, unordered structural membership with generic source cardinality `0..*` and subtype-aware endpoint matching.
+
+The allowed direct component matrix is:
 
 ```text
-SimulationTask
-      │ produces (0..*)
-      ▼
-    Result
-      │ observed_by (generic Core 0..*)
-      ▼
-ObservationModel
+SimulationModel -> PhysicsModel | MathematicalModel | ConstitutiveModel |
+                   SpatialModel | MaterialModel | ConditionModel |
+                   NumericalModel | ObservationModel
+
+PhysicsModel -> Phenomenon | Process | Interaction
+MathematicalModel -> Formulation | Equation | Field | Operator | MathematicalParameter
+ConstitutiveModel -> ClosureRelation | PropertyModel
+SpatialModel -> Geometry | Domain | Boundary | SpatialInterface | Scope
+MaterialModel -> Material | Species | MaterialProperty
+ConditionModel -> BoundaryCondition | InitialCondition | Source | Load
+NumericalModel -> Discretization | Mesh | NumericalApproximation
+ObservationModel -> Quantity | Probe | Integral | Dataset | Output
+SolverConfiguration -> NonlinearSolver | LinearSolver | Preconditioner | ConvergenceCriterion
 ```
 
-SOL v0.1 does not define a mandatory Result subtype taxonomy.
+No transitive stored membership is inferred.
 
-## 7. Core relationship graph
+## 5. Semantic inter-model relations
+
+Structural membership does not replace semantic relations:
 
 ```text
-SimulationModel
-    │ includes_component (direct, non-owning)
-    ├──────────────────────────────────────────────┐
-    ▼                                              ▼
-PhysicsModel                                  MathematicalModel
-    │ represented_by                              │
-    └────────────────────────────────────────────>│
-                                                   ├─ closed_by ───────> ConstitutiveModel
-                                                   ├─ defined_on ──────> SpatialModel
-                                                   └─ discretized_by ──> NumericalModel
-
-ConstitutiveModel ── parameterized_by ──> MaterialModel
-
-ConditionModel ── includes_component ──> BoundaryCondition / InitialCondition / Source / Load
-                                                     │
-                                                  applied_to (1..*)
-                                                     ▼
-                                              Field / Equation / Scope
-
-Simulation
-   ├─ has_model ──> SimulationModel
-   └─ has_task ───> SimulationTask
-                         ├─ uses_model ──> SimulationModel
-                         ├─ has_analysis ─> Analysis ── solved_by ─> SolverConfiguration
-                         └─ produces ────> Result ── observed_by ─> ObservationModel
-
-SimulationModel -- analyzed_by (derived) --> Analysis
+PhysicsModel       ─ represented_by ─> MathematicalModel
+MathematicalModel  ─ closed_by ─────> ConstitutiveModel
+ConstitutiveModel  ─ parameterized_by > MaterialModel
+MathematicalModel  ─ defined_on ────> SpatialModel
+MathematicalModel  ─ discretized_by -> NumericalModel
+Analysis           ─ solved_by ─────> SolverConfiguration
+Result             ─ observed_by ───> ObservationModel
 ```
 
-### 7.1 Generic Core cardinality baseline
+ADR-0017 assigns generic Core source cardinality `0..*` to these seven relations. Cardinality is normatively a Constraint; relation-side cardinality is a matching projection/cache only.
 
-ADR-0017 assigns generic Core source interval `0..*` to:
+## 6. Conditions and spatial scope
+
+`ConditionModel` is an aggregate. Individual condition/forcing entities target semantic fields/equations/scopes:
 
 ```text
-represented_by
-closed_by
-parameterized_by
-defined_on
-discretized_by
-solved_by
-observed_by
+BoundaryCondition | InitialCondition | Source | Load
+             │
+         applied_to (1..*)
+             ▼
+       Field | Equation | Scope
 ```
 
-These intervals mean deliberately unconstrained/optional at generic Core level, not unknown. Cardinality remains normatively a Constraint. Relation-side `source_cardinality` fields are matching projections of canonical Core Cardinality Constraints for artifact readability/state recovery and are not a second authority.
+Endpoint matching uses canonical equal-or-subtype semantics. Backend selection IDs, sidesets, feature tags, and geometry handles are not Core identities.
 
-Domain/Interface/Profile constraints may narrow these intervals conjunctively under ADR-0007. Incoming cardinality remains unconstrained by generic Core unless another accepted contract states otherwise.
+`Scope` is first-class and abstracts backend scoping concepts without copying backend object identity into Core.
 
-## 8. Backend boundary
+## 7. Entity taxonomy and Interface composition
 
-MOOSE, COMSOL, and Ansys concepts do not belong directly in the Core ontology.
+Taxonomic inheritance is explicit only through `is_a`; diagram indentation or grouping is never inheritance. Entity Types have at most one direct `is_a` parent in v0.1. Orthogonal reusable capabilities use `Interface`.
+
+`Interface` is the abstract capability-contract construct from ADR-0008/0025. `SpatialInterface` is the spatial Entity Type from ADR-0014.
+
+Interface definitions may contain:
+
+- Property requirements;
+- Relation requirements;
+- reusable targeted Constraint applications;
+- extension of other Interfaces.
+
+Concrete Entity Types satisfy Interface requirements through explicit canonical property/relation mappings. Effective Interface guarantees are inherited through Entity specialization and overlapping mappings must converge deterministically.
+
+## 8. Constraint architecture
+
+ADR-0007 defines six minimum Constraint families:
 
 ```text
-Core Ontology
-      │
-      ▼
+Cardinality / QRC
+Type
+Value
+Dimension
+Compatibility
+Conditional
+```
+
+Focused machine-readable schemas and semantic-validation boundaries are accepted through ADR-0018..0024.
+
+Common design-stage validation state precedence is:
+
+```text
+FAIL > INDETERMINATE > PASS
+```
+
+`BLOCKED` or operational/resource interruption remains a separate invocation/precondition axis and is not silently collapsed into semantic PASS/FAIL.
+
+QRC uses closed snapshot, distinct target identity, canonical target-type/subtype matching, and deterministic interval validation under ADR-0012/0029.
+
+## 9. Value, Unit, Dimension, and ValueDefinition
+
+The accepted representation boundary is:
+
+```text
+DimensionVector
+  -> typed 7-axis canonical dimension payload
+
+UnitReference
+  -> typed reference resolved by external metrology context
+
+Value
+  -> evaluated typed datum; scalar/vector/tensor × scalar kind
+
+InlineValueDefinition
+  -> dependency-free local definition
+
+ValueDefinition Entity
+  -> reified only when independent identity, semantic dependency,
+     reuse, or provenance requires graph participation
+```
+
+`Value`, `UnitReference`, and `DimensionVector` are not Core Entity Types. Missing unit does not imply dimensionless or backend default. Nonliteral inline definitions use an explicit format-provider contract under ADR-0027; semantic dependencies are extracted by that provider rather than guessed from raw expression text.
+
+Reified `ValueDefinition` participates in `has_value_definition` and `depends_on` graph relations under ADR-0003/0026.
+
+## 10. Canonical ontology package
+
+ADR-0009/0028 separate:
+
+```text
+Distribution package
+Semantic namespace / authoring names
+Canonical persistent semantic identity
+```
+
+A resolved normalized ontology package contains exact package dependencies, explicit namespace export tables, canonical-ID resource collections, Interface definitions/implementations, and reusable ConstraintDefinitions. File paths, package names, versions, declaration order, and backend handles do not determine canonical semantic identity.
+
+One active provider per visible semantic namespace is required in the v0.1 resolved environment. Namespace federation/augmentation is deferred.
+
+## 11. Resolved model snapshot
+
+ADR-0029 defines the design-stage machine-readable model-instance boundary used by reference validation:
+
+```text
+ResolvedModelSnapshot
+├── snapshot_state = closed
+├── exact ontology_environment
+├── entities[]
+│   ├── model-instance id
+│   ├── canonical EntityType id
+│   └── properties[]
+│       ├── canonical PropertyDefinition id
+│       └── InlineValueDefinition
+└── relations[]
+    ├── canonical RelationDefinition id
+    ├── source model-instance id
+    └── target model-instance id
+```
+
+The snapshot is a focused reference-validation boundary, not a claim that SOL v0.1 already defines every future application/model document feature.
+
+## 12. Reference-model validation
+
+### Minimal Thermal — PASS
+
+The accepted Thermal fixture exercises:
+
+- Simulation / SimulationModel / SimulationTask / StationaryAnalysis;
+- direct component membership and semantic inter-model relations;
+- fixed-temperature BoundaryConditions applied to Field/Scope;
+- canonical PropertyDefinition assignment;
+- Value / UnitReference;
+- Interface-targeted Dimension Constraints;
+- metrology PASS / INDETERMINATE / mismatch boundaries.
+
+Official MOOSE, COMSOL, and Ansys thermal concepts provide no obvious cross-backend semantic counterexample to this structure.
+
+### Minimal Plasma/QRC — PASS
+
+The accepted dissociative-attachment fixture exercises:
+
+- subtype-specialized Reaction and Species concepts;
+- explicit `reactants` / `products` relations;
+- Interface relation requirement mapping;
+- independent QRC obligations for exactly one negative-ion product and exactly one neutral product;
+- closed-snapshot, subtype-qualified, distinct-identity counting;
+- missing/extra/generic-type/duplicate/unresolved/open-snapshot/order counterexamples.
+
+## 13. Backend boundary
+
+```text
+Core Ontology / Domain Extension
+           │
+           ▼
 Simulation IR / MappingPlan
-      │
- ┌────┼─────┐
- ▼    ▼     ▼
-MOOSE COMSOL ANSYS
+           │
+      ┌────┼────┐
+      ▼    ▼    ▼
+    MOOSE COMSOL Ansys
 ```
 
-Backend adapters and backend ontologies map Core semantic concepts to native software representations. Backend object trees, native ownership, installation/runtime availability, and licensing do not define Core component membership or relation-requiredness semantics.
+Backend-native ownership, solver trees, feature tags, installation, licenses, runtime APIs, and executable Adapter details remain outside Core semantics. Backend execution V&V belongs to the Adapter/integration stage unless execution reveals a genuine architecture counterexample.
 
-## 9. Ontology language versus implementation technology
+## 14. Design-stage closure boundary
 
-The ontology language is conceptually independent of its storage and implementation technologies.
+The following are **deferred or outside v0.1 design-stage closure**, not unresolved Core architecture blockers:
 
-The project may use YAML for authoring, JSON-LD/RDF/OWL for graph representation, SHACL for semantic constraints, JSON Schema for structural validation, Python for a reference SDK, and TypeScript for frontend tooling. These technologies implement the ontology language; they do not define its semantics.
+- production Adapter implementation and backend runtime execution V&V;
+- installation/license availability;
+- namespace federation/augmentation;
+- multi-model/co-simulation semantics;
+- richer future PropertyDefinition and Result sub-taxonomies;
+- production Profile/backend package authoring beyond accepted mapping contracts;
+- complete general application/model-document syntax beyond the ADR-0029 reference snapshot.
 
-## 10. Design principles
-
-1. Separate physics from mathematics.
-2. Separate mathematical formulation from constitutive closure.
-3. Separate model definition from computational task/application identity.
-4. Separate Analysis from SolverConfiguration.
-5. Separate physics from numerical discretization.
-6. Treat spatial scope as a first-class semantic concept.
-7. Keep software-specific objects outside the Core ontology.
-8. Keep domain-specific concepts outside the Core ontology unless genuinely universal.
-9. Model semantic relations explicitly rather than relying only on a class hierarchy.
-10. Allow one SimulationModel and one Analysis definition to be reused by multiple SimulationTasks.
-11. Treat MOOSE, COMSOL, Ansys, and future tools as backend implementations.
-12. Keep domain and backend extension axes orthogonal and compose them through Simulation Profiles.
-13. Enforce inward-only dependencies: specialized layers depend on the Core, never the reverse.
-14. Keep ontology semantics independent of implementation technologies.
-15. Do not infer `is_a` inheritance from diagram indentation or machine-readable grouping shorthand.
-16. Reserve `Interface` for reusable capability contracts; use `SpatialInterface` for the spatial entity concept.
-17. Treat `has_model`, `has_task`, and `includes_component` as non-owning references; backend artifact lifecycle does not define Core ownership.
-18. Treat task bindings as authoritative for model–Analysis application; `analyzed_by` is derived.
-19. Use `includes_component` only for direct structural membership; semantic relations such as `represented_by`, `closed_by`, `applied_to`, and `solved_by` remain distinct.
-20. Validate ADR-0016 relation endpoints through canonical semantic type identity/subtype closure, not backend inheritance or declaration order.
-21. Treat cardinality as a Constraint; relation-side cardinality fields mirror the canonical Core Constraint and cannot override or independently intersect with it.
-22. Do not promote backend executability requirements into generic Core relation requiredness.
-
-## 11. Consolidation state
-
-The design-stage architecture is frozen through ADR-0017. Immediate machine-readable consolidation priorities are:
-
-- enforce accepted cardinality projection/authority, allowed-pair, and derived-relation invariants in the final structural/semantic schema;
-- complete Interface serialization/validation;
-- complete accepted Value/ValueDefinition/PhysicalDimension/Unit representation;
-- define domain/interface/profile completeness refinements only where evidence requires them.
-
-Generic Core cardinality for the relations covered by ADR-0017 is no longer an open design question.
-
-Backend installation, licensing, production Adapter implementation, and full execution V&V remain outside the design-stage architecture gate.
+The remaining closure activity is focused readback/traceability verification, not new architecture invention.
