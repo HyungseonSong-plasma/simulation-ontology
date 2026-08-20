@@ -135,7 +135,7 @@ def evaluate_metrology_state(
 def choose_value_definition_representation(
     *,
     mechanism: str,
-    provider_state: str = "PASS",
+    provider_state: str | None = None,
     resolved_semantic_dependencies: Sequence[str] = (),
     other_reification_trigger: bool = False,
 ) -> tuple[str, str | None]:
@@ -145,7 +145,7 @@ def choose_value_definition_representation(
         raise ValueGraphError("VALUE_DEFINITION_MECHANISM_INVALID")
 
     if mechanism != "literal":
-        if provider_state == "INDETERMINATE":
+        if provider_state is None or provider_state == "INDETERMINATE":
             return "INDETERMINATE", "VALUE_DEFINITION_FORMAT_PROVIDER_UNRESOLVED"
         if provider_state == "FAIL":
             return "FAIL", "VALUE_DEFINITION_FORMAT_PROVIDER_FAIL"
