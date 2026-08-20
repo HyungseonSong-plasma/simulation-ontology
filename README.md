@@ -33,12 +33,15 @@ See [`docs/architecture.md`](docs/architecture.md) for the current ontology spec
 ## Repository layout
 
 ```text
-docs/                  Human-readable specifications and design decisions
+docs/                  Human-readable specifications, decisions, validation and implementation plans
+docs/implementation/   Post-design implementation plans and implementation decisions
 ontology/core/         Machine-readable core entities, relations, and constraints
 ontology/backends/     Backend-specific mappings
 schema/                 Validation schemas
 examples/               Reference simulation models
 tests/                  Ontology and mapping validation tests
+rust/                   Rust semantic Core workspace (next implementation unit)
+protocol/               Future JSON-RPC/IPC protocol contracts
 ```
 
 ## Development provenance
@@ -53,9 +56,16 @@ This statement describes the development process and does not imply that generat
 
 **SOL v0.1 DESIGN-STAGE CLOSED — ADR-0030.**
 
-The closed baseline consists of Core architecture frozen through ADR-0017, focused language/schema/package/model-snapshot consolidation through ADR-0029, accepted Minimal Thermal and Plasma/QRC reference gates, and the final independent closure readback.
+**Post-design Core implementation planning has started.** The implementation baseline is Rust semantic Core + TypeScript/React client + native backend adapters, with a future JSON-RPC/IPC protocol boundary and CI-first Mock Adapter bootstrap.
 
-[`ADR-0030`](docs/decisions/0030-sol-v0.1-design-stage-closure.md) is the authoritative closure decision.
+The closed semantic baseline consists of Core architecture frozen through ADR-0017, focused language/schema/package/model-snapshot consolidation through ADR-0029, accepted Minimal Thermal and Plasma/QRC reference gates, and the final independent closure readback.
+
+[`ADR-0030`](docs/decisions/0030-sol-v0.1-design-stage-closure.md) is the authoritative semantic closure decision.
+
+The post-design implementation baseline is recorded in:
+
+- [`Core Implementation Plan v0.1`](docs/implementation/sol-v0.1-core-implementation-plan-v0.1.md)
+- [`IDR-0001`](docs/implementation/decisions/0001-polyglot-core-protocol-and-ci-first-bootstrap.md) — Rust/TypeScript/native-adapter polyglot architecture, protocol boundary, and CI-first bootstrap.
 
 Architecture/freeze amendments:
 
@@ -79,11 +89,58 @@ Language/schema/package/model-snapshot consolidation:
 - **Minimal Thermal reference model — PASS.** Exercises task/model semantics, component membership, condition targeting, PropertyDefinition assignment, Value/UnitReference, Interface-targeted Dimension Constraints, and metrology boundaries.
 - **Minimal Plasma/QRC reference model — PASS.** Exercises subtype-specialized Reaction/Species semantics, explicit reaction relations, Interface relation mapping, independent QRC obligations, closed-snapshot distinct-identity counting, subtype qualification, and counterexamples.
 
+## Post-design implementation architecture
+
+```text
+TypeScript / React GUI + primary client
+                |
+         future JSON-RPC / IPC
+                |
+          Rust SOL Core
+                |
+         protocol-shaped DTOs
+       /          |          \
+      v           v           v
+ MOOSE Adapter  COMSOL Adapter  Ansys Adapter
+ Python/C++       Java           Python
+```
+
+The first implementation uses a deterministic **Mock Adapter** and does not require backend installation or licenses.
+
+Core implementation order:
+
+```text
+data model / serialization
+→ canonical identity & resolver
+→ Constraint / QRC engine
+→ MappingRule / MappingClaim
+→ RealizationEffect / comparator
+→ PlanAction / MappingPlan DAG
+→ PASS/FAIL/BLOCKED/INDETERMINATE lifecycle
+→ Mock Adapter
+→ BackendTarget resolver
+→ sol-cli
+→ TypeScript protocol/client binding
+```
+
+The first vertical slice is the accepted **Thermal reference model**. Validation Lab positive/negative counterexamples are migrated into executable contract/golden/property tests.
+
+### Initial implementation milestone
+
+The bootstrap milestone is complete only when:
+
+1. Rust Core builds/tests/formats/lints in GitHub Actions;
+2. architecture counterexample tests execute in CI;
+3. `sol-cli` emits deterministic canonical validation and MappingPlan results for Thermal through MockAdapter.
+
+Before this gate is stable, the project does **not** begin production MOOSE/COMSOL/Ansys adapters or TypeScript Node/native bindings.
+
 ## Post-design boundary
 
 Design-stage closure does **not** mean production implementation is complete. The following remain post-design work unless they expose a genuine semantic counterexample:
 
-- TypeScript-oriented SDK/compiler implementation;
+- Rust semantic Core and CLI implementation;
+- TypeScript/React protocol client and GUI integration;
 - Profile/BackendAdapter implementation;
 - MOOSE/COMSOL/Ansys executable integration and V&V;
 - installation/license/runtime concerns;
@@ -91,3 +148,13 @@ Design-stage closure does **not** mean production implementation is complete. Th
 - future namespace federation or multi-model/co-simulation design.
 
 Any change to the closed v0.1 semantic baseline must satisfy the reopen criteria in ADR-0030 through a new focused evidence/validation cycle.
+
+## Current implementation checkpoint
+
+```text
+Current State: CORE_IMPLEMENTATION_PLANNING_ACCEPTED
+Next Atomic Unit: Rust workspace + GitHub Actions CI bootstrap
+Primary Vertical Slice: Thermal
+Real Backend Requirement: none
+Design Reopen: no
+```
