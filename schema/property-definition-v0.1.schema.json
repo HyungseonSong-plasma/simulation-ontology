@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/property-definition-v0.1.schema.json",
+  "title": "SOL PropertyDefinition v0.1",
+  "type": "object",
+  "required": ["id"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}
