@@ -3,7 +3,7 @@ Date: 2026-08-20
 Branch: validation/sol-v0.1-independent-review
 Scope: design-stage Compatibility schema/semantic helper only; no backend runtime/license/adapter execution
 
-Result: 10 core smoke checks PASS / 0 FAIL
+Baseline result: 10 core smoke checks PASS / 0 FAIL
 
 PASS authoring structural schema
 PASS normalized structural schema
@@ -16,9 +16,16 @@ PASS empty active set -> PASS
 PASS PASS + INDETERMINATE -> INDETERMINATE
 PASS FAIL + INDETERMINATE -> FAIL
 
+CIV-01 focused closure: 3 PASS / 0 FAIL
+
+PASS unresolved semantic context -> state INDETERMINATE
+PASS unresolved semantic context -> code COMPATIBILITY_EVALUATION_CONTEXT_UNRESOLVED
+PASS binary PASS/FAIL evaluation regression
+
 Additional repository test artifact covers criterion resolution, duplicate/opposite expectation composition, binary expectation matching, different-criterion preservation, and backend-metadata independence.
 
 Validation boundary:
 - JSON Schema validates structural payload shape only.
 - canonical criterion/reference resolution and criterion evaluator conformance remain semantic/compiler responsibilities.
-- semantic service incompleteness may produce INDETERMINATE; backend installation/license/runtime availability does not.
+- semantic service incompleteness preserves both state and diagnostic code.
+- backend installation/license/runtime availability does not participate in semantic Compatibility evaluation.
