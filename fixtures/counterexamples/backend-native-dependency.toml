@@ -1,0 +1,2 @@
+[dependencies]
+moose-adapter = { path = "../adapter-moose" }
