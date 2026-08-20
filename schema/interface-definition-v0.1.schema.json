@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/interface-definition-v0.1.schema.json",
+  "title": "SOL InterfaceDefinition v0.1",
+  "description": "Focused normalized Interface capability contract for ADR-0025.",
+  "$defs": {
+    "canonicalReference": {
+      "type": "string",
+      "minLength": 1
+    },
+    "propertyRequirement": {
+      "type": "object",
+      "required": ["property"],
+      "properties": {
+        "property": {"$ref": "#/$defs/canonicalReference"}
+      },
+      "additionalProperties": false
+    },
+    "relationRequirement": {
+      "type": "object",
+      "required": ["relation"],
+      "properties": {
+        "relation": {"$ref": "#/$defs/canonicalReference"}
+      },
+      "additionalProperties": false
+    },
+    "interfaceTarget": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {"const": "interface"}
+      },
+      "additionalProperties": false
+    },
+    "propertyTarget": {
+      "type": "object",
+      "required": ["kind", "requirement"],
+      "properties": {
+        "kind": {"const": "property_requirement"},
+        "requirement": {"$ref": "#/$defs/canonicalReference"}
+      },
+      "additionalProperties": false
+    },
+    "relationTarget": {
+      "type": "object",
+      "required": ["kind", "requirement"],
+      "properties": {
+        "kind": {"const": "relation_requirement"},
+        "requirement": {"$ref": "#/$defs/canonicalReference"}
+      },
+      "additionalProperties": false
+    },
+    "constraintApplication": {
+      "type": "object",
+      "required": ["constraint", "target"],
+      "properties": {
+        "constraint": {"$ref": "#/$defs/canonicalReference"},
+        "target": {
+          "oneOf": [
+            {"$ref": "#/$defs/interfaceTarget"},
+            {"$ref": "#/$defs/propertyTarget"},
+            {"$ref": "#/$defs/relationTarget"}
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": ["id", "extends", "property_requirements", "relation_requirements", "constraint_applications"],
+  "properties": {
+    "id": {"$ref": "#/$defs/canonicalReference"},
+    "extends": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/canonicalReference"}
+    },
+    "property_requirements": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/propertyRequirement"}
+    },
+    "relation_requirements": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/relationRequirement"}
+    },
+    "constraint_applications": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/constraintApplication"}
+    }
+  },
+  "additionalProperties": false
+}
