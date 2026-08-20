@@ -1,0 +1,30 @@
+SOL v0.1 ADR-0019 Type Constraint smoke validation
+Date: 2026-08-20
+Branch: validation/sol-v0.1-independent-review
+Scope: design-stage schema/semantic helper only; no backend runtime
+
+Result: 15 PASS / 0 FAIL
+
+PASS authoring exact fields
+PASS authoring required fields
+PASS authoring rejects extra subject
+PASS canonical normalization
+PASS unresolved relation rejected
+PASS Interface target rejected
+PASS finite family accepts subtype
+PASS finite family rejects unrelated
+PASS subtype intersection narrows
+PASS unrelated intersection fails
+PASS allowed-pair subtype target
+PASS allowed-pair non-expansion
+PASS subtype source inherits pair
+PASS evaluation axes separated
+PASS invalid axis rejected
+
+Validation boundary:
+- JSON Schema validates only the three-field structural payload.
+- Canonical identity, Entity-Type-versus-Interface identity, subtype closure,
+  allowed-family/allowed-pair compatibility, Type intersection, and evaluation-axis
+  separation are semantic helper checks under ADR-0019.
+- This smoke run used the same schema definitions and helper semantics persisted in
+  the branch artifacts; backend installation/licensing/execution was not required.
