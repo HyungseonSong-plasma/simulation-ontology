@@ -1,0 +1,60 @@
+version: "0.1"
+status: draft
+
+relations:
+  represented_by:
+    description: Connects a physical model or concept to a mathematical representation.
+    domain: PhysicsModel
+    range: MathematicalModel
+
+  closed_by:
+    description: Connects a mathematical model to a constitutive or closure model required to close it.
+    domain: MathematicalModel
+    range: ConstitutiveModel
+
+  parameterized_by:
+    description: Connects a model to material or physical properties used as parameters.
+    domain: ConstitutiveModel
+    range: MaterialModel
+
+  defined_on:
+    description: Associates a model entity with its spatial definition or scope.
+    domain: MathematicalModel
+    range: SpatialModel
+
+  discretized_by:
+    description: Connects a mathematical model to its numerical representation.
+    domain: MathematicalModel
+    range: NumericalModel
+
+  applied_to:
+    description: Associates a condition with the field, equation, or spatial scope it constrains or forces.
+    domain: ConditionModel
+    range:
+      - Field
+      - Equation
+      - Scope
+
+  analyzed_by:
+    description: Associates a simulation model with a computational analysis.
+    domain: SimulationModel
+    range: Analysis
+
+  solved_by:
+    description: Associates an analysis with its numerical solver configuration.
+    domain: Analysis
+    range: SolverConfiguration
+
+  produces:
+    description: Indicates that execution of a simulation task produces a result.
+    domain: SimulationTask
+    range: Result
+
+  observed_by:
+    description: Associates simulation results with observation or output definitions.
+    domain: Result
+    range: ObservationModel
+
+notes:
+  - Cardinalities are intentionally not fixed in v0.1.
+  - Domain and range definitions are provisional and will be tested against reference models and backend mappings.
