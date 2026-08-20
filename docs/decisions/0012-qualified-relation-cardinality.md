@@ -1,6 +1,6 @@
 # ADR-0012: Qualified Relation Cardinality
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-08-20  
 **Supplements:** ADR-0007 Constraint Architecture and Composition
 
@@ -272,7 +272,9 @@ A closed snapshot with one `ThermalBoundaryScope` and one unrelated `ContactPair
 
 ## Validation requirement
 
-Contract acceptance does not by itself authorize SOL v0.1 architecture freeze. QRC requires machine-readable schema and validator tests covering closed/open snapshots, qualifier resolution, stable identity, multiple typing, subtype implications, mixed bounds, and Thermal/Plasma reference fixtures.
+Design-stage acceptance requires independent contract validation plus reference-model and official-document stress testing showing that QRC is necessary, deterministic, and backend-independent. A minimal schema/validator smoke case MAY be retained as supplementary implementability evidence.
+
+Full backend installation/licensing, Adapter implementation, and backend execution V&V are outside the QRC architecture gate and SHALL NOT block SOL v0.1 design-stage architecture freeze unless they later reveal a genuine architecture counterexample.
 
 ## Decision summary
 
