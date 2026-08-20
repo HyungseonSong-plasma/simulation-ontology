@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "crates/sol-core-model",
+    "crates/sol-core-identity",
     "crates/sol-cli",
 ]
 
