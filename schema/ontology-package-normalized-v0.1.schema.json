@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/ontology-package-normalized-v0.1.schema.json",
+  "title": "SOL Normalized Ontology Package v0.1",
+  "$defs": {
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "packageIdentity": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "version": {"$ref": "#/$defs/semver"}
+      },
+      "additionalProperties": false
+    },
+    "namespaceExport": {
+      "type": "object",
+      "required": ["name", "kind", "id"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "kind": {
+          "enum": ["entity_type", "property", "relation", "constraint_definition", "interface"]
+        },
+        "id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "namespaceProvider": {
+      "type": "object",
+      "required": ["name", "exports"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "exports": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/namespaceExport"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "resolvedDependency": {
+      "type": "object",
+      "required": ["package", "version"],
+      "properties": {
+        "package": {"type": "string", "minLength": 1},
+        "version": {"$ref": "#/$defs/semver"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": [
+    "package",
+    "namespaces",
+    "resolved_dependencies",
+    "entity_types",
+    "properties",
+    "relations",
+    "constraint_definitions",
+    "interfaces",
+    "interface_implementations"
+  ],
+  "properties": {
+    "package": {"$ref": "#/$defs/packageIdentity"},
+    "namespaces": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/namespaceProvider"}
+    },
+    "resolved_dependencies": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/resolvedDependency"}
+    },
+    "entity_types": {
+      "type": "array",
+      "items": {"$ref": "entity-type-definition-v0.1.schema.json"}
+    },
+    "properties": {
+      "type": "array",
+      "items": {"$ref": "property-definition-v0.1.schema.json"}
+    },
+    "relations": {
+      "type": "array",
+      "items": {"$ref": "relation-definition-v0.1.schema.json"}
+    },
+    "constraint_definitions": {
+      "type": "array",
+      "items": {"$ref": "constraint-definition-v0.1.schema.json"}
+    },
+    "interfaces": {
+      "type": "array",
+      "items": {"$ref": "interface-definition-v0.1.schema.json"}
+    },
+    "interface_implementations": {
+      "type": "array",
+      "items": {"$ref": "interface-implementation-v0.1.schema.json"}
+    }
+  },
+  "additionalProperties": false
+}
