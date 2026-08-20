@@ -26,7 +26,7 @@ Simulation
                          └── produces -> 0..* Result
 ```
 
-`SimulationModel` contains the semantic model-side concerns (physics, mathematical, constitutive, spatial, material, condition, numerical, and observation concepts). `has_model` and `has_task` are non-owning references. `SimulationModel -> analyzed_by -> Analysis` is derived from task bindings rather than a second source of truth.
+`SimulationModel` directly groups compatible model-side components through non-owning, non-transitive `includes_component` relations governed by ADR-0016. `SimulationModel -> analyzed_by -> Analysis` is derived from task bindings rather than a second source of truth.
 
 See [`docs/architecture.md`](docs/architecture.md) for the current ontology specification.
 
@@ -51,12 +51,13 @@ This statement describes the development process and does not imply that generat
 
 ## Status
 
-**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0015.**
+**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0016.**
 
 - [`ADR-0013`](docs/decisions/0013-sol-v0.1-design-stage-architecture-freeze.md) records the design-stage freeze.
-- [`ADR-0014`](docs/decisions/0014-interface-disambiguation-and-machine-readable-taxonomy-semantics.md) narrowly amends the baseline to separate capability `Interface` from `SpatialInterface` and make taxonomy explicit.
+- [`ADR-0014`](docs/decisions/0014-interface-disambiguation-and-machine-readable-taxonomy-semantics.md) separates capability `Interface` from `SpatialInterface` and makes taxonomy explicit.
 - [`ADR-0015`](docs/decisions/0015-simulation-model-task-composition-semantics.md) defines explicit Simulation/Model/Task relations and task reification.
+- [`ADR-0016`](docs/decisions/0016-model-component-membership-and-condition-target-semantics.md) defines direct model-component membership and repairs condition/forcing `applied_to` semantics.
 
 Backend installation, licensing, production Adapter implementation, and full backend execution V&V are intentionally outside this design-stage freeze unless they later expose a genuine architecture counterexample.
 
-The immediate focus is **language/schema consolidation and small reference-model validation** against the frozen baseline. The next focused design task is the remaining Core relation cardinality/required-optional matrix beyond the relations fixed by ADR-0015.
+The immediate focus is **language/schema consolidation and small reference-model validation** against the frozen baseline. The next focused design task is the remaining Core relation cardinality/required-optional matrix beyond the relations fixed by ADR-0015 and ADR-0016.
