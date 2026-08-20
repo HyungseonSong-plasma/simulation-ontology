@@ -1,62 +1,102 @@
 version: "0.1"
-status: draft
+status: consolidating
+
+# Canonical Core Entity Type registry.
+#
+# IMPORTANT:
+# - Presence in this registry asserts semantic identity only.
+# - Taxonomic inheritance is NEVER inferred from file order or grouping.
+# - Any normative inheritance edge must be written explicitly with `is_a`
+#   and must satisfy ADR-0008 (0..1 direct Entity Type parent).
+# - Structural composition/grouping is represented by explicit Relations once
+#   those relation contracts are accepted; it is not encoded with `children`.
 
 entities:
-  Simulation:
-    children:
-      - SimulationModel
-      - SimulationTask
+  Simulation: {}
+  SimulationModel: {}
+  SimulationTask: {}
 
-  SimulationModel:
-    children:
-      - PhysicsModel
-      - MathematicalModel
-      - ConstitutiveModel
-      - SpatialModel
-      - MaterialModel
-      - ConditionModel
-      - NumericalModel
-      - ObservationModel
+  PhysicsModel: {}
+  Phenomenon: {}
+  Process: {}
+  Interaction: {}
 
-  PhysicsModel:
-    children: [Phenomenon, Process, Interaction]
+  MathematicalModel: {}
+  Formulation: {}
+  Equation: {}
+  Field: {}
+  Operator: {}
+  MathematicalParameter: {}
 
-  MathematicalModel:
-    children: [Formulation, Equation, Field, Operator, MathematicalParameter]
+  ConstitutiveModel: {}
+  ClosureRelation: {}
+  PropertyModel: {}
 
-  ConstitutiveModel:
-    children: [ClosureRelation, PropertyModel]
+  SpatialModel: {}
+  Geometry: {}
+  Domain: {}
+  Boundary: {}
+  SpatialInterface: {}
+  Scope: {}
 
-  SpatialModel:
-    children: [Geometry, Domain, Boundary, Interface, Scope]
+  MaterialModel: {}
+  Material: {}
+  Species: {}
+  MaterialProperty: {}
 
-  MaterialModel:
-    children: [Material, Species, MaterialProperty]
+  ConditionModel: {}
+  BoundaryCondition: {}
+  InitialCondition: {}
+  Source: {}
+  Load: {}
 
-  ConditionModel:
-    children: [BoundaryCondition, InitialCondition, Source, Load]
+  NumericalModel: {}
+  Discretization: {}
+  Mesh: {}
+  NumericalApproximation: {}
 
-  NumericalModel:
-    children: [Discretization, Mesh, NumericalApproximation]
+  ObservationModel: {}
+  Quantity: {}
+  Probe: {}
+  Integral: {}
+  Dataset: {}
+  Output: {}
 
-  ObservationModel:
-    children: [Quantity, Probe, Integral, Dataset, Output]
+  Analysis: {}
+  StationaryAnalysis:
+    is_a: Analysis
+  TransientAnalysis:
+    is_a: Analysis
+  FrequencyDomainAnalysis:
+    is_a: Analysis
+  EigenvalueAnalysis:
+    is_a: Analysis
+  ParametricAnalysis:
+    is_a: Analysis
+  OptimizationAnalysis:
+    is_a: Analysis
 
-  SimulationTask:
-    children: [Analysis, SolverConfiguration]
+  SolverConfiguration: {}
+  NonlinearSolver: {}
+  LinearSolver: {}
+  Preconditioner: {}
+  ConvergenceCriterion: {}
 
-  Analysis:
-    children:
-      - StationaryAnalysis
-      - TransientAnalysis
-      - FrequencyDomainAnalysis
-      - EigenvalueAnalysis
-      - ParametricAnalysis
-      - OptimizationAnalysis
+  Result: {}
 
-  SolverConfiguration:
-    children: [NonlinearSolver, LinearSolver, Preconditioner, ConvergenceCriterion]
+accepted_semantics_not_yet_transcribed:
+  - Complete composition relations connecting Simulation, SimulationModel, and SimulationTask.
+  - Complete taxonomic is_a edges for model/numerical/observation concepts where taxonomy is normatively justified.
+  - Interface implementation metadata (`implements`, Interface extension) in a dedicated language-level machine representation.
+  - Value, ValueDefinition, PhysicalDimension, and Unit final language-level representation as permitted by their accepted ADR boundaries.
+
+open_language_schema_decisions:
+  - Canonical relation names/cardinalities for top-level Simulation composition.
+  - Whether additional Core concepts require explicit is_a edges versus composition/association relations.
+  - Final serialization location for language-level Interface definitions.
 
 notes:
-  - Software-specific concepts such as MOOSE Kernel, COMSOL Physics Feature, and Ansys analysis objects are excluded from the core taxonomy.
-  - This file is a draft machine-readable representation of the v0.1 architecture and will evolve as relations and constraints are formalized.
+  - `Interface` is reserved for the ADR-0008 capability-contract language construct.
+  - The former spatial concept named `Interface` is `SpatialInterface` under ADR-0014.
+  - `Result` is declared to make the existing `produces` and `observed_by` relation contracts referentially complete.
+  - Software-specific concepts such as MOOSE Kernel, COMSOL Physics Feature, and Ansys analysis objects remain excluded from the Core taxonomy.
