@@ -91,9 +91,14 @@ Type inconsistency is a prior validation failure; QRC SHALL NOT choose among inc
 
 ### 6. `min`, `max`, and `exact` normalize by interval intersection
 
-`min`, `max`, and `exact` MAY appear together. All supplied bounds SHALL be non-negative integers.
+`min`, `max`, and `exact` MAY appear together. Every supplied bound SHALL be a non-negative integer. Any negative or non-integer bound is:
 
-Normalize them to one interval:
+```text
+FAIL
+code = QRC_BOUND_INVALID
+```
+
+Normalize valid supplied bounds to one interval:
 
 ```text
 L = max(min if present, exact if present), default 0
@@ -137,7 +142,15 @@ PASS iff L <= q <= U
 FAIL otherwise
 ```
 
-Diagnostics SHOULD preserve the constrained source, relation identity, qualifier canonical type, normalized interval, observed qualified count, counted canonical targets, and ontology/package version context.
+Failure diagnostics SHALL include:
+
+- constrained source identity;
+- relation canonical identity;
+- qualifier canonical type identity;
+- normalized interval `[L,U]`;
+- observed canonical qualified count `q`;
+- canonical target identities counted;
+- ontology/package version context.
 
 Serialization order of relation edges or asserted types SHALL NOT change `Q`, `q`, or the result.
 
