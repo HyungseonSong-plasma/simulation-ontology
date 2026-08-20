@@ -93,6 +93,17 @@ class QRCSnapshotSemanticsTests(unittest.TestCase):
         with self.assertRaisesRegex(SnapshotQRCError, "QRC_QUALIFIER_TARGET_TYPE_UNRESOLVED"):
             validate_snapshot_qrc(PLASMA_MODEL, packages)
 
+    def test_empty_interval_fails_before_count_satisfaction(self):
+        packages = copy.deepcopy(PACKAGES)
+        plasma = packages[1]
+        constraint = next(item for item in plasma["constraint_definitions"] if item["id"] == NEGATIVE_QRC)
+        constraint["payload"]["min"] = 2
+        constraint["payload"]["max"] = 1
+        snapshot = copy.deepcopy(PLASMA_MODEL)
+        remove_product(snapshot, "model:cl-minus")
+        with self.assertRaisesRegex(SnapshotQRCError, "QRC_EMPTY_INTERVAL"):
+            validate_snapshot_qrc(snapshot, packages)
+
     def test_non_closed_snapshot_fails_precondition(self):
         snapshot = copy.deepcopy(PLASMA_MODEL)
         snapshot["snapshot_state"] = "open"
