@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/unit-reference-v0.1.schema.json",
+  "title": "SOL UnitReference v0.1",
+  "description": "External/metrology-resolvable normalized unit identity from ADR-0026.",
+  "type": "object",
+  "required": ["namespace", "id"],
+  "properties": {
+    "namespace": {"type": "string", "minLength": 1},
+    "id": {"type": "string", "minLength": 1}
+  },
+  "additionalProperties": false
+}
