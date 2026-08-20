@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/interface-implementation-v0.1.schema.json",
+  "title": "SOL InterfaceImplementation v0.1",
+  "description": "Focused direct Entity Type Interface implementation declaration for ADR-0025.",
+  "$defs": {
+    "canonicalReference": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mapping": {
+      "type": "object",
+      "required": ["requirement", "concrete"],
+      "properties": {
+        "requirement": {"$ref": "#/$defs/canonicalReference"},
+        "concrete": {"$ref": "#/$defs/canonicalReference"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": ["entity_type", "interface", "property_mappings", "relation_mappings"],
+  "properties": {
+    "entity_type": {"$ref": "#/$defs/canonicalReference"},
+    "interface": {"$ref": "#/$defs/canonicalReference"},
+    "property_mappings": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/mapping"}
+    },
+    "relation_mappings": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/mapping"}
+    }
+  },
+  "additionalProperties": false
+}
