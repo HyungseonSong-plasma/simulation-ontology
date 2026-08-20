@@ -1,0 +1,24 @@
+SOL v0.1 ADR-0018 Cardinality schema smoke-test evidence
+Date: 2026-08-20
+Scope: design-stage structural/normalization smoke tests only
+
+Repository clone note:
+- Direct `git clone` in the execution container was unavailable because the container could not resolve github.com.
+- This external tooling-connectivity limitation was not treated as a semantic blocker.
+- The smoke harness loaded the same schema definitions written to the GitHub artifacts and exercised the same cases encoded in `tests/test_constraint_cardinality_schema.py`.
+
+Checks:
+PASS  boundless authoring validates and normalizes to [0,unbounded]
+PASS  mixed min/max/exact normalizes to exact interval and normalized payload omits exact
+PASS  empty mixed interval is authoring-structurally valid but semantic normalization returns QRC_EMPTY_INTERVAL
+PASS  negative/non-integer/bool bounds are structurally rejected
+PASS  normalized payload requires explicit direction/min/max
+PASS  normalized payload rejects exact and non-source direction
+PASS  qualified normalization requires caller-supplied canonical target type identity
+PASS  QRC compatibility entry point resolves to the common Cardinality authoring schema
+PASS  ADR-0017 Core relation projection fixture matches normalized canonical Cardinality payload
+
+Result: 9 PASS / 0 FAIL
+
+Important boundary:
+This evidence does not claim backend execution validation, closed-world QRC instance validation, or completion of Type/Value/Dimension/Compatibility/Conditional schemas.
