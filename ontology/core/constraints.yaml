@@ -1,5 +1,5 @@
 version: "0.1"
-status: draft
+status: consolidating
 
 constraints:
   backend_independence:
@@ -17,9 +17,29 @@ constraints:
   explicit_scope:
     description: Conditions and spatially applied model entities should reference an explicit Scope where applicable.
 
-pending:
-  - Define relation cardinalities.
-  - Define required versus optional relations.
-  - Define acyclicity and dependency constraints.
-  - Define identifiers and namespace rules.
-  - Define unit and dimensional-consistency constraints.
+  single_direct_entity_inheritance:
+    description: An Entity Type has at most one direct is_a parent; orthogonal reusable contracts use Interface composition under ADR-0008.
+
+  interface_identity_disambiguation:
+    description: Interface denotes the capability-contract language construct; the spatial entity is SpatialInterface under ADR-0014.
+
+  qrc_closed_snapshot:
+    description: Qualified Relation Cardinality instance PASS/FAIL evaluation requires a complete immutable relation snapshot under ADR-0012.
+
+accepted_semantics_not_yet_transcribed:
+  - Namespace and stable exported-identity validation from ADR-0009.
+  - Unit and PhysicalDimension compatibility rules from ADR-0004 and ADR-0005.
+  - Full six-family Constraint structural schema and composition algebra from ADR-0007.
+  - Interface requirement/extension/implementation validation from ADR-0008.
+  - Qualified Relation Cardinality schema and deterministic diagnostics from ADR-0012.
+
+open_language_schema_decisions:
+  - Complete cardinalities for Core relations.
+  - Required versus optional relation matrix for Core model-instance validation.
+  - Explicit top-level composition relations for Simulation, SimulationModel, and SimulationTask.
+  - Core graph acyclicity rules beyond already accepted specialized contracts.
+  - Final canonical authoring/serialization schema for the complete Core package.
+
+notes:
+  - Accepted semantics are not considered pending architecture questions merely because their final YAML/JSON Schema transcription is incomplete.
+  - Machine-readable schema/tooling work must not silently strengthen or weaken the accepted ADR semantics.
