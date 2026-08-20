@@ -1,7 +1,7 @@
 # Simulation Ontology Language
 
-**Version:** 0.1-draft  
-**Status:** Language design
+**Version:** 0.1  
+**Status:** Frozen semantic baseline; machine-readable consolidation in progress
 
 ## 1. Purpose
 
@@ -26,7 +26,7 @@ The language MUST support:
 
 ## 3. Minimum language constructs
 
-Version 0.1 starts with seven normative constructs and one provisional capability construct:
+SOL v0.1 has nine normative language constructs:
 
 ```text
 Ontology
@@ -37,10 +37,10 @@ Ontology
 ├── Constraint
 ├── Extension
 ├── Profile
-└── Interface   [provisional]
+└── Interface
 ```
 
-`Value` and `ValueDefinition` have accepted semantic rules (ADR 0002), but their final language-level representation is not yet fixed. `PhysicalDimension` and `Unit` also have accepted semantic boundaries (ADR 0004), while their final representation remains open. `Action` is deferred.
+`Value` and `ValueDefinition` have accepted semantic rules (ADR-0002), but their final language-level representation is not yet fixed. `PhysicalDimension` and `Unit` also have accepted semantic boundaries (ADR-0004/0005), while their final representation remains open. A Core `Action` language construct is deferred; the `PlanAction` of ADR-0011 is a MappingPlan/Adapter IR contract rather than a SOL Core ontology construct.
 
 ### 3.1 Namespace
 
@@ -80,6 +80,8 @@ A Relation SHOULD remain lightweight. If the connection itself needs substantial
 
 A `Constraint` expresses a machine-verifiable requirement on an ontology or model graph, including required properties/relations, cardinality, allowed entity types, dimensional consistency, namespace rules, dependency restrictions, and graph invariants.
 
+The SOL v0.1 Constraint architecture is governed by ADR-0007. Qualified Relation Cardinality is the accepted typed-target cardinality extension defined by ADR-0012.
+
 ### 3.6 Extension
 
 An `Extension` allows an ontology to add specialized concepts while depending on a lower-level ontology. The primary extension classes are `DomainExtension` and `BackendExtension`.
@@ -102,13 +104,15 @@ MOOSE Plasma Profile
     imports moose-ontology
 ```
 
-Backend realization bindings SHOULD normally live in profiles or backend mapping modules rather than polluting the domain ontology.
+Backend realization bindings SHOULD normally live in profiles or backend mapping modules rather than polluting the domain ontology. The declarative Profile / executable BackendAdapter separation and MappingRule/MappingClaim contracts are governed by ADR-0010 and ADR-0011.
 
-### 3.8 Interface [provisional]
+### 3.8 Interface
 
-An `Interface` defines a reusable semantic contract or capability that multiple Entity types can satisfy without forcing them into a single inheritance branch.
+An `Interface` is a normative reusable semantic capability/shape contract under ADR-0008.
 
-`Interface` remains provisional until reference models demonstrate that capability-based polymorphism cannot be represented cleanly through Entity inheritance and Constraints alone.
+An Entity Type MAY have at most one direct taxonomic `is_a` parent and MAY implement zero or more Interfaces. An Interface MAY define Property requirements, Relation requirements, and Constraints, and MAY extend zero or more Interfaces. Interface contract composition is conjunctive under ADR-0007.
+
+`Interface` is not a spatial/geometric entity. Under ADR-0014, the spatial concept is named `SpatialInterface`.
 
 ## 4. Normative semantic boundary rules
 
@@ -130,7 +134,9 @@ If a Relation itself requires substantial properties, provenance, state, constra
 
 ### Rule 5 — Capability contract
 
-If multiple unrelated Entity types must satisfy the same reusable semantic shape or capability, prefer an `Interface` if inheritance and constraints would otherwise create artificial taxonomy.
+If multiple unrelated Entity types must satisfy the same reusable semantic shape or capability, use an `Interface` rather than artificial multiple taxonomic inheritance.
+
+An Entity Type has at most one direct `is_a` parent in v0.1. It may implement multiple Interfaces. Tree formatting, YAML grouping, or a field named `children` SHALL NOT create taxonomic inheritance implicitly.
 
 ### Rule 6 — Value is not the semantic concept
 
@@ -199,7 +205,17 @@ RelativePermittivity
 
 SOL does not introduce a separate `QuantityKind` layer for this purpose; the semantic quantity Entity already carries the relevant identity.
 
-The value rules are accepted in ADR 0002, reference/dependency rules in ADR 0003, and unit/dimension rules in ADR 0004.
+### Rule 15 — Explicit taxonomy
+
+Taxonomic inheritance MUST be represented by explicit `is_a` semantics and SHALL NOT be inferred from diagram indentation, file hierarchy, declaration order, or generic `children` grouping.
+
+Composition and association are represented through Relations, not taxonomic inference.
+
+### Rule 16 — Canonical Interface identity
+
+The unqualified language identifier `Interface` denotes the ADR-0008 capability contract. The spatial entity concept is `SpatialInterface`. The two meanings SHALL NOT share one canonical identifier.
+
+The value rules are accepted in ADR-0002, reference/dependency rules in ADR-0003, unit/dimension rules in ADR-0004/0005, Constraint composition in ADR-0007, Interface/inheritance rules in ADR-0008, identity/package rules in ADR-0009, Profile/backend mapping in ADR-0010/0011, QRC in ADR-0012, and naming/taxonomy disambiguation in ADR-0014.
 
 ## 5. Ontology package model
 
@@ -217,6 +233,8 @@ constraints
 ```
 
 A domain or backend extension additionally declares its extension type and parent/core dependency. A profile declares the ontology packages it composes and the bindings required to make that composition executable or generatable.
+
+Language-level Interface definitions and implementation mappings must also be representable in packages that use them; the exact canonical serialization location is part of the ongoing machine-readable consolidation.
 
 ## 6. Dependency model
 
@@ -237,6 +255,8 @@ Core-to-backend, core-to-domain, and direct domain-to-backend dependencies are f
 ## 7. Identity and references
 
 Every exported ontology term MUST have a stable namespaced identifier. References between ontology packages MUST use semantic identifiers rather than source-file paths or implementation class names.
+
+Canonical identity, namespace, alias/rename/deprecation, package, and versioning rules are governed by ADR-0009. Machine-readable serialization SHALL preserve those semantics without using source-file location as identity.
 
 ## 8. Semantic graph model
 
@@ -264,7 +284,16 @@ SemanticQuantity
                                               PhysicalDimension
 ```
 
-The final graph-level representation of `Value`, `ValueDefinition`, `PhysicalDimension`, and `Unit` remains an implementation/design question; their semantic distinctions are normative.
+The final graph-level representation of `Value`, `ValueDefinition`, `PhysicalDimension`, and `Unit` remains an implementation/language-representation question; their semantic distinctions are normative.
+
+`Result` is a Core semantic Entity Type under ADR-0014 and participates in the accepted relations:
+
+```text
+SimulationTask -> produces -> Result
+Result -> observed_by -> ObservationModel
+```
+
+No Result subtype taxonomy is required in v0.1.
 
 ## 9. Candidate implementation stack
 
@@ -310,32 +339,42 @@ Semantic validation
 Profile composition
         │
         ▼
-Backend IR / generator
+MappingPlan / BackendAdapter layer
 ```
 
-## 11. Open questions for v0.1
+`MappingPlan` and BackendAdapter runtime constructs are not Core ontology primitives merely because they participate in generation/execution.
 
-The following questions remain unresolved:
+## 11. Consolidation state
 
-1. Whether `Value` is a first-class language construct, typed data object, or graph Entity.
-2. Normative subtype taxonomy of `ValueDefinition`.
-3. Canonical representation of `PhysicalDimension`.
-4. Canonical Unit ontology/registry and whether Unit is a Core Entity or external vocabulary reference.
-5. Affine/offset unit semantics and conversion policy.
-6. Provenance/data-source representation for ValueDefinitions.
-7. Whether `Result` is a core Entity type or runtime artifact type.
-8. Formal inheritance semantics.
-9. Relation domain/range and cardinality semantics.
-10. Required versus optional constraints.
-11. Namespace and URI convention.
-12. Ontology package version compatibility rules.
-13. Extension conflict-resolution rules.
-14. Profile binding semantics and when bindings must be reified as `BackendBinding` entities.
-15. Whether `Interface` becomes normative in v0.1.
-16. Whether actions/transformations should become a first-class construct in a later version.
+### Accepted semantics not yet fully transcribed
+
+The following semantics are accepted but still need complete canonical machine-readable representation:
+
+1. `Value` / `ValueDefinition` representation boundaries from ADR-0002/0003.
+2. `PhysicalDimension` / `Unit` final serialization from ADR-0004/0005.
+3. Complete six-family Constraint schema/composition from ADR-0007, including QRC from ADR-0012.
+4. Interface definitions, Interface extension, `implements`, and implementation mappings from ADR-0008.
+5. Full identity/namespace/package/version metadata from ADR-0009.
+6. Profile/MappingRule/MappingClaim authoring schemas consistent with ADR-0010/0011.
+
+These are transcription/representation tasks unless implementation evidence exposes a new normative contradiction.
+
+### Open language/schema decisions
+
+The following remain genuinely open:
+
+1. Final language-level representation of `Value`, `ValueDefinition`, `PhysicalDimension`, and `Unit` within the canonical graph/authoring schema.
+2. Normative subtype taxonomy of `ValueDefinition`, if any.
+3. Provenance/data-source representation for ValueDefinitions beyond already accepted semantic boundaries.
+4. Complete Core relation domain/range/cardinality and required/optional relation matrix.
+5. Explicit composition relations/cardinalities connecting `Simulation`, `SimulationModel`, and `SimulationTask` instead of diagram grouping.
+6. Final canonical serialization layout for Interface definitions and implementation mappings.
+7. Whether additional generic actions/transformations become a first-class Core construct in a later SOL version; v0.1 does not require one.
+
+Backend installation, licensing, production Adapter implementation, and backend execution V&V are not SOL language-design blockers.
 
 ## 12. v0.1 success criterion
 
-The language is sufficiently defined when the same core language can independently express a small domain ontology, a backend ontology such as MOOSE, a profile composing the two, enough constraints to reject invalid composition, and enough mapping information to generate or construct a minimal backend simulation model.
+The v0.1 semantic architecture is frozen through ADR-0014. Language/schema consolidation succeeds when the accepted contracts can be represented and independently validated without adding semantics not present in the ADR baseline.
 
-The first reference validation should use a small steady-state heat-conduction model before expanding to plasma and multiphysics domains.
+A minimal reference model should continue to use small thermal and plasma/QRC cases for structural validation. Production-quality Adapter execution belongs to separate Adapter projects and may reopen the language/architecture only if it produces a genuine semantic counterexample.
