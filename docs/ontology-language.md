@@ -1,7 +1,7 @@
 # Simulation Ontology Language
 
 **Version:** 0.1  
-**Status:** Frozen Core semantic baseline through ADR-0017; focused language/schema/package/model-snapshot representation accepted through ADR-0029.
+**Status:** **DESIGN-STAGE CLOSED by ADR-0030.** Frozen Core semantic baseline through ADR-0017; focused language/schema/package/model-snapshot representation accepted through ADR-0029.
 
 ## 1. Purpose
 
@@ -275,9 +275,11 @@ The reference fixture exercises model/task semantics, direct component membershi
 
 The reference fixture exercises Reaction/Species subtype semantics, explicit reaction relations, Interface relation mapping, independent qualified cardinality obligations, distinct identity counting, subtype matching, and counterexamples for missing/extra/wrong-type/duplicate/unresolved/open-snapshot states.
 
-## 8. Explicitly deferred / outside design-stage closure
+## 8. Closed design-stage boundary
 
-The following are not unresolved v0.1 Core architecture questions:
+ADR-0030 closes the SOL v0.1 design stage. A future change to the accepted semantic baseline requires evidence satisfying the ADR-0030 reopen criteria and a new focused decision/validation cycle.
+
+The following remain post-design/deferred and do not reopen the baseline by default:
 
 - production BackendAdapter implementation and executable backend V&V;
 - backend installation and commercial license availability;
@@ -286,5 +288,3 @@ The following are not unresolved v0.1 Core architecture questions:
 - richer future PropertyDefinition/Result/domain sub-taxonomies;
 - complete general application/model-document syntax beyond the focused ADR-0029 snapshot;
 - production Profile/backend package authoring beyond accepted mapping contracts.
-
-Any future work that changes an accepted semantic boundary requires a new focused decision/validation cycle rather than silent mutation of these rules.
