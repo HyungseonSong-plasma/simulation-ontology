@@ -25,19 +25,22 @@ Implemented and independently accepted for design-stage use:
 - `constraint-type-normalized-v0.1.schema.json`
 - `constraint-dimension-authoring-v0.1.schema.json`
 - `constraint-dimension-normalized-v0.1.schema.json`
+- `constraint-value-authoring-v0.1.schema.json`
+- `constraint-value-normalized-v0.1.schema.json`
 
 Cardinality/QRC semantic evaluation such as closed-world counting, stable identity, qualifier subtype closure, and interval normalization remains semantic-validator work rather than JSON Schema logic.
 
-The ADR-0019 Type slice likewise leaves canonical identity resolution, Entity-Type-versus-Interface identity, subtype closure, finite target-family/allowed-pair narrowing, Type intersection, and semantic-versus-representability axis separation to semantic validation.
+The ADR-0019 Type slice leaves canonical identity resolution, Entity-Type-versus-Interface identity, subtype closure, finite target-family/allowed-pair narrowing, Type intersection, and semantic-versus-representability axis separation to semantic validation.
 
 The ADR-0020 Dimension slice uses sparse seven-axis authoring, full normalized vectors, explicit `vector: {}` DimensionOne, integer-valued exponents, and equality-based Dimension intersection. Unit conversion/metrology metadata is outside the Dimension payload.
 
+The ADR-0021 Value slice uses numeric intervals and finite scalar allowed sets. Every normalized numeric operand uses an exact-decimal coefficient/exponent representation; empty Value results are separated from conflict classification; numeric normalization requires a resolved or not-required comparison space.
+
 Still under focused consolidation:
 
-- Value
 - Compatibility
 - Conditional / predicate syntax
 
 The repository intentionally does not expose permissive opaque schemas for unfinished Constraint families.
 
-Other planned schema work includes canonical entities/relations, identifiers/packages, Interfaces, and Profile/mapping authoring contracts.
+Other planned schema work includes canonical entities/relations, identifiers/packages, Interfaces, accepted Value/Unit/PhysicalDimension graph representations, and Profile/mapping authoring contracts.
