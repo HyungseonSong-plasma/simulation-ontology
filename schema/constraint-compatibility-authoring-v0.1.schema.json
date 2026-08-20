@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/constraint-compatibility-authoring-v0.1.schema.json",
+  "title": "SOL Compatibility Constraint Authoring v0.1",
+  "description": "Focused authoring shape for ADR-0022 Compatibility constraints. Reference resolution is a compiler responsibility.",
+  "type": "object",
+  "required": ["type", "criterion", "left", "right", "expect"],
+  "properties": {
+    "type": {"const": "compatibility"},
+    "criterion": {"type": "string", "minLength": 1},
+    "left": {"type": "string", "minLength": 1},
+    "right": {"type": "string", "minLength": 1},
+    "expect": {"enum": ["compatible", "incompatible"]}
+  },
+  "additionalProperties": false
+}
