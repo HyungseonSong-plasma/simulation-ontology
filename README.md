@@ -51,7 +51,7 @@ This statement describes the development process and does not imply that generat
 
 ## Status
 
-**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0017; language/schema consolidation accepted through ADR-0019.**
+**Core Simulation Ontology v0.1 — design-stage architecture frozen through ADR-0017; language/schema consolidation accepted through ADR-0020.**
 
 Architecture/freeze amendments:
 
@@ -65,7 +65,8 @@ Language/schema consolidation:
 
 - [`ADR-0018`](docs/decisions/0018-constraint-authoring-normalization-and-cardinality-schema-boundary.md) separates Constraint authoring from normalized semantic payloads and consolidates Cardinality/QRC schema boundaries.
 - [`ADR-0019`](docs/decisions/0019-relation-target-type-constraint-semantics-and-schema.md) defines the focused relation-target Type Constraint payload, subtype intersection, allowed-family narrowing, and semantic-versus-representability evaluation-axis separation.
+- [`ADR-0020`](docs/decisions/0020-dimension-constraint-and-canonical-dimensionvector.md) defines the canonical seven-axis DimensionVector, explicit DimensionOne authoring, normalized dimension equality, and Unit/metrology separation.
 
-Cardinality/QRC and relation-target Type schema slices have design-stage smoke evidence and independent Validation acceptance. Backend installation, licensing, production Adapter implementation, and full backend execution V&V are intentionally outside this design-stage closure path unless they later expose a genuine architecture counterexample.
+Cardinality/QRC, relation-target Type, and Dimension schema slices have design-stage smoke evidence and independent Validation acceptance. Backend installation, licensing, production Adapter implementation, and full backend execution V&V are intentionally outside this design-stage closure path unless they later expose a genuine architecture counterexample.
 
-The immediate focus is **remaining Constraint-family consolidation**, followed by Interface serialization, accepted Value/Unit/PhysicalDimension transcription, canonical package/schema integration, minimal Thermal + Plasma/QRC reference models, and final independent design-stage audit.
+The immediate focus is **Value Constraint consolidation**, followed by Compatibility and Conditional/predicate schema work, Interface serialization, accepted Value/Unit/PhysicalDimension graph transcription, canonical package/schema integration, minimal Thermal + Plasma/QRC reference models, and final independent design-stage audit.
