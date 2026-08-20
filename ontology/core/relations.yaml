@@ -2,6 +2,41 @@ version: "0.1"
 status: consolidating
 
 relations:
+  has_model:
+    description: Associates a Simulation context with the single SimulationModel it uses.
+    domain: Simulation
+    range: SimulationModel
+    source_cardinality:
+      min: 1
+      max: 1
+    ownership: non_owning_reference
+
+  has_task:
+    description: Associates a Simulation context with one or more SimulationTasks performed in that context.
+    domain: Simulation
+    range: SimulationTask
+    source_cardinality:
+      min: 1
+      max: unbounded
+    ownership: non_owning_reference
+    order_semantics: none
+
+  uses_model:
+    description: Binds a SimulationTask to exactly one SimulationModel to which the task applies.
+    domain: SimulationTask
+    range: SimulationModel
+    source_cardinality:
+      min: 1
+      max: 1
+
+  has_analysis:
+    description: Binds a SimulationTask to exactly one Analysis defining the computational question for that task.
+    domain: SimulationTask
+    range: Analysis
+    source_cardinality:
+      min: 1
+      max: 1
+
   represented_by:
     description: Connects a physical model or concept to a mathematical representation.
     domain: PhysicsModel
@@ -36,9 +71,12 @@ relations:
       - Scope
 
   analyzed_by:
-    description: Associates a simulation model with a computational analysis.
+    description: Derived relation connecting a SimulationModel to an Analysis when at least one SimulationTask uses that model and has that analysis.
     domain: SimulationModel
     range: Analysis
+    derived: true
+    derivation: "M analyzed_by A iff exists T: T uses_model M and T has_analysis A"
+    order_semantics: none
 
   solved_by:
     description: Associates an analysis with its numerical solver configuration.
@@ -49,6 +87,9 @@ relations:
     description: Indicates that a simulation task produces a simulation result.
     domain: SimulationTask
     range: Result
+    source_cardinality:
+      min: 0
+      max: unbounded
 
   observed_by:
     description: Associates a simulation result with observation or output definitions.
@@ -58,14 +99,17 @@ relations:
 accepted_semantics_not_yet_transcribed:
   - Relation/constraint provenance requirements accepted by prior ADRs.
   - Namespace-qualified identity requirements for exported relation terms.
+  - Complete machine-schema validation for ADR-0015 cardinality and derived-relation metadata.
 
 open_language_schema_decisions:
-  - Complete relation cardinalities.
-  - Required versus optional Core relations.
-  - Explicit top-level composition relations connecting Simulation, SimulationModel, and SimulationTask.
+  - Complete relation cardinalities beyond ADR-0015.
+  - Required versus optional Core relations beyond ADR-0015.
   - Whether selected broad domains/ranges should later be narrowed by Interface requirements or subtype constraints.
+  - Final canonical YAML/JSON Schema field representation for general relation cardinality and derived-relation rules.
 
 notes:
-  - `produces` is normatively `SimulationTask -> Result` under ADR-0014; diagram indentation under SolverConfiguration is not semantic.
+  - ADR-0015 defines `has_model`, `has_task`, `uses_model`, `has_analysis`, the derived `analyzed_by` rule, and `produces` minimum-zero semantics.
+  - `has_model` and `has_task` do not imply exclusive ownership or deletion/lifecycle cascade.
+  - `produces` is normatively `SimulationTask -> Result`; backend execution structure does not narrow its domain.
   - Domain/range entries remain the current design baseline and should only be narrowed with focused evidence.
   - Backend-local relations and handles belong to backend ontologies/Profile/Adapter layers, not this Core registry.
