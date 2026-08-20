@@ -37,6 +37,37 @@ relations:
       min: 1
       max: 1
 
+  includes_component:
+    description: Direct non-owning structural membership between an aggregate/model context and a compatible semantic component.
+    source_cardinality:
+      min: 0
+      max: unbounded
+    ownership: non_owning_reference
+    order_semantics: none
+    transitive: false
+    endpoint_matching: canonical_type_or_subtype
+    allowed_pairs:
+      - source: SimulationModel
+        targets: [PhysicsModel, MathematicalModel, ConstitutiveModel, SpatialModel, MaterialModel, ConditionModel, NumericalModel, ObservationModel]
+      - source: PhysicsModel
+        targets: [Phenomenon, Process, Interaction]
+      - source: MathematicalModel
+        targets: [Formulation, Equation, Field, Operator, MathematicalParameter]
+      - source: ConstitutiveModel
+        targets: [ClosureRelation, PropertyModel]
+      - source: SpatialModel
+        targets: [Geometry, Domain, Boundary, SpatialInterface, Scope]
+      - source: MaterialModel
+        targets: [Material, Species, MaterialProperty]
+      - source: ConditionModel
+        targets: [BoundaryCondition, InitialCondition, Source, Load]
+      - source: NumericalModel
+        targets: [Discretization, Mesh, NumericalApproximation]
+      - source: ObservationModel
+        targets: [Quantity, Probe, Integral, Dataset, Output]
+      - source: SolverConfiguration
+        targets: [NonlinearSolver, LinearSolver, Preconditioner, ConvergenceCriterion]
+
   represented_by:
     description: Connects a physical model or concept to a mathematical representation.
     domain: PhysicsModel
@@ -63,12 +94,21 @@ relations:
     range: NumericalModel
 
   applied_to:
-    description: Associates a condition with the field, equation, or spatial scope it constrains or forces.
-    domain: ConditionModel
+    description: Associates an individual condition or forcing with at least one field, equation, or spatial scope it constrains or forces.
+    domain:
+      - BoundaryCondition
+      - InitialCondition
+      - Source
+      - Load
     range:
       - Field
       - Equation
       - Scope
+    endpoint_matching: canonical_type_or_subtype
+    source_cardinality:
+      min: 1
+      max: unbounded
+    order_semantics: none
 
   analyzed_by:
     description: Derived relation connecting a SimulationModel to an Analysis when at least one SimulationTask uses that model and has that analysis.
@@ -100,16 +140,18 @@ accepted_semantics_not_yet_transcribed:
   - Relation/constraint provenance requirements accepted by prior ADRs.
   - Namespace-qualified identity requirements for exported relation terms.
   - Complete machine-schema validation for ADR-0015 cardinality and derived-relation metadata.
+  - Final structural schema enforcement for ADR-0016 allowed-pair and subtype-aware endpoint matching semantics.
 
 open_language_schema_decisions:
-  - Complete relation cardinalities beyond ADR-0015.
-  - Required versus optional Core relations beyond ADR-0015.
-  - Whether selected broad domains/ranges should later be narrowed by Interface requirements or subtype constraints.
-  - Final canonical YAML/JSON Schema field representation for general relation cardinality and derived-relation rules.
+  - Complete relation cardinalities beyond ADR-0015 and ADR-0016.
+  - Required versus optional Core relations beyond accepted focused contracts.
+  - Whether selected broad domains/ranges should later be narrowed by Interface requirements or additional subtype constraints.
+  - Final canonical YAML/JSON Schema field spelling for relation cardinality, derived-relation, allowed-pair, and endpoint-matching rules.
 
 notes:
   - ADR-0015 defines `has_model`, `has_task`, `uses_model`, `has_analysis`, the derived `analyzed_by` rule, and `produces` minimum-zero semantics.
-  - `has_model` and `has_task` do not imply exclusive ownership or deletion/lifecycle cascade.
+  - ADR-0016 defines `includes_component`, its authoritative allowed-pair matrix, canonical subtype-aware endpoint matching for this contract, and the repaired `applied_to` domain/cardinality.
+  - `includes_component` is direct-only, non-owning, non-transitive, and unordered; recursive traversal is a query/view rather than an inferred stored relation.
+  - Allowed-pair entries are the authority for `includes_component`; tools must not broaden them from a derived range summary.
   - `produces` is normatively `SimulationTask -> Result`; backend execution structure does not narrow its domain.
-  - Domain/range entries remain the current design baseline and should only be narrowed with focused evidence.
   - Backend-local relations and handles belong to backend ontologies/Profile/Adapter layers, not this Core registry.
