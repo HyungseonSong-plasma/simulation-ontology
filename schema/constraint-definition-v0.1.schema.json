@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/constraint-definition-v0.1.schema.json",
+  "title": "SOL ConstraintDefinition v0.1",
+  "type": "object",
+  "required": ["id", "payload"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "payload": {
+      "oneOf": [
+        {"$ref": "constraint-cardinality-normalized-v0.1.schema.json"},
+        {"$ref": "constraint-type-normalized-v0.1.schema.json"},
+        {"$ref": "constraint-dimension-normalized-v0.1.schema.json"},
+        {"$ref": "constraint-value-normalized-v0.1.schema.json"},
+        {"$ref": "constraint-compatibility-normalized-v0.1.schema.json"},
+        {"$ref": "constraint-conditional-normalized-v0.1.schema.json"}
+      ]
+    },
+    "interface_application_target_kinds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["interface", "property_requirement", "relation_requirement"]
+      }
+    }
+  },
+  "additionalProperties": false
+}
