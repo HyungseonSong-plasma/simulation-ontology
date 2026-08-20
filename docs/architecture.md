@@ -1,11 +1,11 @@
 # Core Simulation Ontology Architecture
 
 **Version:** 0.1  
-**Status:** Frozen design baseline, amended through ADR-0015
+**Status:** Frozen design baseline, amended through ADR-0016
 
 ## 1. Purpose
 
-The Core Simulation Ontology provides a solver-independent and domain-independent semantic framework for simulation models. Software-specific concepts such as a MOOSE `Kernel`, COMSOL `Physics Feature`, or Ansys analysis object are backend representations rather than core ontology concepts.
+The Core Simulation Ontology provides a solver-independent and domain-independent semantic framework for simulation models. Software-specific concepts such as a MOOSE `Kernel`, COMSOL `Physics Feature`, or Ansys analysis object are backend representations rather than Core ontology concepts.
 
 The ontology should answer:
 
@@ -73,9 +73,19 @@ S has_task T
 => T uses_model M
 ```
 
-Tree formatting elsewhere in this document is descriptive grouping unless an explicit Relation or `is_a` rule is stated. Diagram indentation alone is not inheritance or ownership.
+Diagram indentation alone is never inheritance or ownership.
 
-## 5. SimulationModel
+## 5. SimulationModel and direct component membership
+
+ADR-0016 makes the model-side grouping relation explicit:
+
+```text
+includes_component
+```
+
+The relation is direct-only, non-owning, non-transitive, and unordered. Its generic source cardinality is `0..*`. Endpoint validity is governed by an authoritative allowed-pair matrix and canonical equal-or-subtype matching.
+
+Thus the following diagram denotes `includes_component` edges, not `is_a`:
 
 ```text
 SimulationModel
@@ -89,17 +99,17 @@ SimulationModel
 └── ObservationModel
 ```
 
-This tree presents conceptual model-side categories. It does not assert `is_a` edges unless a separate normative rule explicitly does so.
+No transitive membership is inferred. If a `SimulationModel` includes a `MathematicalModel` and that mathematical model includes a `Field`, SOL does not automatically assert a direct `SimulationModel -> Field` component edge.
 
 ### 5.1 PhysicsModel
 
-Represents the physical meaning of the model, independent of mathematical or software implementation.
+Represents physical meaning independent of mathematical or software implementation.
 
 ```text
-PhysicsModel
-├── Phenomenon
-├── Process
-└── Interaction
+PhysicsModel includes_component:
+  Phenomenon
+  Process
+  Interaction
 ```
 
 ### 5.2 MathematicalModel
@@ -107,12 +117,12 @@ PhysicsModel
 Defines the mathematical formulation used to represent the physical model.
 
 ```text
-MathematicalModel
-├── Formulation
-├── Equation
-├── Field
-├── Operator
-└── MathematicalParameter
+MathematicalModel includes_component:
+  Formulation
+  Equation
+  Field
+  Operator
+  MathematicalParameter
 ```
 
 ```text
@@ -129,9 +139,9 @@ Physics and mathematics are intentionally separated because one physical phenome
 Defines closure relations and property models required to close the mathematical system.
 
 ```text
-ConstitutiveModel
-├── ClosureRelation
-└── PropertyModel
+ConstitutiveModel includes_component:
+  ClosureRelation
+  PropertyModel
 ```
 
 ```text
@@ -146,10 +156,10 @@ ConstitutiveModel
 Represents materials, species, and material properties.
 
 ```text
-MaterialModel
-├── Material
-├── Species
-└── MaterialProperty
+MaterialModel includes_component:
+  Material
+  Species
+  MaterialProperty
 ```
 
 ```text
@@ -164,12 +174,12 @@ MaterialModel
 Represents geometry and the spatial scope on which model entities are defined or applied.
 
 ```text
-SpatialModel
-├── Geometry
-├── Domain
-├── Boundary
-├── SpatialInterface
-└── Scope
+SpatialModel includes_component:
+  Geometry
+  Domain
+  Boundary
+  SpatialInterface
+  Scope
 ```
 
 `SpatialInterface` denotes an interface between spatial regions/domains. The unqualified language term `Interface` is reserved for the reusable capability-contract construct defined by ADR-0008 and disambiguated by ADR-0014.
@@ -178,25 +188,37 @@ SpatialModel
 
 ### 5.6 ConditionModel
 
-Defines conditions and external forcing.
+Defines conditions and external forcing as an aggregate context.
 
 ```text
-ConditionModel
-├── BoundaryCondition
-├── InitialCondition
-├── Source
-└── Load
+ConditionModel includes_component:
+  BoundaryCondition
+  InitialCondition
+  Source
+  Load
 ```
+
+The aggregate `ConditionModel` is not itself the thing applied to a field/equation/scope. ADR-0016 repairs the direct condition-target contract:
+
+```text
+BoundaryCondition | InitialCondition | Source | Load
+            │
+        applied_to (1..*)
+            ▼
+      Field | Equation | Scope
+```
+
+Subtype-specialized conditions and targets conform through canonical subtype closure. Backend-native selection IDs, sideset names, feature tags, and solver handles remain outside Core.
 
 ### 5.7 NumericalModel
 
 Defines how the mathematical model is converted into a numerical representation.
 
 ```text
-NumericalModel
-├── Discretization
-├── Mesh
-└── NumericalApproximation
+NumericalModel includes_component:
+  Discretization
+  Mesh
+  NumericalApproximation
 ```
 
 ```text
@@ -213,12 +235,12 @@ Solver algorithms are not part of `NumericalModel`; they belong to `SolverConfig
 Defines what quantities are observed, derived, or exported from a simulation.
 
 ```text
-ObservationModel
-├── Quantity
-├── Probe
-├── Integral
-├── Dataset
-└── Output
+ObservationModel includes_component:
+  Quantity
+  Probe
+  Integral
+  Dataset
+  Output
 ```
 
 ## 6. SimulationTask, Analysis, SolverConfiguration, and Result
@@ -259,11 +281,11 @@ The listed Analysis specializations are explicit taxonomic `is_a` relations in t
 Defines the numerical algorithms used to solve an Analysis.
 
 ```text
-SolverConfiguration
-├── NonlinearSolver
-├── LinearSolver
-├── Preconditioner
-└── ConvergenceCriterion
+SolverConfiguration includes_component:
+  NonlinearSolver
+  LinearSolver
+  Preconditioner
+  ConvergenceCriterion
 ```
 
 ```text
@@ -309,63 +331,33 @@ SOL v0.1 does not define a mandatory Result subtype taxonomy.
 ## 7. Core relationship graph
 
 ```text
-                    PhysicsModel
-                         │
-                  represented_by
-                         ▼
-                 MathematicalModel
-                         │
-                      closed_by
-                         ▼
-                 ConstitutiveModel
-                         │
-                   parameterized_by
-                         ▼
-                   MaterialModel
+SimulationModel
+    │ includes_component (direct, non-owning)
+    ├──────────────────────────────────────────────┐
+    ▼                                              ▼
+PhysicsModel                                  MathematicalModel
+    │ represented_by                              │
+    └────────────────────────────────────────────>│
+                                                   ├─ closed_by ───────> ConstitutiveModel
+                                                   ├─ defined_on ──────> SpatialModel
+                                                   └─ discretized_by ──> NumericalModel
 
-                 MathematicalModel
-                         │
-                    defined_on
-                         ▼
-                    SpatialModel
+ConstitutiveModel ── parameterized_by ──> MaterialModel
 
-                 MathematicalModel
-                         │
-                   discretized_by
-                         ▼
-                   NumericalModel
+ConditionModel ── includes_component ──> BoundaryCondition / InitialCondition / Source / Load
+                                                     │
+                                                  applied_to (1..*)
+                                                     ▼
+                                              Field / Equation / Scope
 
-                  ConditionModel
-                         │
-                     applied_to
-                         ▼
-              Field / Equation / Scope
-
-                      Simulation
-                    ╱            ╲
-             has_model          has_task
-                 │                │
-                 ▼                ▼
-          SimulationModel   SimulationTask
-                 ▲             │       │
-                 │        uses_model   has_analysis
-                 └─────────────┘       │
-                                       ▼
-                                    Analysis
-                                       │
-                                    solved_by
-                                       ▼
-                              SolverConfiguration
+Simulation
+   ├─ has_model ──> SimulationModel
+   └─ has_task ───> SimulationTask
+                         ├─ uses_model ──> SimulationModel
+                         ├─ has_analysis ─> Analysis ── solved_by ─> SolverConfiguration
+                         └─ produces ────> Result ── observed_by ─> ObservationModel
 
 SimulationModel -- analyzed_by (derived) --> Analysis
-
-SimulationTask
-      │ produces
-      ▼
-    Result
-      │ observed_by
-      ▼
-ObservationModel
 ```
 
 ## 8. Backend boundary
@@ -383,7 +375,7 @@ Simulation IR / MappingPlan
 MOOSE COMSOL ANSYS
 ```
 
-Backend adapters and backend ontologies map Core semantic concepts to native software representations. A backend may serialize one task per artifact or multiple tasks/studies per backend model; that is a transformed realization and does not change Core task identity.
+Backend adapters and backend ontologies map Core semantic concepts to native software representations. Backend object trees, native ownership, installation/runtime availability, and licensing do not define Core component membership semantics.
 
 ## 9. Ontology language versus implementation technology
 
@@ -409,14 +401,16 @@ The project may use YAML for authoring, JSON-LD/RDF/OWL for graph representation
 14. Keep ontology semantics independent of implementation technologies.
 15. Do not infer `is_a` inheritance from diagram indentation or machine-readable grouping shorthand.
 16. Reserve `Interface` for reusable capability contracts; use `SpatialInterface` for the spatial entity concept.
-17. Treat `has_model` and `has_task` as non-owning references; backend artifact lifecycle does not define Core ownership.
+17. Treat `has_model`, `has_task`, and `includes_component` as non-owning references; backend artifact lifecycle does not define Core ownership.
 18. Treat task bindings as authoritative for model–Analysis application; `analyzed_by` is derived.
+19. Use `includes_component` only for direct structural membership; semantic relations such as `represented_by`, `closed_by`, `applied_to`, and `solved_by` remain distinct.
+20. Validate ADR-0016 relation endpoints through canonical semantic type identity/subtype closure, not backend inheritance or declaration order.
 
 ## 11. Consolidation state
 
-The design-stage architecture is frozen through ADR-0015. Immediate machine-readable consolidation priorities are:
+The design-stage architecture is frozen through ADR-0016. Immediate machine-readable consolidation priorities are:
 
-- transcribe accepted relation cardinalities and derived-relation invariants into the final structural/semantic schema;
+- transcribe accepted relation cardinalities, allowed-pair constraints, and derived-relation invariants into the final structural/semantic schema;
 - complete Interface serialization/validation;
 - complete accepted Value/ValueDefinition/PhysicalDimension/Unit representation;
 - define remaining Core relation cardinalities only where evidence requires them.
