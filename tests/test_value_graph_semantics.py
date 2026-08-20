@@ -103,6 +103,13 @@ class ValueGraphSemanticsTests(unittest.TestCase):
         )
         self.assertEqual(result, ("INDETERMINATE", "VALUE_DEFINITION_FORMAT_PROVIDER_UNRESOLVED"))
 
+    def test_missing_provider_evidence_is_indeterminate_for_nonliteral(self):
+        result = choose_value_definition_representation(
+            mechanism="expression",
+            resolved_semantic_dependencies=(),
+        )
+        self.assertEqual(result, ("INDETERMINATE", "VALUE_DEFINITION_FORMAT_PROVIDER_UNRESOLVED"))
+
     def test_local_nonliteral_without_dependencies_can_stay_inline(self):
         result = choose_value_definition_representation(
             mechanism="function",
