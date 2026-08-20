@@ -1,23 +1,19 @@
 version: "0.1"
-status: consolidating
+status: design_stage_consolidated
 
 relations:
   has_model:
     description: Associates a Simulation context with the single SimulationModel it uses.
     domain: Simulation
     range: SimulationModel
-    source_cardinality:
-      min: 1
-      max: 1
+    source_cardinality: {min: 1, max: 1}
     ownership: non_owning_reference
 
   has_task:
     description: Associates a Simulation context with one or more SimulationTasks performed in that context.
     domain: Simulation
     range: SimulationTask
-    source_cardinality:
-      min: 1
-      max: unbounded
+    source_cardinality: {min: 1, max: unbounded}
     ownership: non_owning_reference
     order_semantics: none
 
@@ -25,23 +21,17 @@ relations:
     description: Binds a SimulationTask to exactly one SimulationModel to which the task applies.
     domain: SimulationTask
     range: SimulationModel
-    source_cardinality:
-      min: 1
-      max: 1
+    source_cardinality: {min: 1, max: 1}
 
   has_analysis:
     description: Binds a SimulationTask to exactly one Analysis defining the computational question for that task.
     domain: SimulationTask
     range: Analysis
-    source_cardinality:
-      min: 1
-      max: 1
+    source_cardinality: {min: 1, max: 1}
 
   includes_component:
     description: Direct non-owning structural membership between an aggregate/model context and a compatible semantic component.
-    source_cardinality:
-      min: 0
-      max: unbounded
+    source_cardinality: {min: 0, max: unbounded}
     ownership: non_owning_reference
     order_semantics: none
     transitive: false
@@ -72,57 +62,38 @@ relations:
     description: Connects a physical model or concept to a mathematical representation.
     domain: PhysicsModel
     range: MathematicalModel
-    source_cardinality:
-      min: 0
-      max: unbounded
+    source_cardinality: {min: 0, max: unbounded}
 
   closed_by:
     description: Connects a mathematical model to a constitutive or closure model required to close it.
     domain: MathematicalModel
     range: ConstitutiveModel
-    source_cardinality:
-      min: 0
-      max: unbounded
+    source_cardinality: {min: 0, max: unbounded}
 
   parameterized_by:
     description: Connects a model to material or physical properties used as parameters.
     domain: ConstitutiveModel
     range: MaterialModel
-    source_cardinality:
-      min: 0
-      max: unbounded
+    source_cardinality: {min: 0, max: unbounded}
 
   defined_on:
     description: Associates a model entity with its spatial definition or scope.
     domain: MathematicalModel
     range: SpatialModel
-    source_cardinality:
-      min: 0
-      max: unbounded
+    source_cardinality: {min: 0, max: unbounded}
 
   discretized_by:
     description: Connects a mathematical model to its numerical representation.
     domain: MathematicalModel
     range: NumericalModel
-    source_cardinality:
-      min: 0
-      max: unbounded
+    source_cardinality: {min: 0, max: unbounded}
 
   applied_to:
     description: Associates an individual condition or forcing with at least one field, equation, or spatial scope it constrains or forces.
-    domain:
-      - BoundaryCondition
-      - InitialCondition
-      - Source
-      - Load
-    range:
-      - Field
-      - Equation
-      - Scope
+    domain: [BoundaryCondition, InitialCondition, Source, Load]
+    range: [Field, Equation, Scope]
     endpoint_matching: canonical_type_or_subtype
-    source_cardinality:
-      min: 1
-      max: unbounded
+    source_cardinality: {min: 1, max: unbounded}
     order_semantics: none
 
   analyzed_by:
@@ -137,25 +108,19 @@ relations:
     description: Associates an analysis with its numerical solver configuration.
     domain: Analysis
     range: SolverConfiguration
-    source_cardinality:
-      min: 0
-      max: unbounded
+    source_cardinality: {min: 0, max: unbounded}
 
   produces:
     description: Indicates that a simulation task produces a simulation result.
     domain: SimulationTask
     range: Result
-    source_cardinality:
-      min: 0
-      max: unbounded
+    source_cardinality: {min: 0, max: unbounded}
 
   observed_by:
     description: Associates a simulation result with observation or output definitions.
     domain: Result
     range: ObservationModel
-    source_cardinality:
-      min: 0
-      max: unbounded
+    source_cardinality: {min: 0, max: unbounded}
 
   has_value_definition:
     description: Associates a value-bearing semantic Entity with an identified/reified ValueDefinition instance under ADR-0026. InlineValueDefinition payloads do not participate in this relation.
@@ -166,28 +131,23 @@ relations:
   depends_on:
     description: Preserves a computational semantic dependency from a reified ValueDefinition to an independently identifiable semantic Entity under ADR-0003/0026.
     domain: ValueDefinition
-    range_semantics: independently identifiable semantic Entity resolved under ADR-0009; the broad machine range is finalized during canonical package integration.
+    range_semantics: independently identifiable semantic Entity resolved under ADR-0009/0028.
     order_semantics: none
 
-accepted_semantics_not_yet_transcribed:
-  - Relation/constraint provenance requirements accepted by prior ADRs.
-  - Namespace-qualified identity requirements for exported relation terms.
-  - Complete machine-schema validation for ADR-0015 cardinality and derived-relation metadata.
-  - Final structural schema enforcement for ADR-0016 allowed-pair and subtype-aware endpoint matching semantics.
-  - Final schema enforcement of ADR-0017 cardinality authority/projection consistency.
+accepted_semantics_not_yet_transcribed: []
 
-open_language_schema_decisions:
-  - Required versus optional Core relations beyond accepted cardinality constraints supplied by domain/interface/profile refinements.
-  - Whether selected broad domains/ranges should later be narrowed by Interface requirements or additional subtype constraints.
-  - Final canonical YAML/JSON Schema field spelling for relation cardinality, derived-relation, allowed-pair, and endpoint-matching rules.
-  - Canonical stable serialization identity for Cardinality Constraint authorities.
-  - Final package-level domain/range encoding for broad value-bearing and dependency relations introduced by ADR-0026.
+open_language_schema_decisions: []
+
+deferred_post_v0_1:
+  - Additional domain/interface/profile requiredness refinements beyond the generic Core baseline.
+  - Broader value-bearing applicability contracts where future domain schemas require them.
+  - Multi-model/co-simulation relations and richer derived relation algebra.
 
 notes:
   - ADR-0015 defines `has_model`, `has_task`, `uses_model`, `has_analysis`, the derived `analyzed_by` rule, and `produces` minimum-zero semantics.
-  - ADR-0016 defines `includes_component`, its authoritative allowed-pair matrix, canonical subtype-aware endpoint matching for this contract, and the repaired `applied_to` domain/cardinality.
-  - ADR-0017 defines explicit Core `0..*` projections for `represented_by`, `closed_by`, `parameterized_by`, `defined_on`, `discretized_by`, `solved_by`, and `observed_by`; these projections mirror canonical Core Cardinality Constraints rather than acting as a second authority.
-  - ADR-0026 defines `has_value_definition` and `depends_on` only for reified ValueDefinition graph instances; `Value`, UnitReference, DimensionVector, and InlineValueDefinition remain typed payloads rather than Entity endpoints.
-  - `includes_component` is direct-only, non-owning, non-transitive, and unordered; recursive traversal is a query/view rather than an inferred stored relation.
-  - `produces` is normatively `SimulationTask -> Result`; backend execution structure does not narrow its domain.
+  - ADR-0016 defines `includes_component`, its authoritative allowed-pair matrix, canonical subtype-aware endpoint matching, and repaired `applied_to` semantics.
+  - ADR-0017 defines explicit Core `0..*` projections for `represented_by`, `closed_by`, `parameterized_by`, `defined_on`, `discretized_by`, `solved_by`, and `observed_by`; these projections mirror canonical Cardinality Constraints rather than acting as a second authority.
+  - ADR-0026 defines `has_value_definition` and `depends_on` only for reified ValueDefinition graph instances; Value, UnitReference, DimensionVector, and InlineValueDefinition remain typed payloads rather than Entity endpoints.
+  - ADR-0028 defines canonical RelationDefinition package serialization and reference-kind resolution.
+  - ADR-0029 defines closed resolved-model snapshots containing explicit canonical relation triples for reference validation.
   - Backend-local relations and handles belong to backend ontologies/Profile/Adapter layers, not this Core registry.
