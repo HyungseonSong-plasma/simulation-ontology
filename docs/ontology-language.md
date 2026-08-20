@@ -26,7 +26,7 @@ The language MUST support:
 
 ## 3. Minimum language constructs
 
-Version 0.1 starts with seven constructs:
+Version 0.1 starts with seven normative constructs and one provisional capability construct:
 
 ```text
 Ontology
@@ -36,8 +36,11 @@ Ontology
 ├── Relation
 ├── Constraint
 ├── Extension
-└── Profile
+├── Profile
+└── Interface   [provisional]
 ```
+
+`Action` is intentionally deferred. It may become a first-class construct when the framework begins modeling transformations, executable operations, or workflow state changes.
 
 ### 3.1 Namespace
 
@@ -55,7 +58,7 @@ A namespace MUST identify the ontology that owns a term.
 
 ### 3.2 Entity
 
-An `Entity` represents a semantic type or concept.
+An `Entity` represents a semantic concept with independent identity in the ontology graph.
 
 An entity MAY:
 
@@ -72,24 +75,57 @@ plasma:ElectronTransport
     is_a sim:PhysicsModel
 ```
 
+#### Entity boundary rule
+
+A concept SHOULD be modeled as an Entity when it needs independent semantic identity: it can be referenced by multiple other concepts, participate in relations of its own, carry non-trivial metadata, or evolve independently from the entity that uses it.
+
+A concept SHOULD NOT be promoted to an Entity merely because it has a value. Simple intrinsic characteristics belong as Properties.
+
 ### 3.3 Property
 
-A `Property` represents an intrinsic attribute of an entity rather than a semantic link to another entity.
+A `Property` represents an intrinsic characteristic or value-bearing attribute of an Entity. It does not represent an independently meaningful semantic connection between two entities.
 
-Examples include labels, scalar parameters, units, dimensions, numerical values, configuration values, or metadata.
+Typical properties include labels, symbols, scalar values, units, dimensions, configuration values, and descriptive metadata.
 
-The distinction between `Property` and `Relation` is semantic:
+Conceptual example:
 
 ```text
-thermal_conductivity = 400 W/(m K)   → Property/value
-ElectronTransport represented_by X   → Relation
+ElectronMobility
+    symbol = "mu_e"
+    unit = "m^2/(V s)"
 ```
 
-The exact boundary between properties and relations will be refined during v0.1 validation.
+#### Property boundary rule
+
+Use a Property when the information primarily answers:
+
+> What characteristic or value does this Entity have?
+
+Use a Relation instead when the information primarily answers:
+
+> How is this Entity semantically connected to another independently identifiable Entity?
+
+A value-bearing concept MAY be promoted from Property to Entity when it requires its own identity, relations, provenance, functional dependence, uncertainty model, or reusable metadata.
+
+For example, a literal material value may initially be represented as a property:
+
+```text
+Copper
+    thermal_conductivity = 400 W/(m K)
+```
+
+but a reusable or model-dependent conductivity may be represented as an Entity:
+
+```text
+ThermalConductivity
+    is_a MaterialProperty
+```
+
+and connected to the material through an explicit relation.
 
 ### 3.4 Relation
 
-A `Relation` is a first-class semantic link between ontology entities.
+A `Relation` is a first-class semantic link between independently identifiable ontology Entities.
 
 A relation definition SHOULD specify:
 
@@ -116,6 +152,46 @@ observed_by
 ```
 
 Relations are not implementation pointers. They express semantic meaning in the simulation graph.
+
+Conceptual example:
+
+```text
+ElectronTransport
+    represented_by
+ElectronContinuityEquation
+```
+
+#### Relation boundary rule
+
+Use a Relation when both endpoints have independent semantic identity and the connection itself has domain meaning.
+
+A Relation SHOULD remain lightweight. If the connection itself needs substantial properties, provenance, version constraints, parameter mappings, state, or relations of its own, the connection SHOULD be reified as an Entity.
+
+Simple relation:
+
+```text
+Equation ──defined_on──> Domain
+```
+
+Reified relationship:
+
+```text
+Equation
+   │
+   ▼
+EquationScopeAssignment
+   │
+   ▼
+Domain
+```
+
+This rule is particularly important for backend mappings. A simple semantic binding may be expressed as:
+
+```text
+DiffusionOperator ──realized_by──> moose:ADDiffusion
+```
+
+If the binding also requires parameter maps, version compatibility, priorities, or transformation rules, it SHOULD become an Entity such as `BackendBinding`.
 
 ### 3.5 Constraint
 
@@ -185,7 +261,79 @@ moose:ADDiffusion
 
 Backend realization bindings SHOULD normally live in profiles or backend mapping modules rather than polluting the domain ontology.
 
-## 4. Ontology package model
+### 3.8 Interface [provisional]
+
+An `Interface` defines a reusable semantic contract or capability that multiple Entity types can satisfy without forcing them into a single inheritance branch.
+
+Conceptual examples include:
+
+```text
+SpatiallyScoped
+Parameterized
+Observable
+```
+
+An Interface MAY require specific Properties or Relations. For example:
+
+```text
+SpatiallyScoped
+    requires scope: Scope
+```
+
+and multiple entities such as `BoundaryCondition`, `Source`, or `MaterialAssignment` may implement that contract.
+
+`Interface` is provisional in v0.1. It will become normative only if reference models demonstrate that capability-based polymorphism cannot be represented cleanly through Entity inheritance and Constraints alone.
+
+## 4. Normative semantic boundary rules
+
+The following rules govern the distinction among the core semantic constructs.
+
+### Rule 1 — Identity
+
+If a concept has independent semantic identity, model it as an `Entity`.
+
+### Rule 2 — Intrinsic characteristic
+
+If information is primarily an intrinsic characteristic or literal/value-bearing attribute of one Entity, model it as a `Property`.
+
+### Rule 3 — Semantic connection
+
+If two independently identifiable Entities are connected in a way that has domain meaning, model the connection as a `Relation`.
+
+### Rule 4 — Reification
+
+If a Relation itself requires substantial properties, provenance, state, constraints, mappings, or relations, reify it as an `Entity` rather than overloading the Relation.
+
+### Rule 5 — Capability contract
+
+If multiple unrelated Entity types must satisfy the same reusable semantic shape or capability, prefer an `Interface` if inheritance and constraints would otherwise create artificial taxonomy.
+
+### Decision heuristic
+
+```text
+Does it need independent identity?
+        │
+       yes ───────────────► Entity
+        │ no
+        ▼
+Is it a characteristic/value of one Entity?
+        │
+       yes ───────────────► Property
+        │ no
+        ▼
+Does it connect two independent Entities?
+        │
+       yes ───────────────► Relation
+        │
+        ▼
+Does the connection itself need rich metadata/state?
+        │
+       yes ───────────────► Reified Entity
+```
+
+These rules are inspired by mature ontology/data-modeling practice, including the separation of object types, properties, links, and interfaces used in Palantir Ontology, but they are defined here as independent Simulation Ontology Language semantics rather than as Palantir-specific constructs.
+
+## 5. Ontology package model
 
 Each ontology package SHOULD declare at least:
 
@@ -204,7 +352,7 @@ A domain or backend extension additionally declares its extension type and paren
 
 A profile declares the ontology packages it composes and the bindings required to make that composition executable or generatable.
 
-## 5. Dependency model
+## 6. Dependency model
 
 Allowed dependency direction:
 
@@ -229,7 +377,7 @@ MOOSE Ontology → Plasma Ontology
 
 The final two dependencies are forbidden by default because domain and backend ontologies are intended to remain orthogonal. Their integration belongs to a profile.
 
-## 6. Identity and references
+## 7. Identity and references
 
 Every exported ontology term MUST have a stable namespaced identifier.
 
@@ -245,7 +393,7 @@ moose:Kernel
 
 The concrete URI and namespace syntax remains an implementation decision for the next language iteration.
 
-## 7. Semantic graph model
+## 8. Semantic graph model
 
 An instantiated simulation ontology forms a graph:
 
@@ -271,7 +419,7 @@ DriftDiffusionFlux
 ElectronMobility
 ```
 
-## 8. Candidate implementation stack
+## 9. Candidate implementation stack
 
 The following stack is provisional and subordinate to the language specification:
 
@@ -292,7 +440,7 @@ The following stack is provisional and subordinate to the language specification
 
 No technology in this table is part of the normative language contract at v0.1.
 
-## 9. Proposed processing pipeline
+## 10. Proposed processing pipeline
 
 ```text
 Human-authored ontology
@@ -320,11 +468,11 @@ Profile composition
 Backend IR / generator
 ```
 
-## 10. Open questions for v0.1
+## 11. Open questions for v0.1
 
 The following questions must be resolved before the language is considered stable:
 
-1. Exact distinction between Entity, Property, and value-bearing Parameter.
+1. Exact boundary between simple value-bearing Properties and independently modeled parameter/property Entities.
 2. Whether `Result` is a core Entity type or a runtime artifact type.
 3. Formal inheritance semantics.
 4. Relation domain/range and cardinality semantics.
@@ -332,11 +480,12 @@ The following questions must be resolved before the language is considered stabl
 6. Namespace and URI convention.
 7. Ontology package version compatibility rules.
 8. Extension conflict-resolution rules.
-9. Profile binding semantics.
+9. Profile binding semantics and when bindings must be reified as `BackendBinding` entities.
 10. Unit and physical-dimension representation.
-11. Whether actions/transformations should become a first-class construct in a later version.
+11. Whether `Interface` becomes normative in v0.1.
+12. Whether actions/transformations should become a first-class construct in a later version.
 
-## 11. v0.1 success criterion
+## 12. v0.1 success criterion
 
 The language is sufficiently defined when the same core language can independently express:
 
