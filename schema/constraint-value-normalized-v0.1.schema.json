@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simulation-ontology.example/schema/constraint-value-normalized-v0.1.schema.json",
+  "title": "SOL Normalized Scalar Value Constraint v0.1",
+  "description": "Canonical normalized scalar Value payload for ADR-0021.",
+  "$defs": {
+    "decimalScalar": {
+      "type": "object",
+      "required": ["coefficient", "exponent10"],
+      "properties": {
+        "coefficient": {
+          "type": "string",
+          "pattern": "^(?:0|-?[1-9](?:[0-9]*[1-9])?)$"
+        },
+        "exponent10": {"type": "integer"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"coefficient": {"const": "0"}}, "required": ["coefficient"]},
+          "then": {"properties": {"exponent10": {"const": 0}}}
+        }
+      ],
+      "additionalProperties": false
+    },
+    "normalizedBound": {
+      "type": "object",
+      "required": ["value", "inclusive"],
+      "properties": {
+        "value": {"$ref": "#/$defs/decimalScalar"},
+        "inclusive": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "numericInterval": {
+      "type": "object",
+      "required": ["type", "form"],
+      "properties": {
+        "type": {"const": "value"},
+        "form": {"const": "numeric_interval"},
+        "lower": {"$ref": "#/$defs/normalizedBound"},
+        "upper": {"$ref": "#/$defs/normalizedBound"}
+      },
+      "additionalProperties": false
+    },
+    "allowedSet": {
+      "type": "object",
+      "required": ["type", "form", "scalar_kind", "values"],
+      "properties": {
+        "type": {"const": "value"},
+        "form": {"const": "allowed_set"},
+        "scalar_kind": {"enum": ["number", "string", "boolean"]},
+        "values": {"type": "array", "minItems": 1}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"scalar_kind": {"const": "number"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"values": {"items": {"$ref": "#/$defs/decimalScalar"}}}}
+        },
+        {
+          "if": {"properties": {"scalar_kind": {"const": "string"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"values": {"items": {"type": "string"}}}}
+        },
+        {
+          "if": {"properties": {"scalar_kind": {"const": "boolean"}}, "required": ["scalar_kind"]},
+          "then": {"properties": {"values": {"items": {"type": "boolean"}}}}
+        }
+      ],
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {"$ref": "#/$defs/numericInterval"},
+    {"$ref": "#/$defs/allowedSet"}
+  ]
+}
