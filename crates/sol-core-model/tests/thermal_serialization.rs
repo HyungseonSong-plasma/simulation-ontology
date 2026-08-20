@@ -4,7 +4,8 @@ const THERMAL_FIXTURE: &str = include_str!("../../../fixtures/thermal/thermal-re
 
 #[test]
 fn thermal_reference_model_round_trips_through_json() {
-    let simulation = Simulation::from_json(THERMAL_FIXTURE).expect("thermal fixture must deserialize");
+    let simulation =
+        Simulation::from_json(THERMAL_FIXTURE).expect("thermal fixture must deserialize");
 
     assert_eq!(simulation.ontology_version, "0.1");
     assert_eq!(simulation.model.id, "model.thermal_reference");
