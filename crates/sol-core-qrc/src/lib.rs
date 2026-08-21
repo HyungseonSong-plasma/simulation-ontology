@@ -26,15 +26,14 @@ pub enum ConstraintViolation {
 }
 
 /// Evaluate one QRC constraint without introducing backend realization semantics.
-pub fn evaluate(
-    graph: &ResolvedGraph,
-    constraint: &Constraint,
-) -> Result<(), ConstraintViolation> {
+pub fn evaluate(graph: &ResolvedGraph, constraint: &Constraint) -> Result<(), ConstraintViolation> {
     match constraint {
         Constraint::EntityType { entity, expected } => {
-            let node = graph.resolve(entity).ok_or_else(|| ConstraintViolation::MissingEntity {
-                entity: entity.clone(),
-            })?;
+            let node = graph
+                .resolve(entity)
+                .ok_or_else(|| ConstraintViolation::MissingEntity {
+                    entity: entity.clone(),
+                })?;
 
             if node.kind == ResolvedNodeKind::Entity(*expected) {
                 Ok(())
