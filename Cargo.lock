@@ -88,6 +88,7 @@ dependencies = [
 name = "sol-core-mapping"
 version = "0.1.0"
 dependencies = [
+ "sol-core-identity",
  "sol-core-model",
 ]
 
