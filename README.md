@@ -100,7 +100,7 @@ TypeScript / Python     sol-adapter-moose
                           separate repository
 ```
 
-This ordering is deliberate: the Public Contract precedes language-specific SDKs, Adapter Protocol semantics precede JSON-RPC transport, and reusable conformance tooling precedes the first real MOOSE adapter.
+This ordering is deliberate: the Public Contract precedes language-specific SDKs, Adapter Protocol semantics precede JSON-RPC transport, and reusable conformance tooling precedes the first real MOOSE adapter. M0.3 therefore publishes a transport-independent, versioned protocol baseline; JSON-RPC framing/process behavior remains an M0.5 concern.
 
 ## Public contract and versioning
 
@@ -114,7 +114,7 @@ SOL keeps several version axes intentionally independent:
 - ontology package versions;
 - adapter implementation versions.
 
-Matching package versions do not imply compatibility. Adapter interoperability will be established through explicit Adapter Protocol compatibility declarations/ranges, and public-contract compatibility includes both structural and semantic behavior.
+Matching package versions do not imply compatibility. Adapter interoperability must establish an explicitly compatible Adapter Protocol range **and** compatibility with the Public Contract version used by shared canonical payloads. Adapter package version alone is never sufficient evidence of interoperability.
 
 Internal Rust crate decomposition may change without being a public breaking change when the supported facade and canonical behavior remain compatible.
 
@@ -195,21 +195,21 @@ Manager: meeting
 
 The named work modes are:
 
-- `meeting` — Manager coordinates Planner, Researcher, Validator, and user confirmation until a decision is accepted, rejected, deferred, or revised;
+- `meeting` — Manager coordinates Planner, Researcher, Validator, and user confirmation when required until a decision is accepted, rejected, deferred, or revised;
 - `resume` — Operator continues implementation from the current repository/issue/PR/CI state until a real merge, decision, permission, or architecture gate is reached;
 - `update` — Operator synchronizes user/developer-facing guides with accepted current behavior, including the root README and future API, SDK, adapter, CLI, schema, examples, and onboarding documentation.
 
-`meeting` does not give Manager semantic authority: Researcher owns semantic investigation, Validator independently challenges the proposal, Planner critically incorporates feedback, and compatibility-sensitive acceptance normally requires user confirmation.
+`meeting` does not give Manager semantic authority. Researcher owns semantic investigation, Validator independently challenges the proposal, Planner critically incorporates feedback, and Manager escalates material unresolved disagreement rather than deciding the technical substance itself. User confirmation is required for compatibility-sensitive acceptance unless that authority has already been explicitly delegated.
 
-`update` is documentation synchronization, not semantic authority. If guide maintenance exposes an unresolved architecture contradiction, Operator must surface it to Manager/Planner/Researcher instead of inventing a new contract in documentation.
+`resume` and `update` are not semantic decision authority. If implementation or guide maintenance exposes an unresolved architecture/Public Contract/Protocol/compatibility contradiction, Operator stops that decision path and escalates it to Manager `meeting` instead of silently choosing an answer.
 
 Manager is normally used for architecture/public-contract/protocol/roadmap decisions or other work with multiple reasonable alternatives. Already accepted implementation tasks, CI fixes, mechanical maintenance, and routine guide synchronization do not need a meeting.
 
 For implementation work, a failed CI gate blocks the next task. The operating loop is `push -> wait/check CI -> inspect failure -> minimal fix -> re-check -> continue only after success`.
 
-For compatibility-sensitive milestone transitions, the preferred handoff is `implementation complete -> Validator exit audit -> Operator resume for required fixes -> milestone close -> Operator update -> Manager/Planner preparation of the next milestone`.
+For compatibility-sensitive milestone transitions, the preferred handoff is `implementation complete -> Validator exit audit -> Operator resume for required fixes -> milestone close -> Operator update -> Manager meeting / Planner preparation when the next milestone contains new decisions`.
 
-See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md) for the detailed role, decision-state, and work-mode conventions.
+See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md) for the detailed role, decision-state, escalation, and work-mode conventions.
 
 ## Repository and project baselines
 
@@ -217,6 +217,7 @@ See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-
 - Product boundary and adapter roadmap: [`docs/plans/product-boundary-and-adapter-roadmap.md`](docs/plans/product-boundary-and-adapter-roadmap.md)
 - Versioning and compatibility policy: [`docs/plans/versioning-and-compatibility-policy.md`](docs/plans/versioning-and-compatibility-policy.md)
 - Post-M0.1 validator review: [`docs/plans/post-m0.1-roadmap-validator-review.md`](docs/plans/post-m0.1-roadmap-validator-review.md)
+- M0.3 Manager review: [`docs/plans/m0.3-adapter-protocol-manager-review.md`](docs/plans/m0.3-adapter-protocol-manager-review.md)
 - Logical agent workflow: [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md)
 - Spatial Scope ADR: [`docs/adr/ADR-001-first-class-spatial-scope.md`](docs/adr/ADR-001-first-class-spatial-scope.md)
 - Implementation notes: [`docs/implementation/`](docs/implementation/)
