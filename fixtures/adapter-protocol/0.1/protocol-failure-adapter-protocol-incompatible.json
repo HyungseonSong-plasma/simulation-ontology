@@ -1,0 +1,6 @@
+{
+  "category": "compatibility",
+  "code": "protocol.unsupported_adapter_protocol",
+  "detail": "no common Adapter Protocol version",
+  "side_effects": "none"
+}
