@@ -155,6 +155,7 @@ dependencies = [
  "sol-core-evaluation",
  "sol-core-mapping",
  "sol-core-plan",
+ "sol-public-contract",
 ]
 
 [[package]]
