@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sol_public_contract::{
-    BackendTargetDto, Diagnostic, DiagnosticSeverity, Extensions, MappingPlanDto, MappingSubjectDto,
-    RealizationEffectDocumentDto, RealizationEffectDto, ValidationReport, PUBLIC_CONTRACT_VERSION,
+    BackendTargetDto, Diagnostic, DiagnosticSeverity, Extensions, MappingPlanDto,
+    MappingSubjectDto, RealizationEffectDocumentDto, RealizationEffectDto, ValidationReport,
+    PUBLIC_CONTRACT_VERSION,
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
@@ -234,8 +235,9 @@ impl ActionExecutionReport {
                 if !error_codes.contains(&DIAGNOSTIC_TRANSIENT_UNAVAILABLE) {
                     return Err(ExecutionError::InconsistentActionReport {
                         action: self.action_id.clone(),
-                        reason: "unavailable action requires adapter.transient_unavailable diagnostic"
-                            .to_owned(),
+                        reason:
+                            "unavailable action requires adapter.transient_unavailable diagnostic"
+                                .to_owned(),
                     });
                 }
             }
@@ -354,7 +356,9 @@ impl ExecutePlanResponse {
             .sort_by(|left, right| left.action_id.cmp(&right.action_id));
         for pair in self.action_reports.windows(2) {
             if pair[0].action_id == pair[1].action_id {
-                return Err(ExecutionError::DuplicateActionReport(pair[0].action_id.clone()));
+                return Err(ExecutionError::DuplicateActionReport(
+                    pair[0].action_id.clone(),
+                ));
             }
         }
 
@@ -437,9 +441,31 @@ fn validate_action_coverage_and_schedule(
     }
 
     for (action_id, action) in &plan_actions {
-        let report = reports[action_id];
+        let report = reports
+            .get(*action_id)
+            .expect("action report coverage was checked");
+
+        if report.state == ActionExecutionState::SkippedDependency {
+            let all_completed = action.dependencies.iter().all(|dependency| {
+                reports
+                    .get(dependency.as_str())
+                    .expect("plan dependency was validated by Public Contract")
+                    .state
+                    == ActionExecutionState::Completed
+            });
+            if all_completed {
+                return Err(ExecutionError::InconsistentActionReport {
+                    action: (*action_id).to_owned(),
+                    reason: "skipped_dependency requires at least one non-completed dependency"
+                        .to_owned(),
+                });
+            }
+        }
+
         for dependency in &action.dependencies {
-            let dependency_report = reports[dependency.as_str()];
+            let dependency_report = reports
+                .get(dependency.as_str())
+                .expect("plan dependency was validated by Public Contract");
             if report.state.started() {
                 if dependency_report.state != ActionExecutionState::Completed {
                     return Err(ExecutionError::DependencyViolation {
@@ -455,20 +481,6 @@ fn validate_action_coverage_and_schedule(
                         action: (*action_id).to_owned(),
                         dependency: dependency.clone(),
                         reason: "dependency must appear in an earlier execution batch".to_owned(),
-                    });
-                }
-            }
-            if report.state == ActionExecutionState::SkippedDependency
-                && dependency_report.state == ActionExecutionState::Completed
-            {
-                let all_completed = action.dependencies.iter().all(|dependency| {
-                    reports[dependency.as_str()].state == ActionExecutionState::Completed
-                });
-                if all_completed {
-                    return Err(ExecutionError::InconsistentActionReport {
-                        action: (*action_id).to_owned(),
-                        reason: "skipped_dependency requires at least one non-completed dependency"
-                            .to_owned(),
                     });
                 }
             }
@@ -533,7 +545,8 @@ fn validate_execution_outcome(response: &ExecutePlanResponse) -> Result<(), Exec
         ExecutionOutcome::Unavailable
     } else {
         return Err(ExecutionError::InconsistentExecutionOutcome(
-            "terminal action states do not map to a valid Protocol 0.1 execution outcome".to_owned(),
+            "terminal action states do not map to a valid Protocol 0.1 execution outcome"
+                .to_owned(),
         ));
     };
 
@@ -619,11 +632,12 @@ fn semantic_identity_values(
     let mut values = BTreeSet::new();
     values.insert(request.target.target.clone());
     values.extend(request.plan.actions.iter().map(|action| action.id.clone()));
-    for effect in response
-        .effects
-        .iter()
-        .chain(response.action_reports.iter().flat_map(|report| report.effects.iter()))
-    {
+    for effect in response.effects.iter().chain(
+        response
+            .action_reports
+            .iter()
+            .flat_map(|report| report.effects.iter()),
+    ) {
         match &effect.subject {
             MappingSubjectDto::Entity { id, .. } => {
                 values.insert(id.clone());
@@ -655,12 +669,12 @@ fn normalize_effects(effects: &mut Vec<RealizationEffectDto>) -> Result<(), Exec
 
 fn normalize_diagnostics(diagnostics: &mut Vec<Diagnostic>) -> Result<(), ExecutionError> {
     for (index, diagnostic) in diagnostics.iter().enumerate() {
-        diagnostic.validate_shape().map_err(|error| {
-            ExecutionError::MalformedDiagnostic {
+        diagnostic
+            .validate_shape()
+            .map_err(|error| ExecutionError::MalformedDiagnostic {
                 index,
                 reason: error.to_string(),
-            }
-        })?;
+            })?;
     }
     *diagnostics = ValidationReport::new(diagnostics.clone()).diagnostics;
     Ok(())
@@ -742,22 +756,40 @@ pub enum ExecutionError {
     InvalidPublicPayload(String),
     UnsupportedProtocolVersion(String),
     UnsupportedPublicContractVersion(String),
-    IncoherentPublicContractVersions { target: String, plan: String },
+    IncoherentPublicContractVersions {
+        target: String,
+        plan: String,
+    },
     EmptyField(&'static str),
-    InvalidSymbol { field: &'static str, value: String },
-    MalformedDiagnostic { index: usize, reason: String },
+    InvalidSymbol {
+        field: &'static str,
+        value: String,
+    },
+    MalformedDiagnostic {
+        index: usize,
+        reason: String,
+    },
     DuplicateActionReport(String),
-    ActionReportCoverage { missing: Vec<String>, unknown: Vec<String> },
+    ActionReportCoverage {
+        missing: Vec<String>,
+        unknown: Vec<String>,
+    },
     EmptyExecutionBatch,
     DuplicateScheduledAction(String),
     UnknownScheduledAction(String),
-    InconsistentSchedule { action: String, reason: String },
+    InconsistentSchedule {
+        action: String,
+        reason: String,
+    },
     DependencyViolation {
         action: String,
         dependency: String,
         reason: String,
     },
-    InconsistentActionReport { action: String, reason: String },
+    InconsistentActionReport {
+        action: String,
+        reason: String,
+    },
     AggregateEffectsMismatch,
     InconsistentExecutionOutcome(String),
     ExecutionOutcomeMismatch {
@@ -772,12 +804,17 @@ impl Display for ExecutionError {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Protocol(error) => write!(formatter, "{error}"),
-            Self::InvalidRequest(detail) => write!(formatter, "invalid execute_plan request: {detail}"),
+            Self::InvalidRequest(detail) => {
+                write!(formatter, "invalid execute_plan request: {detail}")
+            }
             Self::InvalidResponse(detail) => {
                 write!(formatter, "invalid execute_plan response: {detail}")
             }
             Self::InvalidPublicPayload(detail) => {
-                write!(formatter, "invalid reused Public Contract payload: {detail}")
+                write!(
+                    formatter,
+                    "invalid reused Public Contract payload: {detail}"
+                )
             }
             Self::UnsupportedProtocolVersion(version) => {
                 write!(formatter, "unsupported Adapter Protocol version: {version}")
@@ -794,7 +831,10 @@ impl Display for ExecutionError {
                 write!(formatter, "invalid {field} symbol: {value}")
             }
             Self::MalformedDiagnostic { index, reason } => {
-                write!(formatter, "malformed execution diagnostic at index {index}: {reason}")
+                write!(
+                    formatter,
+                    "malformed execution diagnostic at index {index}: {reason}"
+                )
             }
             Self::DuplicateActionReport(action) => {
                 write!(formatter, "duplicate action execution report: {action}")
@@ -805,13 +845,22 @@ impl Display for ExecutionError {
             ),
             Self::EmptyExecutionBatch => write!(formatter, "execution batch must not be empty"),
             Self::DuplicateScheduledAction(action) => {
-                write!(formatter, "action appears more than once in execution batches: {action}")
+                write!(
+                    formatter,
+                    "action appears more than once in execution batches: {action}"
+                )
             }
             Self::UnknownScheduledAction(action) => {
-                write!(formatter, "execution batch references unknown action: {action}")
+                write!(
+                    formatter,
+                    "execution batch references unknown action: {action}"
+                )
             }
             Self::InconsistentSchedule { action, reason } => {
-                write!(formatter, "inconsistent execution schedule for {action}: {reason}")
+                write!(
+                    formatter,
+                    "inconsistent execution schedule for {action}: {reason}"
+                )
             }
             Self::DependencyViolation {
                 action,
@@ -822,7 +871,10 @@ impl Display for ExecutionError {
                 "execution dependency violation: action={action}, dependency={dependency}: {reason}"
             ),
             Self::InconsistentActionReport { action, reason } => {
-                write!(formatter, "inconsistent action report for {action}: {reason}")
+                write!(
+                    formatter,
+                    "inconsistent action report for {action}: {reason}"
+                )
             }
             Self::AggregateEffectsMismatch => write!(
                 formatter,
