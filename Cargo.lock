@@ -78,6 +78,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-core-identity"
+version = "0.1.0"
+dependencies = [
+ "sol-core-model",
+]
+
+[[package]]
 name = "sol-core-model"
 version = "0.1.0"
 dependencies = [
