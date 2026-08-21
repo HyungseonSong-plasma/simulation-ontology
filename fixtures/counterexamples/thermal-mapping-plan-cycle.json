@@ -1,0 +1,6 @@
+{
+  "actions": [
+    {"id": "thermal.material", "dependencies": ["thermal.solve"]},
+    {"id": "thermal.solve", "dependencies": ["thermal.material"]}
+  ]
+}
