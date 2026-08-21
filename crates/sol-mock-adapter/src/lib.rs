@@ -1,7 +1,9 @@
 #![forbid(unsafe_code)]
 
 mod protocol;
+mod protocol_state;
 pub use protocol::*;
+pub use protocol_state::*;
 
 use std::collections::BTreeSet;
 
@@ -62,6 +64,8 @@ pub struct MockAdapter {
     failure: FailureInjection,
     protocol_preflight_state: MockPreflightState,
     protocol_execution_state: MockExecutionState,
+    protocol_failure_state: MockProtocolFailureState,
+    protocol_prior_execution_state: MockPriorExecutionState,
 }
 
 impl MockAdapter {
@@ -77,6 +81,8 @@ impl MockAdapter {
             failure: FailureInjection::None,
             protocol_preflight_state: MockPreflightState::Ready,
             protocol_execution_state: MockExecutionState::Exact,
+            protocol_failure_state: MockProtocolFailureState::None,
+            protocol_prior_execution_state: MockPriorExecutionState::Fresh,
         }
     }
 
