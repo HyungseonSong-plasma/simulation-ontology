@@ -52,7 +52,7 @@ pub fn evaluate(
 #[cfg(test)]
 mod tests {
     use super::{evaluate, Constraint, ConstraintViolation};
-    use sol_core_identity::IdentityResolver;
+    use sol_core_identity::{CanonicalId, IdentityResolver};
     use sol_core_model::{EntityKind, OntologyEntity, Simulation, SimulationModel};
 
     fn thermal_graph() -> sol_core_identity::ResolvedGraph {
@@ -98,7 +98,7 @@ mod tests {
     #[test]
     fn physics_model_cannot_satisfy_mathematical_model_constraint() {
         let graph = thermal_graph();
-        let entity = "thermal.heat_transfer".parse().unwrap();
+        let entity: CanonicalId = "thermal.heat_transfer".parse().unwrap();
         let constraint = Constraint::EntityType {
             entity: entity.clone(),
             expected: EntityKind::MathematicalModel,
@@ -116,7 +116,7 @@ mod tests {
     #[test]
     fn unresolved_entity_cannot_satisfy_type_constraint() {
         let graph = thermal_graph();
-        let entity = "thermal.missing".parse().unwrap();
+        let entity: CanonicalId = "thermal.missing".parse().unwrap();
         let constraint = Constraint::EntityType {
             entity: entity.clone(),
             expected: EntityKind::MathematicalModel,
