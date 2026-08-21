@@ -1,0 +1,7 @@
+[package]
+name = "public-contract-counterexample"
+version = "0.0.0"
+
+[dependencies]
+serde = "1"
+sol-core-identity = { path = "../../crates/sol-core-identity" }
