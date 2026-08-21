@@ -1,0 +1,10 @@
+[package]
+name = "sol-target-resolver"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+sol-core-plan = { path = "../sol-core-plan" }
+sol-mock-adapter = { path = "../sol-mock-adapter" }
