@@ -1,0 +1,12 @@
+[package]
+name = "sol-core-qrc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+description = "Solver-independent constraint and QRC engine for Simulation Ontology"
+
+[dependencies]
+sol-core-model = { path = "../sol-core-model" }
+sol-core-identity = { path = "../sol-core-identity" }
