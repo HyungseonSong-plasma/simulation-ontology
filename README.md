@@ -30,20 +30,22 @@ The platform is intended to enable solver-independent model exchange, semantic v
 
 ## Current status
 
-The first three foundation milestones are complete and M0.4 is active:
+The first four foundation milestones are complete and M0.5 Phase 0 is the next eligible implementation phase:
 
 ```text
 M0.1  Semantic Core Bootstrap                  COMPLETE
 M0.2  Canonical Public Contract 0.1            COMPLETE
 M0.3  Adapter Protocol 0.1                     COMPLETE
-M0.4  MockAdapter Protocol Conformance         ACTIVE (Phase 2 current)
-M0.5  JSON-RPC / stdio Transport               PLANNED
+M0.4  MockAdapter Protocol Conformance         COMPLETE
+M0.5  JSON-RPC / stdio Transport               READY (Phase 0 next)
 M0.6  Adapter Conformance Tooling              PLANNED
 ```
 
 M0.3 closed after exact-head CI, a Validator exit audit with verdict **APPROVE**, and PR #63 publication merge. Adapter Protocol 0.1 is now a published, versioned, transport-independent v0.x interoperability baseline.
 
-M0.4 Phase 0 established the protocol-facing MockAdapter conformance boundary and Phase 1 implemented deterministic Adapter Protocol 0.1 description/dual-compatibility reference behavior. Phase 2 advisory `validate_plan` reference behavior is the current implementation phase.
+M0.4 closed after Phase 0–5 implementation, exact-head Rust Core CI #542, a Validator exit verdict of **APPROVE**, PR #93 merge, `main` verification, parent/Phase closure, and GitHub Milestone #1 closure. MockAdapter now provides executable in-process reference behavior for Adapter Protocol 0.1 description, advisory preflight, authoritative execution, failure/state/replay boundaries, provenance, and dependency-safe scheduling.
+
+M0.5 Phase 0 (#75) is the next eligible implementation phase. It may add JSON-RPC/stdio transport mapping without changing the published Adapter Protocol 0.1 semantics.
 
 The repository currently contains:
 
@@ -56,7 +58,7 @@ The repository currently contains:
 - an intentional Rust public facade plus explicit `sol-cli --json` machine-facing paths;
 - independently versioned Adapter Protocol 0.1 bootstrap, compatibility, preflight, execution, failure, idempotency, and provenance semantics;
 - canonical Adapter Protocol 0.1 Draft 2020-12 schemas and executable counterexamples;
-- MockAdapter protocol-facing description/compatibility behavior with later conformance phases active/planned.
+- MockAdapter executable in-process Adapter Protocol 0.1 reference behavior and positive/adversarial conformance matrix.
 
 ## Public Contract 0.1
 
@@ -145,10 +147,10 @@ M0.2  Canonical Public Contract 0.1            complete
 M0.3  Adapter Protocol 0.1                     complete
   |
   v
-M0.4  MockAdapter Protocol Conformance         active — Phase 2 current
+M0.4  MockAdapter Protocol Conformance         complete
   |
   v
-M0.5  JSON-RPC / stdio Transport               planned — parent #74 / phases #75–#80
+M0.5  JSON-RPC / stdio Transport               ready — Phase 0 #75 next
   |
   v
 M0.6  Adapter Conformance Tooling              planned — parent #81 / phases #82–#87
@@ -165,7 +167,7 @@ The ordering is deliberate: canonical semantics precede SDK ergonomics; Adapter 
 
 ## MockAdapter responsibility
 
-MockAdapter is the Core repository's reference conformance implementation, not evidence of solver-native physical correctness. M0.4 promotes it from deterministic reference helpers into an executable implementation of the published Adapter Protocol 0.1 contract.
+MockAdapter is the Core repository's reference conformance implementation, not evidence of solver-native physical correctness. M0.4 completed its promotion from deterministic reference helpers into an executable in-process implementation of the published Adapter Protocol 0.1 contract.
 
 ```text
 Core repository
@@ -249,6 +251,8 @@ See:
 - Adapter Protocol boundary ADR: [`docs/adr/ADR-002-adapter-protocol-boundary.md`](docs/adr/ADR-002-adapter-protocol-boundary.md)
 - M0.2 completion handoff: [`docs/implementation/m0.2-completion-handoff.md`](docs/implementation/m0.2-completion-handoff.md)
 - M0.3 exit audit: [`docs/implementation/m0.3-adapter-protocol-0.1-exit-audit.md`](docs/implementation/m0.3-adapter-protocol-0.1-exit-audit.md)
+- M0.4 exit audit: [`docs/implementation/m0.4-mock-adapter-conformance-exit-audit.md`](docs/implementation/m0.4-mock-adapter-conformance-exit-audit.md)
+- M0.4 completion handoff: [`docs/implementation/m0.4-completion-handoff.md`](docs/implementation/m0.4-completion-handoff.md)
 - M0.1 tracker: [Issue #2](../../issues/2)
 - M0.2 tracker: [Issue #28](../../issues/28)
 - M0.3 tracker: [Issue #38](../../issues/38)

@@ -1,6 +1,6 @@
 # SOL Product Boundary and Adapter Roadmap
 
-**Status:** Accepted roadmap, synchronized after GitHub Milestone adoption and M0.4 Phase 1  
+**Status:** Accepted roadmap, synchronized after M0.4 completion  
 **Date:** 2026-08-21  
 **Scope:** Core product boundary, adapter ownership, protocol/transport sequencing, MockAdapter role, and reference-adapter roadmap
 
@@ -104,7 +104,7 @@ Opaque namespaced backend job/artifact references MAY appear only as provenance/
 
 MockAdapter is the Core repository's executable reference implementation target for Adapter Protocol conformance. It is not evidence of solver-native physical correctness.
 
-M0.4 SHALL promote MockAdapter to reference Protocol 0.1 behavior and exercise at least:
+M0.4 promoted MockAdapter to reference Protocol 0.1 behavior and now exercises:
 
 - adapter description and dual compatibility;
 - target/capability evidence;
@@ -117,7 +117,7 @@ M0.4 SHALL promote MockAdapter to reference Protocol 0.1 behavior and exercise a
 - non-idempotent execute/replay counterexamples;
 - opaque provenance without backend-native semantic leakage.
 
-M0.4 Phase 0 (reference-conformance boundary) and Phase 1 (adapter description/dual compatibility) are complete. Phase 2 advisory `validate_plan` reference behavior is the current implementation phase.
+M0.4 Phase 0–5 are complete. Final exact-head Rust Core CI #542 passed, the Validator exit verdict is **APPROVE**, PR #93 is merged and verified on `main`, parent/Phase issues are closed, and GitHub Milestone #1 is closed. The completion record is `docs/implementation/m0.4-completion-handoff.md`.
 
 M0.4 may build Core-local reusable test helpers as needed for MockAdapter reference conformance, but general external-adapter test-runner/tooling productization belongs to M0.6.
 
@@ -133,7 +133,7 @@ Adapter process
 
 M0.5 owns JSON-RPC framing, method mapping, request IDs, subprocess lifecycle, malformed transport input, process failure propagation, reconnect behavior, and replay constraints. Transport SHALL carry Adapter Protocol 0.1 without changing its semantics.
 
-M0.5 is planned under parent tracker #74 with Phase issues #75–#80. It becomes implementation-eligible only after M0.4 closes successfully and its completion state is synchronized.
+M0.5 is defined under parent tracker #74 with Phase issues #75–#80. M0.4 is closed and its completion state is synchronized, so M0.5 is implementation-eligible with Phase 0 #75 next.
 
 Remote/network transports remain deferred until demonstrated requirements justify them.
 
@@ -168,10 +168,10 @@ M0.2  Canonical Public Contract 0.1            COMPLETE
 M0.3  Adapter Protocol 0.1                     COMPLETE
   |
   v
-M0.4  MockAdapter Protocol Conformance         ACTIVE (Phase 2 current)
+M0.4  MockAdapter Protocol Conformance         COMPLETE
   |
   v
-M0.5  JSON-RPC / stdio Transport               PLANNED
+M0.5  JSON-RPC / stdio Transport               READY (Phase 0 next)
   |
   v
 M0.6  Adapter Conformance Tooling              PLANNED
@@ -205,8 +205,8 @@ Current repository groupings are:
 M0.1: parent #2,  Phase #6–#16   historical complete
 M0.2: parent #28, Phase #29–#35  historical complete
 M0.3: parent #38, Phase #39–#44  historical complete
-M0.4: parent #65, Phase #66–#71  active
-M0.5: parent #74, Phase #75–#80  planned
+M0.4: parent #65, Phase #66–#71  complete
+M0.5: parent #74, Phase #75–#80  ready; Phase 0 #75 next
 M0.6: parent #81, Phase #82–#87  planned
 ```
 

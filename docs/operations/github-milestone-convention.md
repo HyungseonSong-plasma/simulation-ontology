@@ -231,14 +231,14 @@ Normally create/assign the corrective work to the current or next appropriate mi
 
 ## 15. Current roadmap projection
 
-As of this convention adoption:
+Current repository projection after M0.4 closure:
 
 ```text
 M0.1 — Semantic Core Bootstrap            historical / complete
 M0.2 — Canonical Public Contract 0.1      historical / complete
 M0.3 — Adapter Protocol 0.1               historical / complete
-M0.4 — MockAdapter Protocol Conformance   active
-M0.5 — JSON-RPC / stdio Transport         planned, depends on M0.4
+M0.4 — MockAdapter Protocol Conformance   historical / complete
+M0.5 — JSON-RPC / stdio Transport         active / Phase 0 next
 M0.6 — Adapter Conformance Tooling        planned, depends on M0.5
 ```
 
