@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   rust-core:
-    name: build-test-fmt-clippy-architecture
+    name: fmt-build-test-clippy-architecture
     runs-on: ubuntu-latest
 
     steps:
@@ -27,14 +27,14 @@ jobs:
           rustup toolchain install 1.80.1 --profile minimal --component rustfmt --component clippy
           rustup default 1.80.1
 
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
       - name: Build workspace
         run: cargo build --workspace --all-targets --locked
 
       - name: Test workspace
         run: cargo test --workspace --locked
-
-      - name: Check formatting
-        run: cargo fmt --all -- --check
 
       - name: Run Clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
