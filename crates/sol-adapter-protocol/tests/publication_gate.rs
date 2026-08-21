@@ -1,7 +1,7 @@
 use serde_json::Value;
 use sol_adapter_protocol::{
-    AdapterDescription, ExecutePlanRequest, ExecutePlanResponse, ExecutionOutcome, PreflightOutcome,
-    ProtocolFailure, ValidatePlanRequest, ValidatePlanResponse,
+    AdapterDescription, ExecutePlanRequest, ExecutePlanResponse, ExecutionOutcome,
+    PreflightOutcome, ProtocolFailure, ValidatePlanRequest, ValidatePlanResponse,
 };
 
 const ADDITIVE_DESCRIPTION: &str = include_str!(
@@ -24,14 +24,19 @@ const COMPATIBILITY_FAILURE: &str = include_str!(
 #[test]
 fn additive_unknown_fields_remain_extensions_without_redefining_known_semantics() {
     let description = AdapterDescription::from_json(ADDITIVE_DESCRIPTION).unwrap();
-    assert!(description.extensions.contains_key("future_descriptor_metadata"));
+    assert!(description
+        .extensions
+        .contains_key("future_descriptor_metadata"));
     assert!(description.targets[0]
         .extensions
         .contains_key("future_target_metadata"));
 
     let canonical = description.to_canonical_json().unwrap();
     assert!(canonical.contains("future_descriptor_metadata"));
-    assert_eq!(description.bootstrap.supported_adapter_protocol_versions, Some(vec!["0.1".into()]));
+    assert_eq!(
+        description.bootstrap.supported_adapter_protocol_versions,
+        Some(vec!["0.1".into()])
+    );
 }
 
 #[test]
