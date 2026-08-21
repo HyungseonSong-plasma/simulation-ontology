@@ -84,7 +84,7 @@ The first official real adapter SHALL target MOOSE and live in a separate reposi
 Primary purposes:
 
 - validate the complete SOL -> MappingPlan -> Adapter -> backend artifact path;
-- exercise target resolution, capability declaration, effect normalization, plan execution, and realization reporting against a real open-source framework;
+- exercise target/capability evidence, plan acceptance, plan execution, realization normalization/reporting, and compatibility negotiation against a real open-source framework;
 - provide an executable reference implementation for future adapter authors;
 - validate baseline thermal and multiphysics mappings in an environment suitable for automated CI.
 
@@ -147,45 +147,79 @@ A COMSOL or Ansys adapter MAY later be promoted to an official/reference adapter
 
 ## 6. Adapter Protocol scope
 
-The SOL Adapter Protocol is an official, language-neutral public contract owned by the Core repository. It defines what an adapter must expose to SOL, not how a backend must be implemented internally.
+The SOL Adapter Protocol is an official, language-neutral public contract owned by the Core repository. It defines what information and operations must cross the Core/adapter boundary, not how a backend must be implemented internally.
 
 ### 6.1 Normative protocol responsibilities
 
-The protocol SHALL define versioned canonical request/response contracts for at least:
+The protocol SHALL define versioned canonical contracts sufficient for at least:
 
-- adapter identity and protocol compatibility description;
-- BackendTarget requirement resolution;
-- capability discovery;
-- realization normalization;
-- RealizationEffect comparison;
-- MappingPlan validation at the adapter boundary;
-- PlanAction execution;
-- realization/execution reporting.
+- adapter identity and independently versioned Adapter Protocol compatibility;
+- compatibility with the Public Contract version used by shared canonical payloads;
+- target/capability declarations and evidence sufficient for Core-side BackendTarget resolution;
+- MappingPlan validation/acceptance at the adapter boundary;
+- plan-level backend execution of a validated MappingPlan;
+- adapter-internal realization normalization into canonical realization/effect reporting;
+- typed separation between protocol/request/operational failures and canonical semantic outcomes.
 
-A conceptual minimal method surface is:
+Protocol responsibilities do **not** imply one public operation per responsibility. The initial Protocol 0.1 operation surface is intentionally minimal around the following candidates:
 
 ```text
 describe_adapter
-resolve_target
-discover_capabilities
-normalize_realization
-compare_effects
 validate_plan
 execute_plan
-report_realization
 ```
 
-Exact method names and payload schemas remain subject to the canonical public-contract/schema work. Solver-native object models, vendor API wrappers, and vendor-specific implementation details SHALL NOT become part of the Core protocol merely because one adapter requires them.
+Exact names and payload schemas remain M0.3 work.
 
-### 6.2 Language-neutral contract
+The following remain Core- or adapter-local responsibilities rather than automatically becoming standalone protocol methods:
 
-Protocol payloads SHALL use the canonical SOL public representation. JSON is the baseline wire representation for v0.x so that Rust, Python, Java, C++, and other adapter implementations can interoperate without a language-specific FFI dependency.
+- Core-side BackendTarget selection/resolution from adapter description/evidence;
+- capability interpretation from adapter description;
+- adapter-internal backend realization normalization;
+- Core-side `RealizationEffect` semantic comparison/classification;
+- realization reporting, which MAY be returned as part of plan execution results rather than requiring a separate remote operation.
 
-Adapter-specific capability vocabularies MAY be owned by the adapter, provided their identity, version/provenance, and interpretation are exposed through the published protocol contract where required by SOL validation.
+Phase 0 of M0.3 SHALL justify any additional public operation independently. Existing Rust traits/crate APIs and the older conceptual responsibility list SHALL NOT be serialized one-to-one into the public protocol merely because those methods exist internally.
 
-### 6.3 Default v0.x transport
+### 6.2 MappingPlan and execution scheduling boundary
 
-The default local transport for v0.x SHALL be JSON-RPC over process standard input/output (`stdio`).
+Core owns:
+
+- MappingPlan DAG/dependency semantics;
+- canonical deterministic ordering used for representation, comparison, and reproducible output.
+
+The adapter owns backend scheduling for execution of the whole validated plan.
+
+An adapter MAY execute independent actions in another valid topological order or in parallel when dependency semantics are preserved. Therefore canonical deterministic ordering SHALL NOT be interpreted as a mandatory physical backend total order.
+
+`validate_plan` is an advisory preflight assessment. `execute_plan` is the authoritative execution boundary and SHALL re-check execution-critical compatibility/integrity/preconditions rather than blindly treating an earlier validation result as durable authorization.
+
+### 6.3 Language-neutral contract
+
+Protocol payloads SHALL reuse the canonical SOL Public Contract representation wherever semantics overlap. JSON remains the baseline canonical representation for v0.x so that Rust, Python, Java, C++, and other adapter implementations can interoperate without a language-specific FFI dependency.
+
+An adapter description/negotiation bootstrap SHALL expose enough information to determine at least:
+
+- adapter identity/version;
+- supported Adapter Protocol range;
+- supported Public Contract range/version set;
+- target/capability declarations/evidence required before execution.
+
+The bootstrap must be interpretable far enough to reject incompatible peers without requiring the caller to already assume compatibility with an incompatible full protocol payload. This bootstrap behavior is part of the Adapter Protocol; it does not create another semantic version axis.
+
+Adapter-specific capability vocabularies MAY be owned by the adapter, provided their identity, version/provenance, and interpretation are exposed through the published contract where required by SOL validation.
+
+For Protocol 0.1, capabilities advertised by an adapter description are treated as stable within the lifetime/scope of that description unless explicitly declared otherwise. Transient backend/environment availability is handled by `validate_plan` and authoritative `execute_plan` precondition checks rather than a general dynamic-capability event model.
+
+### 6.4 Backend-native provenance boundary
+
+Solver-native object models, vendor API wrappers, and vendor-specific structures SHALL NOT become canonical semantic payloads or canonical identity.
+
+Opaque backend artifact/job references MAY appear as provenance/evidence metadata when useful for traceability, provided canonical semantic meaning/equality does not depend on them and Core is not required to interpret their backend-native structure.
+
+### 6.5 Default v0.x transport
+
+The planned default local transport for v0.x is JSON-RPC over process standard input/output (`stdio`). It is implemented only after the semantic Adapter Protocol baseline has been defined.
 
 ```text
 SOL Core / CLI
@@ -201,6 +235,8 @@ This is the baseline because it:
 - supports Python, Java, C++, Rust, and other adapter implementation languages;
 - avoids requiring a network service for local simulation workflows.
 
+JSON-RPC framing, request IDs, subprocess lifecycle, retry/reconnection behavior, and process error propagation are transport concerns and SHALL NOT redefine the M0.3 protocol semantics. In particular, transport work SHALL NOT assume `execute_plan` is idempotent or blindly retry an ambiguous execution after response loss.
+
 Remote/network transports such as gRPC are explicitly deferred until a demonstrated use case requires them. A future transport SHALL preserve the same semantic adapter contract rather than redefine adapter semantics around the transport.
 
 ## 7. MockAdapter role
@@ -211,21 +247,19 @@ It does not claim to validate solver-native behavior. Its purpose is to provide 
 
 MockAdapter SHOULD exercise at least:
 
-- adapter description/protocol negotiation;
-- BackendTarget resolution;
-- capability discovery;
-- realization normalization;
-- RealizationEffect comparison;
-- PlanAction/MappingPlan validation;
-- deterministic PASS / FAIL / BLOCKED / INDETERMINATE behavior;
+- adapter description and Protocol/Public Contract compatibility negotiation;
+- target/capability evidence used by Core-side target resolution;
+- plan acceptance/preflight validation;
+- plan-level execution and canonical realization reporting;
+- dependency-preserving scheduling semantics;
 - exact / transformed / lossy / unsupported representability scenarios;
 - resource alias/collision cases;
 - duplicate producer detection;
 - unresolved prerequisite behavior;
 - dependency cycle detection;
-- state-dependent idempotency cases;
-- execution-protocol behavior without a solver;
-- realization reporting.
+- state-dependent/idempotency counterexamples;
+- typed protocol/request/operational error behavior distinct from semantic lifecycle results;
+- opaque provenance/evidence references without backend-native semantic leakage.
 
 The Core conformance suite SHALL be runnable against MockAdapter and SHOULD be reusable by external adapter projects. A future CLI workflow MAY expose this as a command such as:
 
@@ -237,7 +271,7 @@ The exact CLI syntax is non-normative at this planning stage.
 
 ## 8. Adapter conformance boundary
 
-Passing Core conformance tests means that an adapter satisfies the published SOL Adapter Protocol for the tested protocol version. It SHALL NOT be interpreted as proof that the adapter's solver-native mapping is physically correct or that the target solver itself has been validated.
+Passing Core conformance tests means that an adapter satisfies the published SOL Adapter Protocol for the tested protocol and Public Contract compatibility ranges. It SHALL NOT be interpreted as proof that the adapter's solver-native mapping is physically correct or that the target solver itself has been validated.
 
 Therefore validation responsibility is separated as follows:
 
@@ -256,27 +290,36 @@ Adapter repository
 
 This distinction is particularly important for proprietary adapters that the Core maintainers cannot execute because of licensing or installation constraints.
 
-## 9. Protocol roadmap
+## 9. Protocol/ecosystem roadmap
 
-### v0.1
+### M0.3 — Adapter Protocol 0.1 baseline
 
-- canonical JSON protocol payloads;
-- JSON-RPC over stdio as the default transport;
-- MockAdapter reference conformance implementation;
-- reusable adapter conformance tests;
-- MOOSE adapter developed in its external reference repository.
+- publish canonical transport-independent Protocol 0.1 request/response/error semantics;
+- publish protocol schemas/fixtures;
+- define Protocol + Public Contract compatibility/bootstrap negotiation;
+- define plan preflight and authoritative execution semantics;
+- publish a **versioned baseline** whose existing semantics cannot later be silently redefined.
 
-### v0.2
+### M0.4 — MockAdapter Protocol Conformance
 
-- harden protocol contracts using evidence from MOOSE and initial Zapdos/CRANE work;
-- expand adapter authoring documentation and reference skeletons;
-- strengthen compatibility/conformance diagnostics without introducing solver-native concepts into Core.
+- promote MockAdapter to executable reference protocol behavior;
+- apply reusable conformance counterexamples against the published baseline.
 
-### v0.3+
+### M0.5 — JSON-RPC over stdio transport
 
-- validate the protocol against additional open-source adapters;
-- consider remote transport only if real deployment requirements justify it;
-- preserve transport-independent semantic contracts.
+- carry the already-defined Protocol 0.1 semantics over process stdio;
+- define framing/process/error/retry boundaries without redefining protocol semantics.
+
+### M0.6 — Adapter Conformance Tooling
+
+- provide reusable external adapter conformance execution/tooling;
+- expand adapter authoring documentation and skeletons.
+
+### After M0.6
+
+- develop the first official MOOSE real adapter in its external reference repository;
+- harden later protocol versions using MOOSE and subsequent Zapdos/CRANE evidence;
+- consider remote transport only if demonstrated deployment requirements justify it.
 
 ## 10. Release independence
 
@@ -292,7 +335,7 @@ CRANE Adapter       0.3
 Community COMSOL    0.2
 ```
 
-Compatibility SHALL be expressed through published adapter-protocol and BackendTarget compatibility contracts rather than assuming matching package versions.
+Compatibility SHALL be expressed through published Adapter Protocol and Public Contract compatibility declarations plus BackendTarget/capability evidence rather than assuming matching package versions.
 
 ## 11. Current decision summary
 
@@ -305,24 +348,29 @@ SOL Core repository
   + MockAdapter reference conformance implementation
   + conformance tooling
 
-Adapter contract
-  = canonical JSON payloads
-  + JSON-RPC over stdio as the v0.x default local transport
+Adapter semantic contract
+  = canonical Public Contract payload reuse
+  + explicit Adapter Protocol compatibility
+  + explicit Public Contract compatibility
+  + minimal responsibility-driven operation surface
+
+Transport
+  = JSON-RPC over stdio planned after Protocol 0.1 semantics
 
 Real adapters
   = separate repositories/projects
 
 Reference roadmap
-  v0.1 -> MOOSE
-  v0.2 -> Zapdos / CRANE
-  v0.3+ -> selected open-source backends
+  first -> MOOSE
+  next  -> Zapdos / CRANE
+  later -> selected open-source backends
 
 COMSOL / Ansys
   = externally implementable target ecosystems;
     official implementation is not required while repeatable licensed testing is unavailable
 ```
 
-This document is a roadmap/product-boundary decision, not an architecture ADR. If future work changes Core semantics or adapter protocol invariants, those changes should be handled through the appropriate ADR process.
+This document is a roadmap/product-boundary decision, not an architecture ADR. If future work changes Core semantics or Adapter Protocol invariants, those changes should be handled through the appropriate Manager/Researcher/Validator process and ADR where required.
 
 ## 12. Adjusted post-M0.1 execution sequence
 
@@ -335,19 +383,22 @@ M0.2  Canonical Public Contract 0.1
   -> establish compatibility fixtures and normalization rules
 
 M0.3  Adapter Protocol 0.1
-  -> define versioned request/response/error contracts
-  -> define protocol compatibility declaration and negotiation
-  -> freeze the initial normative adapter method surface
+  -> define transport-independent request/response/error contracts
+  -> define Protocol + Public Contract compatibility/bootstrap negotiation
+  -> define minimal operation surface and plan-level execution boundary
+  -> define advisory validate / authoritative execute semantics
+  -> publish a versioned Protocol 0.1 baseline
 
 M0.4  MockAdapter Protocol Conformance
   -> promote MockAdapter to executable protocol reference behavior
-  -> exercise exact/transformed/lossy/unsupported and lifecycle counterexamples
+  -> exercise exact/transformed/lossy/unsupported and protocol/lifecycle counterexamples
   -> create reusable protocol conformance fixtures
 
 M0.5  JSON-RPC over stdio Transport
   -> transport the already-defined protocol without redefining semantics
   -> verify in-process and subprocess MockAdapter parity
   -> validate framing, malformed input, process failure, and error propagation
+  -> avoid blind retries of non-idempotent-by-default execution
 
 M0.6  Adapter Conformance Tooling
   -> reusable adapter test runner
@@ -380,14 +431,17 @@ This ordering preserves three product-boundary invariants:
 2. the Adapter Protocol is defined before its JSON-RPC transport;
 3. the real MOOSE adapter begins only after reusable Core-side protocol conformance tooling exists.
 
-TypeScript and Python SDK work MAY begin experimentally earlier for ergonomics research, but SHALL NOT define or freeze canonical semantics ahead of the Public Contract. The MOOSE adapter SHALL remain a separate repository and SHALL act as the first real-system feedback source for protocol hardening rather than as a dependency of the Core workspace.
+TypeScript and Python SDK work MAY begin experimentally earlier for ergonomics research, but SHALL NOT define or freeze canonical semantics ahead of the Public Contract. The MOOSE adapter SHALL remain a separate repository and SHALL act as the first real-system feedback source for later protocol hardening rather than as a dependency of the Core workspace.
 
 ### Validator acceptance criteria for this sequence
 
 The post-M0.1 sequence is considered valid only while all of the following remain true:
 
 - Public Contract and Adapter Protocol remain independently versioned surfaces.
+- Adapter interoperability checks both Protocol and Public Contract compatibility before execution.
 - Transport implementation does not redefine adapter semantics.
+- Core MappingPlan dependency semantics are preserved without unnecessarily requiring a backend to use the canonical representation order as its physical total execution order.
+- `validate_plan` remains preflight/advisory and `execute_plan` remains authoritative for execution-critical checks.
 - MockAdapter remains the Core reference conformance implementation even after real adapters exist.
 - Real solver dependencies remain outside the Core repository.
 - SDKs preserve canonical SOL semantics rather than exposing incidental Rust crate structure.
