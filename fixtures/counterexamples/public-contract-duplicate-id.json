@@ -1,0 +1,25 @@
+{
+  "public_contract_version": "0.1",
+  "ontology_version": "0.1",
+  "model": {
+    "id": "model.duplicate",
+    "physics": [
+      {
+        "id": "model.duplicate",
+        "kind": "physics_model",
+        "semantic_type": "Physics",
+        "label": "Duplicate model id"
+      }
+    ],
+    "mathematical": [],
+    "constitutive": [],
+    "spatial": [],
+    "scopes": [],
+    "material": [],
+    "conditions": [],
+    "numerical": [],
+    "observations": []
+  },
+  "tasks": [],
+  "relations": []
+}

@@ -1,0 +1,24 @@
+{
+  "public_contract_version": "0.1",
+  "ontology_version": "0.1",
+  "model": {
+    "id": "model.unresolved_reference",
+    "physics": [],
+    "mathematical": [],
+    "constitutive": [],
+    "spatial": [],
+    "scopes": [],
+    "material": [],
+    "conditions": [],
+    "numerical": [],
+    "observations": []
+  },
+  "tasks": [],
+  "relations": [
+    {
+      "kind": "represented_by",
+      "source": "model.unresolved_reference",
+      "target": "thermal.missing"
+    }
+  ]
+}
