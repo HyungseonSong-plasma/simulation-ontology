@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
-use sol_core_model::{EntityKind, OntologyEntity, RelationKind, Simulation};
-use std::collections::BTreeMap;
+use sol_core_model::{EntityKind, OntologyEntity, RelationKind, Simulation, SpatialScope};
+use std::collections::{BTreeMap, BTreeSet};
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
@@ -105,6 +105,7 @@ impl Error for CanonicalIdError {}
 pub enum ResolvedNodeKind {
     SimulationModel,
     SimulationTask,
+    SpatialScope,
     Entity(EntityKind),
 }
 
@@ -112,6 +113,12 @@ pub enum ResolvedNodeKind {
 pub struct ResolvedNode {
     pub id: CanonicalId,
     pub kind: ResolvedNodeKind,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ResolvedSpatialScope {
+    pub id: CanonicalId,
+    pub members: Vec<CanonicalId>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -124,12 +131,17 @@ pub struct ResolvedRelation {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ResolvedGraph {
     nodes: BTreeMap<CanonicalId, ResolvedNode>,
+    scopes: BTreeMap<CanonicalId, ResolvedSpatialScope>,
     relations: Vec<ResolvedRelation>,
 }
 
 impl ResolvedGraph {
     pub fn nodes(&self) -> &BTreeMap<CanonicalId, ResolvedNode> {
         &self.nodes
+    }
+
+    pub fn scopes(&self) -> &BTreeMap<CanonicalId, ResolvedSpatialScope> {
+        &self.scopes
     }
 
     pub fn relations(&self) -> &[ResolvedRelation] {
@@ -148,6 +160,20 @@ pub enum ResolveError {
         reason: CanonicalIdError,
     },
     DuplicateCanonicalId(CanonicalId),
+    EmptyScope(CanonicalId),
+    DuplicateScopeMember {
+        scope: CanonicalId,
+        member: CanonicalId,
+    },
+    UnresolvedScopeMember {
+        scope: CanonicalId,
+        member: CanonicalId,
+    },
+    NonSpatialScopeMember {
+        scope: CanonicalId,
+        member: CanonicalId,
+        actual: ResolvedNodeKind,
+    },
     UnresolvedEndpoint {
         relation: RelationKind,
         endpoint: &'static str,
@@ -162,6 +188,21 @@ impl Display for ResolveError {
                 write!(formatter, "invalid canonical id {raw_id:?}: {reason}")
             }
             Self::DuplicateCanonicalId(id) => write!(formatter, "duplicate canonical id: {id}"),
+            Self::EmptyScope(id) => write!(formatter, "spatial scope has no members: {id}"),
+            Self::DuplicateScopeMember { scope, member } => {
+                write!(formatter, "duplicate spatial scope member {member} in {scope}")
+            }
+            Self::UnresolvedScopeMember { scope, member } => {
+                write!(formatter, "unresolved spatial scope member {member} in {scope}")
+            }
+            Self::NonSpatialScopeMember {
+                scope,
+                member,
+                actual,
+            } => write!(
+                formatter,
+                "non-spatial scope member {member} in {scope}: {actual:?}"
+            ),
             Self::UnresolvedEndpoint {
                 relation,
                 endpoint,
@@ -190,6 +231,12 @@ impl IdentityResolver {
 
         for entity in model_entities(simulation) {
             insert_entity(&mut nodes, entity)?;
+        }
+
+        let mut scopes = BTreeMap::new();
+        for scope in &simulation.model.scopes {
+            let resolved = resolve_scope(&mut nodes, scope)?;
+            scopes.insert(resolved.id.clone(), resolved);
         }
 
         for task in &simulation.tasks {
@@ -226,8 +273,64 @@ impl IdentityResolver {
             });
         }
 
-        Ok(ResolvedGraph { nodes, relations })
+        Ok(ResolvedGraph {
+            nodes,
+            scopes,
+            relations,
+        })
     }
+}
+
+fn resolve_scope(
+    nodes: &mut BTreeMap<CanonicalId, ResolvedNode>,
+    scope: &SpatialScope,
+) -> Result<ResolvedSpatialScope, ResolveError> {
+    let scope_id = parse_id(&scope.id)?;
+    if scope.members.is_empty() {
+        return Err(ResolveError::EmptyScope(scope_id));
+    }
+    if nodes.contains_key(&scope_id) {
+        return Err(ResolveError::DuplicateCanonicalId(scope_id));
+    }
+
+    let mut seen = BTreeSet::new();
+    let mut members = Vec::with_capacity(scope.members.len());
+    for raw_member in &scope.members {
+        let member = parse_id(raw_member)?;
+        if !seen.insert(member.clone()) {
+            return Err(ResolveError::DuplicateScopeMember {
+                scope: scope_id,
+                member,
+            });
+        }
+        let node = nodes
+            .get(&member)
+            .ok_or_else(|| ResolveError::UnresolvedScopeMember {
+                scope: scope_id.clone(),
+                member: member.clone(),
+            })?;
+        if node.kind != ResolvedNodeKind::Entity(EntityKind::SpatialModel) {
+            return Err(ResolveError::NonSpatialScopeMember {
+                scope: scope_id,
+                member,
+                actual: node.kind,
+            });
+        }
+        members.push(member);
+    }
+
+    nodes.insert(
+        scope_id.clone(),
+        ResolvedNode {
+            id: scope_id.clone(),
+            kind: ResolvedNodeKind::SpatialScope,
+        },
+    );
+
+    Ok(ResolvedSpatialScope {
+        id: scope_id,
+        members,
+    })
 }
 
 fn model_entities(simulation: &Simulation) -> impl Iterator<Item = &OntologyEntity> {
