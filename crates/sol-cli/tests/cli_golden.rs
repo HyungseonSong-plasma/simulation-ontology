@@ -2,8 +2,7 @@ use std::path::Path;
 use std::process::Command;
 
 fn thermal_fixture() -> std::path::PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../fixtures/thermal/thermal-reference.json")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/thermal/thermal-reference.json")
 }
 
 #[test]
