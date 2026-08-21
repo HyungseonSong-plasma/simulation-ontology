@@ -1,0 +1,9 @@
+{
+  "public_contract_version": "0.1",
+  "target": "mock",
+  "required_capabilities": ["thermal.solve"],
+  "backend_native": {
+    "type": "FEProblem",
+    "id": "0x1234"
+  }
+}
