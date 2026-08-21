@@ -1,0 +1,6 @@
+{
+  "category": "compatibility",
+  "code": "protocol.unsupported_public_contract",
+  "detail": "no common Public Contract version",
+  "side_effects": "none"
+}

@@ -1,0 +1,6 @@
+{
+  "category": "invalid_request",
+  "code": "protocol.invalid_request",
+  "detail": "request cannot be accepted as a Protocol 0.1 operation",
+  "side_effects": "none"
+}

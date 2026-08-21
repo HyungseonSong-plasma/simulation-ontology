@@ -1,0 +1,14 @@
+{
+  "adapter_protocol_version": "0.1",
+  "target_compatible": true,
+  "capabilities_satisfied": true,
+  "preflight": "rejected",
+  "diagnostics": [
+    {
+      "code": "adapter.precondition_rejected",
+      "severity": "error",
+      "detail": "current prerequisite is unresolved",
+      "sol_adapter_protocol_context": {"precondition": "unresolved_prerequisite"}
+    }
+  ]
+}

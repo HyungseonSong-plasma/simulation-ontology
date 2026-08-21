@@ -1,0 +1,6 @@
+{
+  "category": "operational",
+  "code": "adapter.operational_failure",
+  "detail": "adapter could not produce a validate_plan response",
+  "side_effects": "none"
+}

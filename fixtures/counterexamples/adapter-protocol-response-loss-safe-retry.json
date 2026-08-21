@@ -1,0 +1,5 @@
+{
+  "observation": "no_execute_response",
+  "assumed_side_effects": "none",
+  "assumed_safe_to_retry": true
+}

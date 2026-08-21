@@ -1,0 +1,6 @@
+{
+  "category": "compatibility",
+  "code": "protocol.compatibility_not_established",
+  "detail": "required compatibility evidence is missing",
+  "side_effects": "none"
+}

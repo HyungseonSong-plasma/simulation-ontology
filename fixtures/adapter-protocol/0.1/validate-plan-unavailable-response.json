@@ -1,0 +1,13 @@
+{
+  "adapter_protocol_version": "0.1",
+  "target_compatible": true,
+  "capabilities_satisfied": true,
+  "preflight": "unavailable",
+  "diagnostics": [
+    {
+      "code": "adapter.transient_unavailable",
+      "severity": "error",
+      "detail": "backend is temporarily unavailable"
+    }
+  ]
+}

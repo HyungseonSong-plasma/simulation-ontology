@@ -1,0 +1,6 @@
+{
+  "category": "operational",
+  "code": "adapter.operational_failure",
+  "detail": "execute_plan failed before backend execution began",
+  "side_effects": "none"
+}
