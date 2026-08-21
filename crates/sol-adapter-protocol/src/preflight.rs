@@ -187,12 +187,12 @@ impl ValidatePlanResponse {
         )?;
 
         for (index, diagnostic) in self.diagnostics.iter().enumerate() {
-            diagnostic.validate_shape().map_err(|error| {
-                PreflightError::MalformedDiagnostic {
+            diagnostic
+                .validate_shape()
+                .map_err(|error| PreflightError::MalformedDiagnostic {
                     index,
                     reason: error.to_string(),
-                }
-            })?;
+                })?;
         }
         self.diagnostics = ValidationReport::new(self.diagnostics.clone()).diagnostics;
         validate_preflight_consistency(self)
@@ -232,7 +232,9 @@ pub fn diagnostic_context(
 fn require_current_protocol_version(version: &str) -> Result<(), PreflightError> {
     let parsed = AdapterProtocolVersion::parse(version).map_err(PreflightError::Protocol)?;
     if parsed != AdapterProtocolVersion::current() {
-        return Err(PreflightError::UnsupportedProtocolVersion(version.to_owned()));
+        return Err(PreflightError::UnsupportedProtocolVersion(
+            version.to_owned(),
+        ));
     }
     Ok(())
 }
