@@ -81,6 +81,8 @@ dependencies = [
 name = "sol-core-effect"
 version = "0.1.0"
 dependencies = [
+ "serde",
+ "serde_json",
  "sol-core-mapping",
 ]
 
