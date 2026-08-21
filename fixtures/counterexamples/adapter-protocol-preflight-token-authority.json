@@ -1,0 +1,15 @@
+{
+  "adapter_protocol_version": "0.1",
+  "validation_token": "accepted-plan-123",
+  "target": {
+    "public_contract_version": "0.1",
+    "target": "mock",
+    "required_capabilities": ["thermal.solve"]
+  },
+  "plan": {
+    "public_contract_version": "0.1",
+    "actions": [
+      {"id": "thermal.solve", "dependencies": []}
+    ]
+  }
+}
