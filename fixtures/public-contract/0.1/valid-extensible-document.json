@@ -1,0 +1,9 @@
+{
+  "public_contract_version": "0.1",
+  "ontology_version": "0.1",
+  "kind": "phase1_fixture",
+  "future_optional": {
+    "opaque": true,
+    "note": "unknown optional fields are preserved by generic normalization"
+  }
+}
