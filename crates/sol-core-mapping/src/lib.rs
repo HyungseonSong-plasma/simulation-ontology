@@ -139,10 +139,7 @@ pub fn is_applicable(
 
 /// Generate mapping claims in deterministic rule/subject order from the
 /// resolved semantic graph. Capability availability is not decided here.
-pub fn generate_mapping_claims(
-    graph: &ResolvedGraph,
-    rules: &[MappingRule],
-) -> Vec<MappingClaim> {
+pub fn generate_mapping_claims(graph: &ResolvedGraph, rules: &[MappingRule]) -> Vec<MappingClaim> {
     let mut ordered_rules: Vec<&MappingRule> = rules.iter().collect();
     ordered_rules.sort_by(|left, right| left.id.cmp(&right.id));
 
@@ -155,7 +152,10 @@ pub fn generate_mapping_claims(
                 .iter()
                 .filter_map(|(id, node)| {
                     if node.kind == ResolvedNodeKind::Entity(expected_kind) {
-                        Some((format!("entity:{id}"), MappingSubjectRef::Entity(id.clone())))
+                        Some((
+                            format!("entity:{id}"),
+                            MappingSubjectRef::Entity(id.clone()),
+                        ))
                     } else {
                         None
                     }
@@ -428,7 +428,10 @@ mod tests {
         assert_eq!(first[1].rule_id, "z.represented-by");
         assert_eq!(first[0].evidence[0].source, "semantic-applicability");
         assert_eq!(
-            first[0].provenance.as_ref().map(|value| value.producer.as_str()),
+            first[0]
+                .provenance
+                .as_ref()
+                .map(|value| value.producer.as_str()),
             Some("sol-core-mapping")
         );
     }
