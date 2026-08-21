@@ -1,0 +1,11 @@
+{
+  "syntax_fixture": {
+    "adapter_protocol_version": "0.1",
+    "target_compatible": true,
+    "capabilities_satisfied": true,
+    "preflight": "accepted",
+    "diagnostics": []
+  },
+  "published_meaning": "validate_plan is advisory preflight and grants no durable execution authority",
+  "incompatible_redefinition": "validate_plan accepted authorizes execute_plan without authoritative re-check"
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Adapter Protocol 0.1 ProtocolFailure",
+  "type": "object",
+  "required": ["category", "code", "detail", "side_effects"],
+  "properties": {
+    "category": { "$ref": "shared.schema.json#/$defs/failureCategory" },
+    "code": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+$"
+    },
+    "detail": { "type": "string", "minLength": 1 },
+    "side_effects": { "$ref": "shared.schema.json#/$defs/sideEffectEvidence" }
+  },
+  "not": {
+    "anyOf": [
+      { "required": ["adapter_protocol_version"] },
+      { "required": ["retryable"] },
+      { "required": ["safe_to_retry"] },
+      { "required": ["idempotency_key"] },
+      { "required": ["deduplication_token"] },
+      { "required": ["resume_token"] },
+      { "required": ["status"] },
+      { "required": ["evaluation_status"] },
+      { "required": ["lifecycle_status"] }
+    ]
+  }
+}

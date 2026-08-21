@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Adapter Protocol 0.1 AdapterDescription",
+  "type": "object",
+  "required": ["bootstrap"],
+  "properties": {
+    "bootstrap": { "$ref": "shared.schema.json#/$defs/adapterBootstrap" },
+    "targets": {
+      "type": "array",
+      "items": { "$ref": "shared.schema.json#/$defs/targetDeclaration" }
+    }
+  }
+}

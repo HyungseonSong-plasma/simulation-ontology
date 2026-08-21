@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Adapter Protocol 0.1 ValidatePlanResponse",
+  "type": "object",
+  "required": [
+    "adapter_protocol_version",
+    "target_compatible",
+    "capabilities_satisfied",
+    "preflight",
+    "diagnostics"
+  ],
+  "properties": {
+    "adapter_protocol_version": { "$ref": "shared.schema.json#/$defs/adapterProtocolVersion" },
+    "target_compatible": { "type": "boolean" },
+    "capabilities_satisfied": { "type": "boolean" },
+    "preflight": {
+      "type": "string",
+      "enum": ["accepted", "rejected", "unavailable"]
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": { "$ref": "../../public-contract/0.1/shared.schema.json#/$defs/diagnostic" }
+    }
+  }
+}

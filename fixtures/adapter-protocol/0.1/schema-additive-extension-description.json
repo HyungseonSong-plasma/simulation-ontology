@@ -1,0 +1,22 @@
+{
+  "bootstrap": {
+    "adapter_id": "adapter.mock",
+    "adapter_version": "1.4.0",
+    "supported_adapter_protocol_versions": ["0.1"],
+    "supported_public_contract_versions": ["0.1"]
+  },
+  "targets": [
+    {
+      "target": "mock",
+      "capabilities": [
+        {"capability": "thermal.solve"}
+      ],
+      "future_target_metadata": {
+        "note": "additive extension remains structurally acceptable"
+      }
+    }
+  ],
+  "future_descriptor_metadata": {
+    "revision": "candidate-additive-field"
+  }
+}
