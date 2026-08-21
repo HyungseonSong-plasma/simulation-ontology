@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+use sol_core_identity::CanonicalId;
 use sol_core_model::{EntityKind, RelationKind};
 
 /// Solver-independent semantic subject pattern that a mapping rule can match.
@@ -32,9 +33,37 @@ impl MappingRule {
     }
 }
 
+/// Concrete semantic subject referenced by a mapping claim.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum MappingSubjectRef {
+    Entity(CanonicalId),
+    Relation {
+        source: CanonicalId,
+        kind: RelationKind,
+        target: CanonicalId,
+    },
+}
+
+/// Concrete assertion that a mapping rule applies to a semantic subject.
+/// Backend-native identity and realization effects are intentionally absent.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MappingClaim {
+    pub rule_id: String,
+    pub subject: MappingSubjectRef,
+}
+
+impl MappingClaim {
+    pub fn new(rule_id: impl Into<String>, subject: MappingSubjectRef) -> Self {
+        Self {
+            rule_id: rule_id.into(),
+            subject,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{MappingRule, MappingSubjectPattern};
+    use super::{MappingClaim, MappingRule, MappingSubjectPattern, MappingSubjectRef};
     use sol_core_model::{EntityKind, RelationKind};
 
     #[test]
@@ -64,6 +93,41 @@ mod tests {
         assert_eq!(
             rule.subject,
             MappingSubjectPattern::Relation(RelationKind::RepresentedBy)
+        );
+    }
+
+    #[test]
+    fn thermal_entity_claim_references_canonical_semantic_subject() {
+        let claim = MappingClaim::new(
+            "thermal.energy-equation",
+            MappingSubjectRef::Entity("thermal.energy_conservation".parse().unwrap()),
+        );
+
+        assert_eq!(claim.rule_id, "thermal.energy-equation");
+        assert_eq!(
+            claim.subject,
+            MappingSubjectRef::Entity("thermal.energy_conservation".parse().unwrap())
+        );
+    }
+
+    #[test]
+    fn thermal_relation_claim_preserves_canonical_endpoints() {
+        let claim = MappingClaim::new(
+            "thermal.represented-by",
+            MappingSubjectRef::Relation {
+                source: "thermal.transport".parse().unwrap(),
+                kind: RelationKind::RepresentedBy,
+                target: "thermal.energy_conservation".parse().unwrap(),
+            },
+        );
+
+        assert_eq!(
+            claim.subject,
+            MappingSubjectRef::Relation {
+                source: "thermal.transport".parse().unwrap(),
+                kind: RelationKind::RepresentedBy,
+                target: "thermal.energy_conservation".parse().unwrap(),
+            }
         );
     }
 }
