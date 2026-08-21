@@ -1,0 +1,15 @@
+{
+  "adapter_protocol_version": "0.1",
+  "target": {
+    "public_contract_version": "0.1",
+    "target": "mock",
+    "required_capabilities": ["thermal.solve"],
+    "backend_native_id": "mesh-set-17"
+  },
+  "plan": {
+    "public_contract_version": "0.1",
+    "actions": [
+      {"id": "thermal.solve", "dependencies": []}
+    ]
+  }
+}
