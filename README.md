@@ -201,11 +201,14 @@ Development is CI-first and counterexample-driven. The canonical logical roles a
 
 | Role | Responsibility | Mode/output |
 |---|---|---|
+| Project session | restore canonical roles and current repository state without mutation | `init` |
 | Manager | orchestrate decision-heavy work and decision state | `meeting` |
 | Planner | objectives, sequencing, dependencies, milestones | plans and acceptance criteria |
 | Researcher | ontology/architecture/contract investigation | decisions, invariants, ADRs |
 | Validator | adversarial semantic/compatibility review | APPROVE / APPROVE WITH GATES / REJECT-REVISE |
 | Operator | GitHub/CI implementation and documentation synchronization | `resume`, `update` |
+
+In a new chat or after context loss, `init` is the canonical entry mode. It reloads the role model and inspects current GitHub evidence without making changes, then recommends `meeting`, `resume`, or `update`. See [the project session initialization contract](docs/operations/project-session-init.md).
 
 Typical decision-heavy flow:
 
@@ -231,6 +234,7 @@ GitHub Milestone percentage is informational rather than acceptance authority. P
 
 See:
 
+- [`docs/operations/project-session-init.md`](docs/operations/project-session-init.md) for the read-only `init` bootstrap contract;
 - [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md) for the logical agent operating convention;
 - [`docs/operations/github-milestone-convention.md`](docs/operations/github-milestone-convention.md) for GitHub Milestone naming, membership, progress, closure, backfill, and `resume`/`update` integration.
 
