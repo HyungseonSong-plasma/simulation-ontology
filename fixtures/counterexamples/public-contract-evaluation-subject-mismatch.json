@@ -1,0 +1,17 @@
+{
+  "public_contract_version": "0.1",
+  "intended_subject": {
+    "subject_kind": "entity",
+    "id": "thermal.energy_conservation"
+  },
+  "effect": {
+    "subject": {
+      "subject_kind": "entity",
+      "id": "thermal.temperature_field"
+    },
+    "quality": "exact",
+    "detail": "effect belongs to a different semantic subject"
+  },
+  "comparison": "subject_mismatch",
+  "status": "fail"
+}
