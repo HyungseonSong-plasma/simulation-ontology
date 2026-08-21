@@ -40,11 +40,23 @@ fn mock_adapter_description_is_dual_compatible_with_current_core_support() {
     let assessment =
         assess_compatibility(&CompatibilitySupport::current(), &description.bootstrap).unwrap();
 
-    assert_eq!(assessment.adapter_protocol.outcome, CompatibilityOutcome::Compatible);
-    assert_eq!(assessment.public_contract.outcome, CompatibilityOutcome::Compatible);
+    assert_eq!(
+        assessment.adapter_protocol.outcome,
+        CompatibilityOutcome::Compatible
+    );
+    assert_eq!(
+        assessment.public_contract.outcome,
+        CompatibilityOutcome::Compatible
+    );
     assert_eq!(assessment.overall, CompatibilityOutcome::Compatible);
-    assert_eq!(assessment.adapter_protocol.selected_version.as_deref(), Some("0.1"));
-    assert_eq!(assessment.public_contract.selected_version.as_deref(), Some("0.1"));
+    assert_eq!(
+        assessment.adapter_protocol.selected_version.as_deref(),
+        Some("0.1")
+    );
+    assert_eq!(
+        assessment.public_contract.selected_version.as_deref(),
+        Some("0.1")
+    );
 }
 
 #[test]
@@ -76,7 +88,10 @@ fn missing_or_incompatible_support_is_not_treated_as_compatible() {
     incompatible.supported_adapter_protocol_versions = Some(vec!["9.9".to_owned()]);
     let incompatible =
         assess_compatibility(&CompatibilitySupport::current(), &incompatible).unwrap();
-    assert_eq!(incompatible.adapter_protocol.outcome, CompatibilityOutcome::Incompatible);
+    assert_eq!(
+        incompatible.adapter_protocol.outcome,
+        CompatibilityOutcome::Incompatible
+    );
     assert_eq!(incompatible.overall, CompatibilityOutcome::Incompatible);
 }
 
