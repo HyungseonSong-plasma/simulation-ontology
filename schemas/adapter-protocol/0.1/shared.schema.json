@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Adapter Protocol 0.1 shared definitions",
+  "$defs": {
+    "adapterProtocolVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "majorMinorVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "stableSymbol": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "adapterId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+$"
+    },
+    "adapterBootstrap": {
+      "type": "object",
+      "required": ["adapter_id", "adapter_version"],
+      "properties": {
+        "adapter_id": { "$ref": "#/$defs/adapterId" },
+        "adapter_version": { "type": "string", "minLength": 1 },
+        "supported_adapter_protocol_versions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/majorMinorVersion" }
+        },
+        "supported_public_contract_versions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/majorMinorVersion" }
+        }
+      }
+    },
+    "capabilityDeclaration": {
+      "type": "object",
+      "required": ["capability"],
+      "properties": {
+        "capability": { "$ref": "#/$defs/stableSymbol" },
+        "revision": { "type": "string", "minLength": 1 }
+      }
+    },
+    "targetDeclaration": {
+      "type": "object",
+      "required": ["target"],
+      "properties": {
+        "target": { "$ref": "#/$defs/stableSymbol" },
+        "capabilities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/capabilityDeclaration" }
+        }
+      }
+    },
+    "diagnosticContext": {
+      "type": "object",
+      "properties": {
+        "target": { "type": "string" },
+        "capability": { "type": "string" },
+        "plan_action_id": { "type": "string" },
+        "precondition": { "type": "string" }
+      }
+    },
+    "opaqueExecutionReference": {
+      "type": "object",
+      "required": ["namespace", "reference"],
+      "properties": {
+        "namespace": { "type": "string", "minLength": 1 },
+        "reference": { "type": "string", "minLength": 1 }
+      }
+    },
+    "executionProvenance": {
+      "type": "object",
+      "required": ["producer"],
+      "properties": {
+        "producer": { "type": "string", "minLength": 1 },
+        "opaque_references": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/opaqueExecutionReference" }
+        }
+      }
+    },
+    "actionExecutionState": {
+      "type": "string",
+      "enum": ["completed", "failed", "unavailable", "skipped_dependency", "not_started"]
+    },
+    "actionExecutionReport": {
+      "type": "object",
+      "required": ["action_id", "state"],
+      "properties": {
+        "action_id": { "$ref": "#/$defs/stableSymbol" },
+        "state": { "$ref": "#/$defs/actionExecutionState" },
+        "effects": {
+          "type": "array",
+          "items": {
+            "$ref": "../../public-contract/0.1/shared.schema.json#/$defs/realizationEffect"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "../../public-contract/0.1/shared.schema.json#/$defs/diagnostic"
+          }
+        },
+        "provenance": { "$ref": "#/$defs/executionProvenance" }
+      }
+    },
+    "failureCategory": {
+      "type": "string",
+      "enum": ["compatibility", "invalid_request", "operational"]
+    },
+    "sideEffectEvidence": {
+      "type": "string",
+      "enum": ["none", "may_have_occurred"]
+    }
+  }
+}
