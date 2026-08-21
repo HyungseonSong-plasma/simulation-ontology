@@ -2,7 +2,7 @@
 
 **Status:** Project operating convention  
 **Date:** 2026-08-21  
-**Scope:** Meeting orchestration, planning, semantic decision-making, validation, implementation, and documentation synchronization
+**Scope:** Session initialization, meeting orchestration, planning, semantic decision-making, validation, implementation, and documentation synchronization
 
 ## Purpose
 
@@ -19,6 +19,38 @@ The canonical agent names are:
 The role boundary is intentional: Manager orchestrates discussion, Planner structures work, Researcher owns semantic investigation, Validator challenges decisions, and Operator executes accepted work.
 
 GitHub Milestones are the repository execution projection of accepted roadmap milestones. Their naming, membership, progress, closure, and backfill convention is defined in `docs/operations/github-milestone-convention.md`; GitHub progress never replaces parent-tracker or Validator acceptance authority.
+
+## 0. Project session bootstrap
+
+The project defines one project-level work mode before role-specific work begins: `init`.
+
+### 0.1 `init`
+
+`init` reconstructs the operating context for a new, resumed, or uncertain session from canonical repository documents and current GitHub evidence. It exists because conversational memory is not an authoritative or durable project-state store.
+
+`init` is a read-only bootstrap. It identifies the repository and current `main` head, reloads the logical roles and authority hierarchy, inspects the current milestone/parent/Phase/PR/CI state, identifies the first real gate, and recommends the next explicit mode: `meeting`, `resume`, or `update`.
+
+`init` MUST NOT create or modify branches, files, issues, pull requests, milestones, reviews, or merges. It MUST NOT silently continue into another mode. A stale README, old chat summary, branch name, or GitHub Milestone percentage is not sufficient current-state evidence.
+
+The detailed bootstrap sequence, output contract, failure behavior, and persistent chat-entry hook are defined in [`project-session-init.md`](project-session-init.md).
+
+Conceptually:
+
+```text
+new or uncertain session
+        |
+        v
+       init
+        |
+        v
+canonical roles + current repository evidence
+        |
+        +--> meeting  # unresolved decision
+        |
+        +--> resume   # accepted executable work
+        |
+        +--> update   # accepted-state documentation synchronization
+```
 
 ## 1. Manager
 
@@ -305,6 +337,15 @@ PR + CI evidence
 ```
 
 ## 6. Normal agent flow
+
+When a session is new or its context may be stale, the normal entry flow is:
+
+```text
+init
+  -> canonical role/work-mode reload
+  -> current GitHub state and real-gate snapshot
+  -> explicit meeting | resume | update selection
+```
 
 For architecture, Public Contract, Adapter Protocol, roadmap, or other decision-heavy work, the normal flow is:
 
