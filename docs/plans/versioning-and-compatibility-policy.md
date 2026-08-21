@@ -58,7 +58,7 @@ Internal Rust structs and crate organization SHALL NOT define Public Contract co
 
 The Adapter Protocol SHALL have an independent version axis from both Runtime and Public Contract.
 
-Adapters SHALL declare protocol compatibility explicitly. Compatibility SHALL NOT be inferred from the adapter package version.
+Adapters SHALL declare Adapter Protocol compatibility explicitly. Because Adapter Protocol operations reuse canonical Public Contract payloads, an adapter SHALL also expose compatibility with the Public Contract version(s) it can interpret at that boundary. Compatibility SHALL NOT be inferred from the adapter package version.
 
 Conceptually:
 
@@ -66,11 +66,20 @@ Conceptually:
 adapter: sol-adapter-moose
 adapter_version: 0.5.0
 supported_protocol: >=0.1,<0.2
+supported_public_contract: >=0.1,<0.2
 ```
 
-SOL runtime and adapter interoperability requires an explicitly compatible protocol range. An adapter package version such as `1.4.0` has no interoperability meaning unless its supported Adapter Protocol range is also known.
+SOL runtime and adapter interoperability requires both:
 
-Protocol negotiation and incompatibility SHALL be detected before plan execution where the required information is available.
+```text
+compatible Adapter Protocol range
+AND
+compatible Public Contract range for shared payloads
+```
+
+An adapter package version such as `1.4.0` has no interoperability meaning unless its supported Adapter Protocol and Public Contract ranges are also known.
+
+Protocol/bootstrap negotiation and incompatibility SHALL be detected before plan execution where the required information is available. The bootstrap/description contract SHALL be version-safe enough to discover compatibility without requiring the caller to first assume compatibility with an incompatible full protocol payload.
 
 ## 5. Ontology package versioning
 
@@ -97,8 +106,8 @@ SOL Runtime       0.3.0
 Public Contract   0.2
 Adapter Protocol  0.1
 
-MOOSE Adapter     0.5.0 -> supports protocol 0.1
-Zapdos Adapter    0.2.0 -> supports protocol 0.1
+MOOSE Adapter     0.5.0 -> protocol 0.1, public contract 0.2
+Zapdos Adapter    0.2.0 -> protocol 0.1, public contract 0.2
 ```
 
 Compatibility SHALL be established by explicit contracts and ranges, not matching release numbers.
@@ -163,7 +172,7 @@ same syntax + incompatible normative meaning = breaking change
 | TypeScript SDK | stable export removal; required argument change; synchronous API changed to async; incompatible return semantics | additive optional argument; new export; ergonomic helper preserving semantics |
 | Python SDK | stable import/function removal; incompatible parameter/return/exception semantics | additive helper or optional parameter preserving existing behavior |
 | CLI | removal/rename of stable command/flag; incompatible exit-code or canonical output semantics | additive command/flag; human-readable formatting change outside a declared machine contract |
-| Adapter Protocol | method removal; required payload addition; incompatible handshake/result/comparator semantics | optional capability extension explicitly negotiable by old peers |
+| Adapter Protocol | method removal; required payload addition; incompatible bootstrap/handshake/result/execution semantics | optional capability extension explicitly negotiable by old peers |
 | Ontology Package | normative meaning change under same stable identity; removal of required concept/relation without compatibility path; incompatible constraint interpretation | additive concept/relation; rename preserving stable identity and supported alias resolution where semantics remain unchanged |
 
 ## 10. Public Contract evolution rules
@@ -206,12 +215,15 @@ An incompatible protocol semantic or structural change SHALL occur only across a
 Protocol-breaking examples include:
 
 - method removal or incompatible rename;
-- new mandatory request/response data without negotiated fallback;
-- incompatible handshake behavior;
-- changed meaning of target resolution, effect comparison, plan validation, execution, or realization reporting;
-- changed error/result semantics that invalidate a previously conforming adapter.
+- new mandatory request/response/bootstrap data without negotiated fallback;
+- incompatible compatibility/bootstrap behavior;
+- changed meaning of plan validation/preflight, execution, realization reporting, or protocol/request/operational errors;
+- redefining whether a canonical MappingPlan dependency/order constraint is semantic versus merely representational;
+- changed idempotency/precondition semantics that make a previously conforming adapter unsafe or incompatible.
 
 Backward-compatible optional capability extensions MAY remain within a protocol line when old peers can deterministically negotiate or ignore them according to the protocol contract.
+
+A later real-adapter implementation SHALL NOT mutate the meaning of Protocol 0.1 in place. Incompatible MOOSE/Zapdos/CRANE evidence requires an explicit new protocol version boundary.
 
 ## 13. Ontology breaking rules
 
@@ -237,16 +249,17 @@ Incompatible
 Unknown
 ```
 
-These are compatibility assessment outcomes, not new SOL architecture lifecycle states.
+These are compatibility assessment outcomes, not SOL architecture lifecycle states.
 
-Where mapped into existing evaluation behavior:
+For Adapter Protocol/Public Contract negotiation:
 
-- `Compatible` permits evaluation to continue;
-- `Incompatible` is handled by the applicable existing validation/representability contract;
-- `Unknown` caused by missing required external compatibility information maps to the existing `BLOCKED` lifecycle semantics;
-- an undecidable result with all required evidence present follows the existing `INDETERMINATE` semantics where applicable.
+- `Compatible` permits the interoperability path to continue;
+- `Incompatible` prevents execution under that declared compatibility pair;
+- `Unknown`/missing required compatibility information does not silently become compatible and normally prevents execution until compatibility can be established.
 
-No new representability class is introduced by this policy.
+A raw compatibility/bootstrap/request/operational result SHALL NOT be directly relabeled `PASS`, `FAIL`, `BLOCKED`, or `INDETERMINATE` merely because execution cannot proceed. Only an appropriate canonical semantic outcome/evidence returned through the semantic contract may subsequently be classified by Core under the existing evaluation lifecycle.
+
+Other SOL contexts MAY map a compatibility-related semantic condition into an existing lifecycle state only where the relevant canonical semantic contract explicitly defines that mapping. No new representability or lifecycle class is introduced by this policy.
 
 ## 15. Compatibility testing rule
 
@@ -292,7 +305,12 @@ Public Contract
 
 Adapter Protocol
   -> independent interoperability version
-  -> explicit compatibility negotiation/range
+  -> explicit protocol compatibility negotiation/range
+  -> reuses Public Contract payloads
+
+Adapter interoperability
+  -> compatible Adapter Protocol
+  AND compatible Public Contract
 
 Ontology packages
   -> independent SemVer-style versions
@@ -323,12 +341,12 @@ The post-M0.1 milestone sequence SHALL reflect the independent compatibility sur
 | Milestone | Primary compatibility surface | Required outcome before advancing |
 |---|---|---|
 | M0.2 — Canonical Public Contract 0.1 | Public Contract | Canonical JSON DTO set, version marker, normalization/equality rules, extensibility rules, golden compatibility fixtures |
-| M0.3 — Adapter Protocol 0.1 | Adapter Protocol | Versioned method/request/response/error contracts, compatibility range declaration, pre-execution negotiation and incompatibility behavior |
+| M0.3 — Adapter Protocol 0.1 | Adapter Protocol + reused Public Contract payloads | Versioned transport-independent operation/request/response/error contracts, Protocol + Public Contract compatibility/bootstrap negotiation, advisory validation + authoritative execution semantics, published baseline fixtures/schema |
 | M0.4 — MockAdapter Protocol Conformance | Adapter Protocol | Executable reference behavior and reusable old/new compatibility fixtures for protocol semantics |
-| M0.5 — JSON-RPC over stdio | Transport, not a new semantic version axis | Wire framing and subprocess behavior proven equivalent to the already-defined protocol semantics |
+| M0.5 — JSON-RPC over stdio | Transport, not a new semantic version axis | Wire framing and subprocess behavior proven equivalent to the already-defined protocol semantics; retry behavior respects non-idempotent execution boundaries |
 | M0.6 — Adapter Conformance Tooling | Adapter Protocol ecosystem | External adapters can run the same conformance suite without linking solver dependencies into Core |
 
-After M0.6, TypeScript/Python SDK work and the external MOOSE adapter may proceed in parallel. SDK releases SHALL consume the canonical Public Contract rather than infer compatibility from internal Rust structs. The MOOSE adapter SHALL advertise an explicit supported Adapter Protocol range rather than matching the SOL Runtime version.
+After M0.6, TypeScript/Python SDK work and the external MOOSE adapter may proceed in parallel. SDK releases SHALL consume the canonical Public Contract rather than infer compatibility from internal Rust structs. The MOOSE adapter SHALL advertise explicit supported Adapter Protocol and Public Contract ranges rather than matching the SOL Runtime version.
 
 ### 18.1 Public Contract 0.1 gate
 
@@ -343,15 +361,35 @@ At minimum, the gate SHOULD cover canonical forms for model-facing data, validat
 
 ### 18.2 Adapter Protocol 0.1 gate
 
-Adapter Protocol 0.1 SHALL be declared only after Public Contract payload dependencies are explicit. Protocol negotiation SHALL distinguish at least compatible, incompatible, and unknown/missing compatibility information before execution. An incompatible semantic or structural change after declaration SHALL require a new explicit protocol version boundary; a Runtime release SHALL NOT silently redefine protocol 0.1.
+Adapter Protocol 0.1 SHALL be declared only after Public Contract payload dependencies are explicit.
+
+Before execution, protocol negotiation SHALL establish both Adapter Protocol compatibility and Public Contract compatibility for shared payloads, distinguishing at least compatible, incompatible, and unknown/missing information.
+
+The bootstrap/description contract SHALL be interpretable sufficiently to discover/reject incompatible peers without first assuming compatibility with the full protocol payload shape.
+
+Protocol 0.1 SHALL also define the following execution-boundary semantics:
+
+- canonical MappingPlan DAG/dependency semantics remain Core-owned;
+- canonical deterministic order is a representation/reproducibility rule and does not require the backend to use that exact physical total order for independent actions;
+- `validate_plan` is advisory/preflight;
+- `execute_plan` is authoritative for current compatibility/integrity/precondition checks;
+- `validate_plan` is expected to be idempotent for the same canonical input/state evidence;
+- `execute_plan` is non-idempotent by default unless explicitly guaranteed otherwise;
+- opaque backend artifact references may be provenance/evidence but cannot define canonical semantic identity/equality.
+
+An incompatible semantic or structural change after declaration SHALL require a new explicit protocol version boundary; a Runtime release SHALL NOT silently redefine Protocol 0.1.
 
 ### 18.3 Transport gate
 
-JSON-RPC over stdio SHALL NOT create a new semantic compatibility axis. A transport implementation is conforming only when the same protocol request produces the same required canonical semantics as the in-process reference path, modulo transport-specific envelope metadata. Golden tests SHALL cover malformed JSON, invalid request ids/envelopes where applicable, process termination, stderr/stdout discipline, and deterministic error propagation.
+JSON-RPC over stdio SHALL NOT create a new semantic compatibility axis. A transport implementation is conforming only when the same protocol request produces the same required canonical semantics as the in-process reference path, modulo transport-specific envelope metadata.
+
+Golden tests SHALL cover malformed JSON, invalid request ids/envelopes where applicable, process termination, stderr/stdout discipline, and deterministic error propagation. Transport retry/reconnection policy SHALL NOT assume that an ambiguous `execute_plan` can be safely replayed after a response-loss boundary.
 
 ### 18.4 SDK and real-adapter gate
 
 TypeScript and Python SDKs may experiment before M0.6, but supported SDK APIs SHALL be frozen only against declared Public Contract versions. The first MOOSE adapter may be prototyped separately, but it SHALL enter the official reference-adapter path only after Adapter Protocol 0.1 and reusable Core conformance tooling exist.
+
+The official reference adapter SHALL advertise both its supported Adapter Protocol range and supported Public Contract range/version set.
 
 ### Validator decision rule
 
@@ -359,7 +397,8 @@ The sequence remains compatible with this policy only if:
 
 - Public Contract 0.1 is established before stable SDK APIs depend on it;
 - Adapter Protocol 0.1 is established before transport details are treated as normative semantics;
-- protocol compatibility is explicit and checked before execution;
+- both Protocol and Public Contract compatibility are explicit and checked before execution;
+- protocol/bootstrap/operational failures remain distinct from semantic lifecycle states;
 - MockAdapter and the conformance suite provide executable evidence for compatibility claims;
 - real-adapter implementation versions remain independent from Runtime/Public Contract/Protocol versions;
 - any real-adapter evidence that requires incompatible protocol semantics results in a documented new protocol version rather than mutation of the existing one.
