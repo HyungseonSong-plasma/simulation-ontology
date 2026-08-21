@@ -6,9 +6,7 @@ use sol_core_identity::{CanonicalId, IdentityResolver, ResolvedGraph};
 use sol_core_model::Simulation;
 use sol_core_plan::{MappingPlan, PlanAction};
 use sol_mock_adapter::MockAdapter;
-use sol_public_contract::{
-    validate_simulation, MappingPlanDto, PlanActionDto, SimulationDto,
-};
+use sol_public_contract::{validate_simulation, MappingPlanDto, PlanActionDto, SimulationDto};
 use sol_target_resolver::{
     resolve_target, AdapterDescriptor, BackendCapability, BackendTarget, ResolveTargetError,
 };
