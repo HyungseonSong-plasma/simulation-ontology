@@ -2,18 +2,14 @@ use sol_public_contract::{
     require_closed_enum_value, CanonicalDocument, ContractDocumentError, ContractVersion,
 };
 
-const VALID_EXTENSIBLE: &str = include_str!(
-    "../../../fixtures/public-contract/0.1/valid-extensible-document.json"
-);
-const MISSING_VERSION: &str = include_str!(
-    "../../../fixtures/counterexamples/public-contract-missing-version.json"
-);
-const MALFORMED_VERSION: &str = include_str!(
-    "../../../fixtures/counterexamples/public-contract-malformed-version.json"
-);
-const UNSUPPORTED_VERSION: &str = include_str!(
-    "../../../fixtures/counterexamples/public-contract-unsupported-version.json"
-);
+const VALID_EXTENSIBLE: &str =
+    include_str!("../../../fixtures/public-contract/0.1/valid-extensible-document.json");
+const MISSING_VERSION: &str =
+    include_str!("../../../fixtures/counterexamples/public-contract-missing-version.json");
+const MALFORMED_VERSION: &str =
+    include_str!("../../../fixtures/counterexamples/public-contract-malformed-version.json");
+const UNSUPPORTED_VERSION: &str =
+    include_str!("../../../fixtures/counterexamples/public-contract-unsupported-version.json");
 
 #[test]
 fn supported_contract_version_is_accepted() {
@@ -56,42 +52,38 @@ fn unknown_optional_fields_survive_generic_canonicalization() {
 
 #[test]
 fn object_key_order_is_not_semantic() {
-    let left = CanonicalDocument::parse(
-        r#"{"public_contract_version":"0.1","payload":{"b":2,"a":1}}"#,
-    )
-    .unwrap();
-    let right = CanonicalDocument::parse(
-        r#"{"payload":{"a":1,"b":2},"public_contract_version":"0.1"}"#,
-    )
-    .unwrap();
+    let left =
+        CanonicalDocument::parse(r#"{"public_contract_version":"0.1","payload":{"b":2,"a":1}}"#)
+            .unwrap();
+    let right =
+        CanonicalDocument::parse(r#"{"payload":{"a":1,"b":2},"public_contract_version":"0.1"}"#)
+            .unwrap();
 
-    assert_eq!(left.to_canonical_json().unwrap(), right.to_canonical_json().unwrap());
+    assert_eq!(
+        left.to_canonical_json().unwrap(),
+        right.to_canonical_json().unwrap()
+    );
 }
 
 #[test]
 fn array_order_is_preserved_by_default() {
-    let left = CanonicalDocument::parse(
-        r#"{"public_contract_version":"0.1","items":["a","b"]}"#,
-    )
-    .unwrap();
-    let right = CanonicalDocument::parse(
-        r#"{"public_contract_version":"0.1","items":["b","a"]}"#,
-    )
-    .unwrap();
+    let left =
+        CanonicalDocument::parse(r#"{"public_contract_version":"0.1","items":["a","b"]}"#).unwrap();
+    let right =
+        CanonicalDocument::parse(r#"{"public_contract_version":"0.1","items":["b","a"]}"#).unwrap();
 
-    assert_ne!(left.to_canonical_json().unwrap(), right.to_canonical_json().unwrap());
+    assert_ne!(
+        left.to_canonical_json().unwrap(),
+        right.to_canonical_json().unwrap()
+    );
 }
 
 #[test]
 fn generic_normalization_does_not_coerce_json_types() {
-    let string_value = CanonicalDocument::parse(
-        r#"{"public_contract_version":"0.1","value":"1"}"#,
-    )
-    .unwrap();
-    let numeric_value = CanonicalDocument::parse(
-        r#"{"public_contract_version":"0.1","value":1}"#,
-    )
-    .unwrap();
+    let string_value =
+        CanonicalDocument::parse(r#"{"public_contract_version":"0.1","value":"1"}"#).unwrap();
+    let numeric_value =
+        CanonicalDocument::parse(r#"{"public_contract_version":"0.1","value":1}"#).unwrap();
 
     assert_ne!(
         string_value.to_canonical_json().unwrap(),
@@ -102,12 +94,13 @@ fn generic_normalization_does_not_coerce_json_types() {
 #[test]
 fn absent_optional_field_is_distinct_from_explicit_null() {
     let absent = CanonicalDocument::parse(r#"{"public_contract_version":"0.1"}"#).unwrap();
-    let explicit_null = CanonicalDocument::parse(
-        r#"{"public_contract_version":"0.1","optional":null}"#,
-    )
-    .unwrap();
+    let explicit_null =
+        CanonicalDocument::parse(r#"{"public_contract_version":"0.1","optional":null}"#).unwrap();
 
-    assert_ne!(absent.to_canonical_json().unwrap(), explicit_null.to_canonical_json().unwrap());
+    assert_ne!(
+        absent.to_canonical_json().unwrap(),
+        explicit_null.to_canonical_json().unwrap()
+    );
 }
 
 #[test]
