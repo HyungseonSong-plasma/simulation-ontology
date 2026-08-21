@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+mod preflight;
+pub use preflight::*;
+
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use sol_public_contract::ContractVersion;
