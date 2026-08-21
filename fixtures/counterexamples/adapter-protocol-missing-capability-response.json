@@ -1,0 +1,16 @@
+{
+  "adapter_protocol_version": "0.1",
+  "target_compatible": true,
+  "capabilities_satisfied": false,
+  "preflight": "rejected",
+  "diagnostics": [
+    {
+      "code": "adapter.missing_capability",
+      "severity": "error",
+      "detail": "required capability is not declared",
+      "sol_adapter_protocol_context": {
+        "capability": "thermal.radiation"
+      }
+    }
+  ]
+}
