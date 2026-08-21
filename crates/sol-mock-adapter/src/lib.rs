@@ -150,9 +150,7 @@ mod tests {
     use sol_core_mapping::MappingSubjectRef;
     use sol_core_plan::{MappingPlan, PlanAction};
 
-    use super::{
-        Adapter, AdapterCapability, FailureInjection, MockAdapter, PlanAcceptance,
-    };
+    use super::{Adapter, AdapterCapability, FailureInjection, MockAdapter, PlanAcceptance};
 
     fn thermal_plan() -> MappingPlan {
         MappingPlan::from_actions([
