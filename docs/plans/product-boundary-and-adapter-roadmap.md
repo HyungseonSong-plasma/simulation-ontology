@@ -1,6 +1,6 @@
 # SOL Product Boundary and Adapter Roadmap
 
-**Status:** Accepted roadmap, synchronized after M0.3 completion  
+**Status:** Accepted roadmap, synchronized after GitHub Milestone adoption and M0.4 Phase 1  
 **Date:** 2026-08-21  
 **Scope:** Core product boundary, adapter ownership, protocol/transport sequencing, MockAdapter role, and reference-adapter roadmap
 
@@ -117,6 +117,8 @@ M0.4 SHALL promote MockAdapter to reference Protocol 0.1 behavior and exercise a
 - non-idempotent execute/replay counterexamples;
 - opaque provenance without backend-native semantic leakage.
 
+M0.4 Phase 0 (reference-conformance boundary) and Phase 1 (adapter description/dual compatibility) are complete. Phase 2 advisory `validate_plan` reference behavior is the current implementation phase.
+
 M0.4 may build Core-local reusable test helpers as needed for MockAdapter reference conformance, but general external-adapter test-runner/tooling productization belongs to M0.6.
 
 ## Transport roadmap
@@ -130,6 +132,8 @@ Adapter process
 ```
 
 M0.5 owns JSON-RPC framing, method mapping, request IDs, subprocess lifecycle, malformed transport input, process failure propagation, reconnect behavior, and replay constraints. Transport SHALL carry Adapter Protocol 0.1 without changing its semantics.
+
+M0.5 is planned under parent tracker #74 with Phase issues #75–#80. It becomes implementation-eligible only after M0.4 closes successfully and its completion state is synchronized.
 
 Remote/network transports remain deferred until demonstrated requirements justify them.
 
@@ -150,6 +154,8 @@ Adapter repository
   -> physical/numerical validation where applicable
 ```
 
+M0.6 is planned under parent tracker #81 with Phase issues #82–#87. It productizes reusable external-adapter invocation, positive/adversarial conformance fixture execution, authoring scaffolding, and external-project workflow only after M0.5 closes successfully.
+
 ## Milestone sequence
 
 ```text
@@ -162,13 +168,13 @@ M0.2  Canonical Public Contract 0.1            COMPLETE
 M0.3  Adapter Protocol 0.1                     COMPLETE
   |
   v
-M0.4  MockAdapter Protocol Conformance         NEXT
+M0.4  MockAdapter Protocol Conformance         ACTIVE (Phase 2 current)
   |
   v
-M0.5  JSON-RPC over stdio Transport
+M0.5  JSON-RPC / stdio Transport               PLANNED
   |
   v
-M0.6  Adapter Conformance Tooling
+M0.6  Adapter Conformance Tooling              PLANNED
   |
   +-------------------------+
   |                         |
@@ -186,6 +192,25 @@ The sequencing invariants are:
 4. reusable external-adapter conformance tooling before official real-adapter development.
 
 Experimental SDK or real-adapter spikes may occur earlier for research, but they cannot redefine or silently mutate the published Public Contract or Adapter Protocol baseline.
+
+## GitHub Milestone projection
+
+GitHub Milestones are the repository execution projection of these roadmap milestones; they are not version axes or acceptance authority.
+
+Canonical progress units are Phase issues, while parent tracker issues remain normative acceptance/gate records and PRs remain implementation evidence. GitHub percentage is informational; Validator exit audit, parent completion, exact-head/main evidence, and milestone closure rules remain authoritative.
+
+Current repository groupings are:
+
+```text
+M0.1: parent #2,  Phase #6–#16   historical complete
+M0.2: parent #28, Phase #29–#35  historical complete
+M0.3: parent #38, Phase #39–#44  historical complete
+M0.4: parent #65, Phase #66–#71  active
+M0.5: parent #74, Phase #75–#80  planned
+M0.6: parent #81, Phase #82–#87  planned
+```
+
+See `docs/operations/github-milestone-convention.md` for naming, membership, progress, due-date, closure, backfill, and Operator `resume`/`update` rules.
 
 ## Reference adapter roadmap
 
@@ -215,4 +240,4 @@ Compatibility is established through explicit contract/version/capability eviden
 
 ## Change control
 
-This document is a product/roadmap decision, not a semantic ADR. Changes to Core semantics, Public Contract invariants, or Adapter Protocol invariants require the normal Manager -> Researcher -> Validator flow and an ADR when architecture is fixed or changed.
+This document is a product/roadmap decision, not a semantic ADR. Changes to Core semantics, Public Contract invariants, or Adapter Protocol invariants require the normal Manager -> Researcher -> Validator flow and an ADR when architecture is fixed or changed. GitHub Milestone operating-convention changes that alter roadmap/acceptance semantics require Manager `meeting` before adoption.

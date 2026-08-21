@@ -18,6 +18,8 @@ The canonical agent names are:
 
 The role boundary is intentional: Manager orchestrates discussion, Planner structures work, Researcher owns semantic investigation, Validator challenges decisions, and Operator executes accepted work.
 
+GitHub Milestones are the repository execution projection of accepted roadmap milestones. Their naming, membership, progress, closure, and backfill convention is defined in `docs/operations/github-milestone-convention.md`; GitHub progress never replaces parent-tracker or Validator acceptance authority.
+
 ## 1. Manager
 
 Manager owns discussion orchestration and decision-state management. Manager does not own semantic truth, implementation state, or validation authority.
@@ -164,13 +166,14 @@ Operator owns execution against the accepted plan and repository state.
 
 Responsibilities:
 
-- inspect current GitHub/CI state before acting;
+- inspect the current GitHub Milestone, parent tracker, Phase/blocker issues, PRs, and CI state before acting;
 - execute Phase issues in dependency order;
 - create/update branches, commits, PRs, issues, fixtures, tests, code, and documentation;
 - apply the smallest root-cause fix when CI fails;
 - record executable evidence before completing checklist items;
 - merge a pre-authorized Phase PR when all bounded auto-merge conditions below are satisfied;
 - verify the merge on `main`, close/update the completed Phase issue, update the parent tracker, and continue to the next eligible Phase without waiting for another user turn;
+- keep GitHub Milestone membership/progress synchronized with accepted Phase structure without treating percentage as acceptance authority;
 - escalate newly discovered unresolved semantic/compatibility decisions to Manager rather than resolving them implicitly during execution.
 
 Operator has two named work modes: `resume` and `update`.
@@ -181,15 +184,26 @@ Operator has two named work modes: `resume` and `update`.
 
 Expected behavior:
 
-1. Inspect current PR/issue/CI state rather than assuming the previous state is still current.
-2. If an existing Phase PR is open, verify its head SHA, CI state, mergeability, unresolved review/permission state, and whether its work remains inside the already accepted Phase scope.
-3. Continue the next eligible Phase/task when the current gate is clear.
-4. Use counterexample-driven implementation and the established CI-first loop.
-5. On CI failure, inspect logs, apply the smallest root-cause fix, and restart verification.
-6. On CI success, record evidence and update issue checklists before merge.
-7. When bounded auto-merge conditions are satisfied, merge the Phase PR, verify the merge on `main`, close/update the Phase issue and parent tracker, then continue immediately to the next eligible Phase.
-8. If implementation exposes a new unresolved architecture/Public Contract/Protocol/compatibility choice, stop that decision path and hand it to Manager `meeting`.
-9. Stop only at a real decision, Validator rejection/revision gate, milestone exit audit, permission/branch-protection or merge-conflict gate, explicit user stop request, or other architecture/compatibility gate.
+1. Identify the current roadmap/GitHub Milestone and inspect its parent tracker plus open Phase/milestone-blocker issues before selecting work.
+2. Inspect current PR/issue/CI state rather than assuming the previous state is still current.
+3. If an existing Phase PR is open, verify its head SHA, CI state, mergeability, unresolved review/permission state, and whether its work remains inside the already accepted Phase scope.
+4. Continue the next eligible Phase/task when the current gate is clear. A planned successor GitHub Milestone does not bypass predecessor dependencies merely because it already exists.
+5. Use counterexample-driven implementation and the established CI-first loop.
+6. On CI failure, inspect logs, apply the smallest root-cause fix, and restart verification.
+7. On CI success, record evidence and update issue checklists before merge.
+8. When bounded auto-merge conditions are satisfied, merge the Phase PR, verify the merge on `main`, close/update the Phase issue and parent tracker, keep milestone progress metadata synchronized, then continue immediately to the next eligible Phase.
+9. If implementation exposes a new unresolved architecture/Public Contract/Protocol/compatibility choice, stop that decision path and hand it to Manager `meeting`.
+10. Stop only at a real decision, Validator rejection/revision gate, milestone exit audit, permission/branch-protection or merge-conflict gate, explicit user stop request, or other architecture/compatibility gate.
+
+The normal inspection order is:
+
+```text
+current GitHub Milestone
+  -> parent tracker
+  -> milestone Phase / blocker issues
+  -> current eligible Phase
+  -> current PR / exact-head CI
+```
 
 #### Bounded auto-merge authorization
 
@@ -219,13 +233,14 @@ The intent is:
 
 ```text
 resume
+  -> inspect current milestone / parent / Phase
   -> implement accepted Phase N
   -> PR
   -> CI/fix loop
   -> evidence
   -> bounded auto-merge when eligible
   -> verify main
-  -> close Phase N / update parent
+  -> close Phase N / update parent / synchronize milestone progress
   -> continue Phase N+1
   -> stop only at a real gate
 ```
@@ -254,12 +269,13 @@ Primary targets include:
 - schema/public-contract guides;
 - architecture overview documents;
 - examples and onboarding documentation;
-- roadmap/status sections that have become stale.
+- roadmap/status sections that have become stale;
+- project operating conventions when an accepted workflow decision changes repository operation.
 
 Expected behavior:
 
-1. Read the current implementation, accepted ADRs, governing plans, active/completed issues, and relevant public contracts.
-2. Identify stale, incomplete, contradictory, or missing guide content.
+1. Read the current implementation, accepted ADRs, governing plans, active/completed issues, GitHub Milestone state, and relevant public contracts.
+2. Identify stale, incomplete, contradictory, or missing guide/operations content.
 3. Update documentation to describe accepted behavior and current capability accurately.
 4. Prefer links to normative ADR/contract/policy documents rather than duplicating large normative definitions.
 5. Update examples and command/output snippets when supported behavior changes.
@@ -269,13 +285,15 @@ Expected behavior:
 
 `update` is documentation synchronization, not semantic authority. Operator should not bypass Manager by silently choosing among unresolved Planner/Researcher/Validator alternatives in guide text.
 
+For milestone handoff, `update` normally runs after the GitHub Milestone has been accepted and closed. Its PR is not assigned back to the closed milestone and does not reopen completed progress merely to record documentation synchronization.
+
 A typical `update` scope is:
 
 ```text
 accepted repository state
        |
        v
-README / API docs / guides / examples
+README / API docs / guides / examples / operations
        |
        v
 consistency review
@@ -321,7 +339,7 @@ ACCEPTED
 Operator: resume
       |
       v
-fixture/test -> implementation -> CI -> evidence -> bounded merge -> next eligible Phase
+milestone -> Phase -> fixture/test -> implementation -> CI -> evidence -> bounded merge -> next eligible Phase
 ```
 
 Documentation synchronization then uses:
@@ -333,7 +351,7 @@ accepted repository state
 Operator: update
       |
       v
-README / API docs / guides synchronized to accepted state
+README / API docs / guides / operations synchronized to accepted state
 ```
 
 Manager, Planner, and Researcher may be skipped when a task is purely mechanical and already fully specified. Validator should be used whenever semantics, compatibility, architecture boundaries, or public contracts can be affected.
@@ -346,6 +364,7 @@ Manager `meeting` SHOULD be used for:
 - Public Contract changes;
 - Adapter Protocol changes;
 - milestone/roadmap redesign;
+- GitHub Milestone convention changes that alter membership/progress/closure/acceptance semantics;
 - decisions with multiple reasonable alternatives;
 - changes that may affect compatibility;
 - conflicts between Researcher and Validator recommendations;
@@ -357,6 +376,7 @@ Manager `meeting` MAY be skipped for:
 - CI/root-cause fixes;
 - formatting/mechanical maintenance;
 - straightforward refactors that preserve accepted contracts;
+- mechanical GitHub Milestone assignment/backfill under the accepted convention;
 - guide synchronization through Operator `update` when no unresolved decision is exposed.
 
 ## 8. Milestone handoff rule
@@ -365,16 +385,25 @@ For compatibility-sensitive milestones, the preferred handoff is:
 
 ```text
 implementation complete
+        -> exact-head CI green
         -> Validator exit audit
-        -> Operator resume for required fixes
-        -> milestone close
+        -> final Phase merge
+        -> verify main
+        -> close final Phase issue
+        -> complete/close parent tracker
+        -> verify no required GitHub Milestone work remains open
+        -> close GitHub Milestone
         -> Operator update
         -> Manager meeting / Planner preparation of the next milestone when new decisions are required
 ```
 
 Bounded auto-merge applies to accepted Phase implementation PRs inside the milestone, but it does not bypass the Validator exit audit or other milestone closure gates.
 
-This makes milestone closure mean that validation has already passed, while `update` serves as the documentation handoff to the next milestone.
+GitHub Milestone percentage is informational. The canonical progress units are Phase issues plus explicit milestone-exit corrective blockers; the parent tracker remains outside milestone membership and retains normative gate/evidence responsibility. PRs are implementation evidence rather than duplicate progress units.
+
+This makes milestone closure mean that validation and repository verification have already passed, while `update` serves as the documentation handoff to the next milestone.
+
+Historical backfill, cross-milestone blocker assignment, due-date rules, and closed-milestone reopening policy are defined in `docs/operations/github-milestone-convention.md`.
 
 ## 9. Documentation hierarchy rule
 
@@ -383,7 +412,7 @@ Documentation has different authority levels.
 - ADRs define accepted semantic architecture decisions.
 - Public-contract/protocol/schema documents define normative external contracts when adopted.
 - Product/versioning plans define roadmap and compatibility governance.
-- `docs/operations/` defines project operating conventions.
+- `docs/operations/` defines project operating conventions, including logical-agent and GitHub Milestone workflow.
 - README/API guides/examples explain how to understand and use the accepted system.
 
 Guide documentation must follow normative sources; it must not silently override them.
