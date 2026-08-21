@@ -1,0 +1,18 @@
+{
+  "bootstrap": {
+    "adapter_id": "adapter.mock",
+    "adapter_version": "1.4.0",
+    "supported_adapter_protocol_versions": ["0.1"],
+    "supported_public_contract_versions": ["0.1"]
+  },
+  "targets": [
+    {
+      "target": "mock",
+      "capabilities": [
+        {"capability": "thermal.solve", "revision": "mock-capabilities-1"},
+        {"capability": "thermal.material"},
+        {"capability": "thermal.domain"}
+      ]
+    }
+  ]
+}

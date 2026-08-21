@@ -1,0 +1,11 @@
+{
+  "bootstrap": {
+    "adapter_id": "adapter.future_mock",
+    "adapter_version": "9.0-preview",
+    "supported_adapter_protocol_versions": ["0.2"],
+    "supported_public_contract_versions": ["0.1"]
+  },
+  "targets": {
+    "future_shape": "intentionally not a Protocol 0.1 target array"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "bootstrap": {
+    "adapter_id": "adapter.future_mock",
+    "adapter_version": "2.0-preview",
+    "supported_adapter_protocol_versions": ["0.1", "0.2"],
+    "supported_public_contract_versions": ["0.1", "0.2"]
+  },
+  "targets": []
+}
