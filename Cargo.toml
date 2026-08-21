@@ -6,6 +6,7 @@ members = [
     "crates/sol-core-qrc",
     "crates/sol-core-mapping",
     "crates/sol-core-effect",
+    "crates/sol-core-plan",
     "crates/sol-cli",
 ]
 
