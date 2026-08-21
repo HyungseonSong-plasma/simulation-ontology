@@ -323,3 +323,72 @@ COMSOL / Ansys
 ```
 
 This document is a roadmap/product-boundary decision, not an architecture ADR. If future work changes Core semantics or adapter protocol invariants, those changes should be handled through the appropriate ADR process.
+
+## 12. Adjusted post-M0.1 execution sequence
+
+M0.1 stabilizes the semantic Core but does not by itself stabilize the public wire/API contract or the independently versioned adapter protocol. Post-M0.1 implementation SHALL therefore proceed in the following order:
+
+```text
+M0.2  Canonical Public Contract 0.1
+  -> define canonical public DTO boundaries and JSON shapes
+  -> version the public contract independently from the runtime
+  -> establish compatibility fixtures and normalization rules
+
+M0.3  Adapter Protocol 0.1
+  -> define versioned request/response/error contracts
+  -> define protocol compatibility declaration and negotiation
+  -> freeze the initial normative adapter method surface
+
+M0.4  MockAdapter Protocol Conformance
+  -> promote MockAdapter to executable protocol reference behavior
+  -> exercise exact/transformed/lossy/unsupported and lifecycle counterexamples
+  -> create reusable protocol conformance fixtures
+
+M0.5  JSON-RPC over stdio Transport
+  -> transport the already-defined protocol without redefining semantics
+  -> verify in-process and subprocess MockAdapter parity
+  -> validate framing, malformed input, process failure, and error propagation
+
+M0.6  Adapter Conformance Tooling
+  -> reusable adapter test runner
+  -> adapter authoring skeleton and guide
+  -> external-project conformance workflow
+```
+
+Only after M0.6 should product-development work split into parallel tracks:
+
+```text
+                     M0.6
+                      |
+          +-----------+-----------+
+          |                       |
+          v                       v
+      SDK track              Adapter track
+      TypeScript             sol-adapter-moose
+      Python                 separate repository
+          |                       |
+          +-------- feedback -----+
+                      |
+          Public Contract / Protocol hardening
+                      |
+                 Zapdos / CRANE
+```
+
+This ordering preserves three product-boundary invariants:
+
+1. the canonical semantic/public contract is defined before language-specific SDK ergonomics;
+2. the Adapter Protocol is defined before its JSON-RPC transport;
+3. the real MOOSE adapter begins only after reusable Core-side protocol conformance tooling exists.
+
+TypeScript and Python SDK work MAY begin experimentally earlier for ergonomics research, but SHALL NOT define or freeze canonical semantics ahead of the Public Contract. The MOOSE adapter SHALL remain a separate repository and SHALL act as the first real-system feedback source for protocol hardening rather than as a dependency of the Core workspace.
+
+### Validator acceptance criteria for this sequence
+
+The post-M0.1 sequence is considered valid only while all of the following remain true:
+
+- Public Contract and Adapter Protocol remain independently versioned surfaces.
+- Transport implementation does not redefine adapter semantics.
+- MockAdapter remains the Core reference conformance implementation even after real adapters exist.
+- Real solver dependencies remain outside the Core repository.
+- SDKs preserve canonical SOL semantics rather than exposing incidental Rust crate structure.
+- Real-adapter feedback may harden a later protocol version, but SHALL NOT silently redefine an already-declared protocol version.
