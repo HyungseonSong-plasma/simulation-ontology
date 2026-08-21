@@ -164,7 +164,9 @@ fn backend_native_semantic_payload_counterexample_is_rejected() {
         "../../../fixtures/counterexamples/adapter-protocol-backend-native-semantic-leakage.json"
     );
 
-    assert!(adapter_protocol_boundary_violations(fixture).contains(&"backend_native_semantic_payload"));
+    assert!(
+        adapter_protocol_boundary_violations(fixture).contains(&"backend_native_semantic_payload")
+    );
 }
 
 #[test]
