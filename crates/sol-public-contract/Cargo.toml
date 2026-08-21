@@ -1,0 +1,11 @@
+[package]
+name = "sol-public-contract"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+description = "Canonical language-neutral public contract support for SOL"
+
+[dependencies]
+serde_json = "=1.0.128"
