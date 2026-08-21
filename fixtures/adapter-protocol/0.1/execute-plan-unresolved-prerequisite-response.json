@@ -1,0 +1,19 @@
+{
+  "adapter_protocol_version": "0.1",
+  "execution": "rejected",
+  "execution_batches": [],
+  "action_reports": [
+    {"action_id":"thermal.domain","state":"not_started","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.material","state":"not_started","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.solve","state":"not_started","effects":[],"diagnostics":[]}
+  ],
+  "effects": [],
+  "diagnostics": [
+    {
+      "code":"adapter.precondition_rejected",
+      "severity":"error",
+      "detail":"current execution prerequisite is unresolved",
+      "sol_adapter_protocol_context":{"precondition":"unresolved_prerequisite"}
+    }
+  ]
+}
