@@ -9,8 +9,8 @@ use sol_adapter_protocol::{
     protocol_diagnostic, AdapterBootstrap, AdapterDescription, AdapterProtocolDiagnosticContext,
     CapabilityDeclaration, CompatibilitySupport, PreflightError, PreflightOutcome, ProtocolError,
     TargetDeclaration, ValidatePlanRequest, ValidatePlanResponse, ADAPTER_PROTOCOL_VERSION,
-    DIAGNOSTIC_MISSING_CAPABILITY, DIAGNOSTIC_PRECONDITION_REJECTED,
-    DIAGNOSTIC_TARGET_MISMATCH, DIAGNOSTIC_TRANSIENT_UNAVAILABLE, DIAGNOSTIC_UNSUPPORTED_ACTION,
+    DIAGNOSTIC_MISSING_CAPABILITY, DIAGNOSTIC_PRECONDITION_REJECTED, DIAGNOSTIC_TARGET_MISMATCH,
+    DIAGNOSTIC_TRANSIENT_UNAVAILABLE, DIAGNOSTIC_UNSUPPORTED_ACTION,
 };
 
 use crate::{Adapter, MockAdapter};
@@ -158,12 +158,9 @@ impl MockAdapter {
         }
 
         match self.protocol_preflight_state {
-            MockPreflightState::Ready => ValidatePlanResponse::new(
-                true,
-                true,
-                PreflightOutcome::Accepted,
-                Vec::new(),
-            ),
+            MockPreflightState::Ready => {
+                ValidatePlanResponse::new(true, true, PreflightOutcome::Accepted, Vec::new())
+            }
             MockPreflightState::PrerequisiteRejected => ValidatePlanResponse::new(
                 true,
                 true,
