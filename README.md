@@ -54,7 +54,9 @@ Longer term, the same contract is intended to support multiphysics and domain-sp
 
 ## Current status
 
-**M0.1 — Semantic Core Bootstrap is complete and merged to `main`.** The current implementation includes:
+**M0.1 — Semantic Core Bootstrap and M0.2 — Canonical Public Contract 0.1 are complete and merged to `main`.**
+
+The repository now includes:
 
 - solver-independent Core entity and relation semantics;
 - canonical identity and deterministic graph resolution;
@@ -65,10 +67,37 @@ Longer term, the same contract is intended to support multiphysics and domain-sp
 - deterministic DAG-based `MappingPlan` with cycle rejection;
 - evaluation lifecycle semantics;
 - MockAdapter behavior and BackendTarget resolution;
-- Thermal reference/counterexample fixtures;
-- `sol-cli validate` and `sol-cli plan --target mock` executable golden coverage.
+- an independently versioned `public_contract_version: "0.1"` canonical JSON boundary;
+- Public Contract DTOs for model, validation/diagnostics, mapping, planning, target, realization, and evaluation surfaces;
+- checked-in JSON Schema Draft 2020-12 artifacts under `schemas/public-contract/0.1/`;
+- Thermal Public Contract golden fixtures plus structural and semantic counterexamples;
+- an executable Public Contract compatibility harness;
+- `sol_public_contract` as the intentional Rust facade without making Rust ownership/crate layout the cross-language contract;
+- `sol-cli` human-readable paths plus explicit `--json` machine-facing Public Contract paths.
 
-The active milestone is **[M0.2 — Canonical Public Contract 0.1](../../issues/28)**. M0.2 does not add a real solver adapter. It turns the stabilized M0.1 semantics into an explicit, versioned, language-neutral public JSON/API contract before protocol transport or SDK ergonomics are allowed to define external behavior.
+M0.2 closed after Validator exit audit `APPROVE` and final Phase 6 merge. The next milestone is **[M0.3 — Adapter Protocol 0.1](../../issues/38)**. M0.3 begins with Phase 0 architecture work that promotes the accepted protocol-boundary decisions into an ADR before protocol implementation proceeds.
+
+## Public Contract 0.1
+
+The canonical external semantic boundary is now executable and inspectable through versioned JSON, schemas, fixtures, compatibility tests, and the Rust facade.
+
+Primary normative/contract documentation:
+
+- [`docs/contracts/public-contract-0.1-json-rules.md`](docs/contracts/public-contract-0.1-json-rules.md)
+- [`docs/contracts/public-contract-0.1-model-validation-dtos.md`](docs/contracts/public-contract-0.1-model-validation-dtos.md)
+- [`docs/contracts/public-contract-0.1-realization-dtos.md`](docs/contracts/public-contract-0.1-realization-dtos.md)
+- [`docs/contracts/public-contract-0.1-json-schema.md`](docs/contracts/public-contract-0.1-json-schema.md)
+- [`docs/contracts/public-contract-0.1-compatibility.md`](docs/contracts/public-contract-0.1-compatibility.md)
+- [`docs/contracts/public-contract-0.1-facade-cli.md`](docs/contracts/public-contract-0.1-facade-cli.md)
+
+Machine-facing CLI examples:
+
+```text
+sol-cli validate fixtures/public-contract/0.1/thermal-simulation.json --json
+sol-cli plan fixtures/public-contract/0.1/thermal-simulation.json --target mock --json
+```
+
+The existing commands without `--json` remain human-readable operational output and are intentionally distinct from the declared Public Contract machine representation.
 
 ## Post-M0.1 roadmap
 
@@ -78,10 +107,10 @@ The accepted execution order is:
 M0.1  Semantic Core Bootstrap                  complete
   |
   v
-M0.2  Canonical Public Contract 0.1            current
+M0.2  Canonical Public Contract 0.1            complete
   |
   v
-M0.3  Adapter Protocol 0.1
+M0.3  Adapter Protocol 0.1                     next
   |
   v
 M0.4  MockAdapter Protocol Conformance
@@ -100,11 +129,9 @@ TypeScript / Python     sol-adapter-moose
                           separate repository
 ```
 
-This ordering is deliberate: the Public Contract precedes language-specific SDKs, Adapter Protocol semantics precede JSON-RPC transport, and reusable conformance tooling precedes the first real MOOSE adapter. M0.3 therefore publishes a transport-independent, versioned protocol baseline; JSON-RPC framing/process behavior remains an M0.5 concern.
+This ordering is deliberate: the Public Contract precedes language-specific SDK ergonomics, Adapter Protocol semantics precede JSON-RPC transport, and reusable conformance tooling precedes the first official MOOSE adapter. M0.3 therefore publishes a transport-independent, versioned protocol baseline; JSON-RPC framing/process behavior remains an M0.5 concern.
 
 ## Public contract and versioning
-
-The normative external boundary is the **Canonical Public Contract**, represented through versioned canonical JSON / JSON Schema rather than internal Rust struct layout.
 
 SOL keeps several version axes intentionally independent:
 
@@ -117,6 +144,8 @@ SOL keeps several version axes intentionally independent:
 Matching package versions do not imply compatibility. Adapter interoperability must establish an explicitly compatible Adapter Protocol range **and** compatibility with the Public Contract version used by shared canonical payloads. Adapter package version alone is never sufficient evidence of interoperability.
 
 Internal Rust crate decomposition may change without being a public breaking change when the supported facade and canonical behavior remain compatible.
+
+Public Contract 0.1 uses checked-in Draft 2020-12 schemas and canonical fixtures as language-neutral structural artifacts. Schema validity does not replace SOL semantic validation, and unchanged syntax with incompatible normative meaning is still a breaking contract change.
 
 ## Adapter boundary
 
@@ -240,10 +269,11 @@ See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-
 - M0.3 Manager review: [`docs/plans/m0.3-adapter-protocol-manager-review.md`](docs/plans/m0.3-adapter-protocol-manager-review.md)
 - Logical agent workflow: [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md)
 - Spatial Scope ADR: [`docs/adr/ADR-001-first-class-spatial-scope.md`](docs/adr/ADR-001-first-class-spatial-scope.md)
+- M0.2 completion/handoff: [`docs/implementation/m0.2-completion-handoff.md`](docs/implementation/m0.2-completion-handoff.md)
 - Implementation notes: [`docs/implementation/`](docs/implementation/)
 - M0.1 completed tracker: [Issue #2](../../issues/2)
-- M0.2 active tracker: [Issue #28](../../issues/28)
-- M0.3 planned tracker: [Issue #38](../../issues/38)
+- M0.2 completed tracker: [Issue #28](../../issues/28)
+- M0.3 active tracker: [Issue #38](../../issues/38)
 
 ## Planned public distributions
 

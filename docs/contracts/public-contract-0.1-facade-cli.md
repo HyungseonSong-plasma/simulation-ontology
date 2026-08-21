@@ -1,6 +1,6 @@
 # Public Contract 0.1 — Facade and CLI Machine Boundary
 
-**Status:** M0.2 Phase 6 implementation baseline pending milestone exit audit  
+**Status:** M0.2 Phase 6 accepted and merged  
 **Issue:** #35  
 **Date:** 2026-08-21
 
@@ -103,6 +103,10 @@ inside Public Contract schema artifacts.
 
 This check is intentionally scoped to the canonical schema payload surface; documentation may mention future protocol concepts when explaining exclusions.
 
-## Milestone gate
+## Milestone completion
 
-Phase 6 implementation may be considered mechanically complete only after CI is green. M0.2 itself must not close, and the Phase 6 PR must not use bounded auto-merge, until the required Validator exit audit confirms that all parent #28 architecture/compatibility gates are satisfied and no Public Contract/Adapter Protocol boundary contradiction remains.
+Phase 6 completed through PR #54. The final exact PR head `ccc306e933382291c3012e6ca58cac37a66c7b0e` passed Rust Core CI #320 (`32490108445`) across formatting, build, tests, Clippy, architecture counterexamples, and Public Contract JSON Schema validation.
+
+The M0.2 Validator exit audit verdict was **APPROVE**. PR #54 then merged to `main` as `44e458cb530ea214227661a0f1589115ccb9d5f1`.
+
+M0.2 is therefore closed. Public Contract 0.1 is the accepted canonical external semantic payload basis for M0.3 Adapter Protocol 0.1. Adapter Protocol operation semantics and transport remain separate future layers and are not retroactively added to this contract.
