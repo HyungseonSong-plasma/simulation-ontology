@@ -8,6 +8,7 @@ members = [
     "crates/sol-core-effect",
     "crates/sol-core-plan",
     "crates/sol-core-evaluation",
+    "crates/sol-mock-adapter",
     "crates/sol-cli",
 ]
 
