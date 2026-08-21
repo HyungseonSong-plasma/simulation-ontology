@@ -1,0 +1,8 @@
+[package]
+name = "sol-core-plan"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+description = "Solver-independent MappingPlan DAG layer"
