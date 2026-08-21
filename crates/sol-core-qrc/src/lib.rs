@@ -17,6 +17,13 @@ pub enum Constraint {
         kind: RelationKind,
         target: CanonicalId,
     },
+    /// Requires a source node to have at least one outgoing relation of the
+    /// specified kind to a target entity of the expected Core kind.
+    RequiredRelation {
+        source: CanonicalId,
+        kind: RelationKind,
+        target_kind: EntityKind,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -33,6 +40,11 @@ pub enum ConstraintViolation {
         source: CanonicalId,
         kind: RelationKind,
         target: CanonicalId,
+    },
+    MissingRequiredRelation {
+        source: CanonicalId,
+        kind: RelationKind,
+        target_kind: EntityKind,
     },
 }
 
@@ -83,6 +95,35 @@ pub fn evaluate(graph: &ResolvedGraph, constraint: &Constraint) -> Result<(), Co
                     source: source.clone(),
                     kind: *kind,
                     target: target.clone(),
+                })
+            }
+        }
+        Constraint::RequiredRelation {
+            source,
+            kind,
+            target_kind,
+        } => {
+            if graph.resolve(source).is_none() {
+                return Err(ConstraintViolation::MissingEntity {
+                    entity: source.clone(),
+                });
+            }
+
+            let required_relation_exists = graph.relations().iter().any(|relation| {
+                relation.source == *source
+                    && relation.kind == *kind
+                    && graph
+                        .resolve(&relation.target)
+                        .is_some_and(|target| target.kind == ResolvedNodeKind::Entity(*target_kind))
+            });
+
+            if required_relation_exists {
+                Ok(())
+            } else {
+                Err(ConstraintViolation::MissingRequiredRelation {
+                    source: source.clone(),
+                    kind: *kind,
+                    target_kind: *target_kind,
                 })
             }
         }
@@ -200,6 +241,36 @@ mod tests {
                 source,
                 kind: RelationKind::ClosedBy,
                 target,
+            })
+        );
+    }
+
+    #[test]
+    fn thermal_physics_requires_mathematical_representation() {
+        let graph = thermal_graph();
+        let constraint = Constraint::RequiredRelation {
+            source: "thermal.heat_transfer".parse().unwrap(),
+            kind: RelationKind::RepresentedBy,
+            target_kind: EntityKind::MathematicalModel,
+        };
+        assert_eq!(evaluate(&graph, &constraint), Ok(()));
+    }
+
+    #[test]
+    fn missing_required_relation_is_rejected() {
+        let graph = thermal_graph();
+        let source: CanonicalId = "thermal.heat_transfer".parse().unwrap();
+        let constraint = Constraint::RequiredRelation {
+            source: source.clone(),
+            kind: RelationKind::ClosedBy,
+            target_kind: EntityKind::ConstitutiveModel,
+        };
+        assert_eq!(
+            evaluate(&graph, &constraint),
+            Err(ConstraintViolation::MissingRequiredRelation {
+                source,
+                kind: RelationKind::ClosedBy,
+                target_kind: EntityKind::ConstitutiveModel,
             })
         );
     }
