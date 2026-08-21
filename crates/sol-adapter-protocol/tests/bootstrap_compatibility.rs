@@ -21,6 +21,9 @@ const MISSING_PUBLIC_CONTRACT: &str = include_str!(
 );
 const MALFORMED_VERSION: &str =
     include_str!("../../../fixtures/counterexamples/adapter-protocol-malformed-version.json");
+const MALFORMED_SUPPORT_TYPE: &str = include_str!(
+    "../../../fixtures/counterexamples/adapter-protocol-malformed-support-type.json"
+);
 const TRANSPORT_LEAKAGE: &str =
     include_str!("../../../fixtures/counterexamples/adapter-protocol-transport-leakage.json");
 
@@ -29,10 +32,22 @@ fn exact_dual_compatibility_is_required() {
     let bootstrap = parse_bootstrap(DUAL_COMPATIBLE).unwrap();
     let assessment = assess_compatibility(&CompatibilitySupport::current(), &bootstrap).unwrap();
 
-    assert_eq!(assessment.adapter_protocol.outcome, CompatibilityOutcome::Compatible);
-    assert_eq!(assessment.adapter_protocol.selected_version.as_deref(), Some("0.1"));
-    assert_eq!(assessment.public_contract.outcome, CompatibilityOutcome::Compatible);
-    assert_eq!(assessment.public_contract.selected_version.as_deref(), Some("0.1"));
+    assert_eq!(
+        assessment.adapter_protocol.outcome,
+        CompatibilityOutcome::Compatible
+    );
+    assert_eq!(
+        assessment.adapter_protocol.selected_version.as_deref(),
+        Some("0.1")
+    );
+    assert_eq!(
+        assessment.public_contract.outcome,
+        CompatibilityOutcome::Compatible
+    );
+    assert_eq!(
+        assessment.public_contract.selected_version.as_deref(),
+        Some("0.1")
+    );
     assert_eq!(assessment.overall, CompatibilityOutcome::Compatible);
 }
 
@@ -45,8 +60,14 @@ fn highest_common_version_is_selected_deterministically() {
     };
     let assessment = assess_compatibility(&core, &bootstrap).unwrap();
 
-    assert_eq!(assessment.adapter_protocol.selected_version.as_deref(), Some("0.2"));
-    assert_eq!(assessment.public_contract.selected_version.as_deref(), Some("0.2"));
+    assert_eq!(
+        assessment.adapter_protocol.selected_version.as_deref(),
+        Some("0.2")
+    );
+    assert_eq!(
+        assessment.public_contract.selected_version.as_deref(),
+        Some("0.2")
+    );
     assert_eq!(assessment.overall, CompatibilityOutcome::Compatible);
 }
 
@@ -55,8 +76,14 @@ fn protocol_compatible_is_insufficient_when_public_contract_is_incompatible() {
     let bootstrap = parse_bootstrap(PUBLIC_CONTRACT_INCOMPATIBLE).unwrap();
     let assessment = assess_compatibility(&CompatibilitySupport::current(), &bootstrap).unwrap();
 
-    assert_eq!(assessment.adapter_protocol.outcome, CompatibilityOutcome::Compatible);
-    assert_eq!(assessment.public_contract.outcome, CompatibilityOutcome::Incompatible);
+    assert_eq!(
+        assessment.adapter_protocol.outcome,
+        CompatibilityOutcome::Compatible
+    );
+    assert_eq!(
+        assessment.public_contract.outcome,
+        CompatibilityOutcome::Incompatible
+    );
     assert_eq!(assessment.overall, CompatibilityOutcome::Incompatible);
 }
 
@@ -65,8 +92,14 @@ fn public_contract_compatible_is_insufficient_when_protocol_is_incompatible() {
     let bootstrap = parse_bootstrap(PROTOCOL_INCOMPATIBLE).unwrap();
     let assessment = assess_compatibility(&CompatibilitySupport::current(), &bootstrap).unwrap();
 
-    assert_eq!(assessment.adapter_protocol.outcome, CompatibilityOutcome::Incompatible);
-    assert_eq!(assessment.public_contract.outcome, CompatibilityOutcome::Compatible);
+    assert_eq!(
+        assessment.adapter_protocol.outcome,
+        CompatibilityOutcome::Incompatible
+    );
+    assert_eq!(
+        assessment.public_contract.outcome,
+        CompatibilityOutcome::Compatible
+    );
     assert_eq!(assessment.overall, CompatibilityOutcome::Incompatible);
 }
 
@@ -84,6 +117,14 @@ fn malformed_version_is_bootstrap_error_not_unknown() {
     assert!(matches!(
         parse_bootstrap(MALFORMED_VERSION),
         Err(ProtocolError::MalformedProtocolVersion(version)) if version == "0.1.0"
+    ));
+}
+
+#[test]
+fn malformed_support_type_is_bootstrap_error_not_unknown() {
+    assert!(matches!(
+        parse_bootstrap(MALFORMED_SUPPORT_TYPE),
+        Err(ProtocolError::InvalidBootstrap(_))
     ));
 }
 
