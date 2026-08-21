@@ -1,0 +1,20 @@
+{
+  "relevant_state_evidence": {
+    "descriptor_revision": "thermal-v1",
+    "availability": "available"
+  },
+  "first_response": {
+    "adapter_protocol_version": "0.1",
+    "target_compatible": true,
+    "capabilities_satisfied": true,
+    "preflight": "accepted",
+    "diagnostics": []
+  },
+  "second_response": {
+    "adapter_protocol_version": "0.1",
+    "target_compatible": true,
+    "capabilities_satisfied": true,
+    "preflight": "accepted",
+    "diagnostics": []
+  }
+}
