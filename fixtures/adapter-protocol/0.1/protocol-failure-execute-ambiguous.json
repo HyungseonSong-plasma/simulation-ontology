@@ -1,0 +1,6 @@
+{
+  "category": "operational",
+  "code": "adapter.operational_failure",
+  "detail": "execute_plan did not produce a valid response after execution may have begun",
+  "side_effects": "may_have_occurred"
+}
