@@ -214,7 +214,9 @@ impl CompatibilitySupport {
     pub fn current() -> Self {
         Self {
             adapter_protocol_versions: Some(vec![ADAPTER_PROTOCOL_VERSION.to_owned()]),
-            public_contract_versions: Some(vec![sol_public_contract::PUBLIC_CONTRACT_VERSION.to_owned()]),
+            public_contract_versions: Some(vec![
+                sol_public_contract::PUBLIC_CONTRACT_VERSION.to_owned(),
+            ]),
         }
     }
 
@@ -374,9 +376,15 @@ pub enum ProtocolError {
 impl Display for ProtocolError {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::InvalidJson(detail) => write!(formatter, "invalid adapter protocol JSON: {detail}"),
-            Self::InvalidBootstrap(detail) => write!(formatter, "invalid adapter bootstrap: {detail}"),
-            Self::InvalidDescription(detail) => write!(formatter, "invalid adapter description: {detail}"),
+            Self::InvalidJson(detail) => {
+                write!(formatter, "invalid adapter protocol JSON: {detail}")
+            }
+            Self::InvalidBootstrap(detail) => {
+                write!(formatter, "invalid adapter bootstrap: {detail}")
+            }
+            Self::InvalidDescription(detail) => {
+                write!(formatter, "invalid adapter description: {detail}")
+            }
             Self::MalformedProtocolVersion(version) => {
                 write!(formatter, "malformed Adapter Protocol version: {version}")
             }
@@ -389,7 +397,9 @@ impl Display for ProtocolError {
             Self::InvalidSymbol { field, value } => {
                 write!(formatter, "invalid {field} symbol: {value}")
             }
-            Self::DuplicateTarget(target) => write!(formatter, "duplicate target declaration: {target}"),
+            Self::DuplicateTarget(target) => {
+                write!(formatter, "duplicate target declaration: {target}")
+            }
             Self::TransportLeakage(field) => write!(
                 formatter,
                 "transport-specific field is not Adapter Protocol semantic data: {field}"
@@ -402,11 +412,16 @@ impl Error for ProtocolError {}
 
 fn normalize_protocol_versions(versions: &mut Vec<String>) -> Result<(), ProtocolError> {
     let parsed = parse_protocol_versions(versions)?;
-    *versions = parsed.into_iter().map(|version| version.to_string()).collect();
+    *versions = parsed
+        .into_iter()
+        .map(|version| version.to_string())
+        .collect();
     Ok(())
 }
 
-fn parse_protocol_versions(versions: &[String]) -> Result<Vec<AdapterProtocolVersion>, ProtocolError> {
+fn parse_protocol_versions(
+    versions: &[String],
+) -> Result<Vec<AdapterProtocolVersion>, ProtocolError> {
     let mut parsed = versions
         .iter()
         .map(|version| AdapterProtocolVersion::parse(version))
@@ -418,11 +433,16 @@ fn parse_protocol_versions(versions: &[String]) -> Result<Vec<AdapterProtocolVer
 
 fn normalize_public_contract_versions(versions: &mut Vec<String>) -> Result<(), ProtocolError> {
     let parsed = parse_public_contract_versions(versions)?;
-    *versions = parsed.into_iter().map(|version| version.to_string()).collect();
+    *versions = parsed
+        .into_iter()
+        .map(|version| version.to_string())
+        .collect();
     Ok(())
 }
 
-fn parse_public_contract_versions(versions: &[String]) -> Result<Vec<ContractVersion>, ProtocolError> {
+fn parse_public_contract_versions(
+    versions: &[String],
+) -> Result<Vec<ContractVersion>, ProtocolError> {
     let mut parsed = versions
         .iter()
         .map(|version| {
