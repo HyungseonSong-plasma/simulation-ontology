@@ -5,9 +5,10 @@ edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
 
-description = "Mock-only adapter contract and simulated realization for M0.1"
+description = "MockAdapter reference behavior and protocol conformance for SOL"
 
 [dependencies]
+sol-adapter-protocol = { path = "../sol-adapter-protocol" }
 sol-core-effect = { path = "../sol-core-effect" }
 sol-core-evaluation = { path = "../sol-core-evaluation" }
 sol-core-mapping = { path = "../sol-core-mapping" }

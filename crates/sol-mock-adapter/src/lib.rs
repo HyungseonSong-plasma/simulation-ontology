@@ -1,5 +1,8 @@
 #![forbid(unsafe_code)]
 
+mod protocol;
+pub use protocol::*;
+
 use std::collections::BTreeSet;
 
 use sol_core_effect::{RealizationEffect, RealizationQuality, SemanticComparison};
