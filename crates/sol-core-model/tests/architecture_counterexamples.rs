@@ -60,9 +60,8 @@ fn golden_core_dependency_fixture_is_accepted() {
 
 #[test]
 fn public_contract_internal_dependency_counterexample_is_rejected() {
-    let fixture = include_str!(
-        "../../../fixtures/counterexamples/public-contract-internal-dependency.toml"
-    );
+    let fixture =
+        include_str!("../../../fixtures/counterexamples/public-contract-internal-dependency.toml");
 
     assert!(dependency_lines(fixture).any(violates_public_contract_boundary));
 }
