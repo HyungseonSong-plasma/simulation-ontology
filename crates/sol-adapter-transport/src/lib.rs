@@ -22,11 +22,7 @@ pub enum AdapterTransportMethod {
 }
 
 impl AdapterTransportMethod {
-    pub const ALL: [Self; 3] = [
-        Self::DescribeAdapter,
-        Self::ValidatePlan,
-        Self::ExecutePlan,
-    ];
+    pub const ALL: [Self; 3] = [Self::DescribeAdapter, Self::ValidatePlan, Self::ExecutePlan];
 
     pub const fn wire_name(self) -> &'static str {
         match self {
@@ -125,7 +121,10 @@ mod tests {
 
         assert_eq!(names.len(), methods.len());
         for method in methods {
-            assert_eq!(AdapterTransportMethod::parse(method.wire_name()), Some(method));
+            assert_eq!(
+                AdapterTransportMethod::parse(method.wire_name()),
+                Some(method)
+            );
         }
     }
 
