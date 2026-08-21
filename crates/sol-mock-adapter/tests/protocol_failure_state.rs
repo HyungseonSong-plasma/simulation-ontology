@@ -221,7 +221,10 @@ fn protocol_failure_output_contains_no_lifecycle_or_replay_policy_fields() {
             "BLOCKED",
             "INDETERMINATE",
         ] {
-            assert!(!canonical.contains(forbidden), "forbidden field/state leaked: {forbidden}");
+            assert!(
+                !canonical.contains(forbidden),
+                "forbidden field/state leaked: {forbidden}"
+            );
         }
     }
 }
@@ -238,9 +241,8 @@ fn opaque_provenance_is_allowed_but_backend_native_semantic_identity_is_not() {
         .iter()
         .any(|reference| reference.namespace == "mock.job"));
 
-    let backend_native = fixture(
-        "counterexamples/adapter-protocol-execution-backend-native-leakage.json",
-    );
+    let backend_native =
+        fixture("counterexamples/adapter-protocol-execution-backend-native-leakage.json");
     assert!(ExecutePlanResponse::from_json(&backend_native).is_err());
 
     let opaque_identity = fixture(
