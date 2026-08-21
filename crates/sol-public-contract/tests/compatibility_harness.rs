@@ -141,18 +141,11 @@ fn assess_case(case: &Value) -> CompatibilityOutcome {
     let old_fixture = required_str(case, "old_fixture");
 
     match rule {
-        "simulation" => assess_simulation(
-            old_fixture,
-            required_str(case, "candidate_fixture"),
-        ),
-        "validation_report" => assess_validation_report(
-            old_fixture,
-            required_str(case, "candidate_fixture"),
-        ),
-        "evaluation" => assess_evaluation(
-            old_fixture,
-            required_str(case, "candidate_fixture"),
-        ),
+        "simulation" => assess_simulation(old_fixture, required_str(case, "candidate_fixture")),
+        "validation_report" => {
+            assess_validation_report(old_fixture, required_str(case, "candidate_fixture"))
+        }
+        "evaluation" => assess_evaluation(old_fixture, required_str(case, "candidate_fixture")),
         "missing_evidence" => CompatibilityOutcome::Unknown,
         other => panic!("unknown compatibility rule: {other}"),
     }
