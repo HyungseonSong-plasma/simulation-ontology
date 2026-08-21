@@ -71,6 +71,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-adapter-protocol"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "sol-public-contract",
+]
+
+[[package]]
 name = "sol-cli"
 version = "0.1.0"
 dependencies = [
