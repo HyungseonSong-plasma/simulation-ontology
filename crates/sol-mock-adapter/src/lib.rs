@@ -61,6 +61,7 @@ pub struct MockAdapter {
     capabilities: BTreeSet<AdapterCapability>,
     failure: FailureInjection,
     protocol_preflight_state: MockPreflightState,
+    protocol_execution_state: MockExecutionState,
 }
 
 impl MockAdapter {
@@ -75,6 +76,7 @@ impl MockAdapter {
             .collect(),
             failure: FailureInjection::None,
             protocol_preflight_state: MockPreflightState::Ready,
+            protocol_execution_state: MockExecutionState::Exact,
         }
     }
 
