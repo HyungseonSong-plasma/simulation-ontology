@@ -1,0 +1,11 @@
+[package]
+name = "sol-core-effect"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+description = "Solver-independent realization effect and semantic comparator layer"
+
+[dependencies]
+sol-core-mapping = { path = "../sol-core-mapping" }
