@@ -1,0 +1,156 @@
+{
+  "ontology_version": "0.1",
+  "model": {
+    "id": "model.thermal_reference",
+    "physics": [
+      {
+        "id": "thermal.transport",
+        "kind": "physics_model",
+        "semantic_type": "ThermalTransport",
+        "label": "Thermal transport"
+      }
+    ],
+    "mathematical": [
+      {
+        "id": "thermal.energy_conservation",
+        "kind": "mathematical_model",
+        "semantic_type": "Equation",
+        "label": "Energy conservation"
+      },
+      {
+        "id": "thermal.temperature_field",
+        "kind": "mathematical_model",
+        "semantic_type": "Field",
+        "label": "Temperature field"
+      }
+    ],
+    "constitutive": [
+      {
+        "id": "thermal.fourier_law",
+        "kind": "constitutive_model",
+        "semantic_type": "ClosureRelation",
+        "label": "Fourier law"
+      }
+    ],
+    "spatial": [
+      {
+        "id": "domain.main",
+        "kind": "spatial_model",
+        "semantic_type": "Domain",
+        "label": "Main domain"
+      },
+      {
+        "id": "boundary.hot_wall",
+        "kind": "spatial_model",
+        "semantic_type": "Boundary",
+        "label": "Hot wall"
+      }
+    ],
+    "material": [
+      {
+        "id": "material.copper",
+        "kind": "material_model",
+        "semantic_type": "Material",
+        "label": "Copper"
+      },
+      {
+        "id": "property.thermal_conductivity",
+        "kind": "material_model",
+        "semantic_type": "MaterialProperty",
+        "label": "Thermal conductivity"
+      }
+    ],
+    "conditions": [
+      {
+        "id": "bc.hot_wall_temperature",
+        "kind": "condition_model",
+        "semantic_type": "BoundaryCondition",
+        "label": "Hot-wall temperature"
+      }
+    ],
+    "numerical": [
+      {
+        "id": "numerics.finite_element",
+        "kind": "numerical_model",
+        "semantic_type": "Discretization",
+        "label": "Finite element discretization"
+      }
+    ],
+    "observations": [
+      {
+        "id": "observation.maximum_temperature",
+        "kind": "observation_model",
+        "semantic_type": "Quantity",
+        "label": "Maximum temperature"
+      }
+    ]
+  },
+  "tasks": [
+    {
+      "id": "task.stationary_thermal",
+      "analyses": [
+        {
+          "id": "analysis.stationary",
+          "kind": "analysis",
+          "semantic_type": "StationaryAnalysis",
+          "label": "Stationary analysis"
+        }
+      ],
+      "solver_configurations": [
+        {
+          "id": "solver.default",
+          "kind": "solver_configuration",
+          "semantic_type": "SolverConfiguration",
+          "label": "Default solver configuration"
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "kind": "solved_by",
+      "source": "thermal.transport",
+      "target": "thermal.energy_conservation"
+    },
+    {
+      "kind": "closed_by",
+      "source": "thermal.energy_conservation",
+      "target": "thermal.fourier_law"
+    },
+    {
+      "kind": "parameterized_by",
+      "source": "thermal.fourier_law",
+      "target": "property.thermal_conductivity"
+    },
+    {
+      "kind": "defined_on",
+      "source": "thermal.energy_conservation",
+      "target": "domain.main"
+    },
+    {
+      "kind": "discretized_by",
+      "source": "thermal.energy_conservation",
+      "target": "numerics.finite_element"
+    },
+    {
+      "kind": "applied_to",
+      "source": "bc.hot_wall_temperature",
+      "target": "thermal.temperature_field"
+    },
+    {
+      "kind": "applied_to",
+      "source": "bc.hot_wall_temperature",
+      "target": "boundary.hot_wall"
+    },
+    {
+      "kind": "analyzed_by",
+      "source": "model.thermal_reference",
+      "target": "analysis.stationary"
+    },
+    {
+      "kind": "solved_by",
+      "source": "analysis.stationary",
+      "target": "solver.default"
+    }
+  ]
+}
