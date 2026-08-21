@@ -24,6 +24,15 @@ pub enum Constraint {
         kind: RelationKind,
         target_kind: EntityKind,
     },
+    /// Restricts how many outgoing relations of a given kind may target a
+    /// specific Core entity kind.
+    RelationCardinality {
+        source: CanonicalId,
+        kind: RelationKind,
+        target_kind: EntityKind,
+        min: usize,
+        max: Option<usize>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -45,6 +54,18 @@ pub enum ConstraintViolation {
         source: CanonicalId,
         kind: RelationKind,
         target_kind: EntityKind,
+    },
+    InvalidCardinalityBounds {
+        min: usize,
+        max: usize,
+    },
+    CardinalityMismatch {
+        source: CanonicalId,
+        kind: RelationKind,
+        target_kind: EntityKind,
+        min: usize,
+        max: Option<usize>,
+        actual: usize,
     },
 }
 
@@ -124,6 +145,53 @@ pub fn evaluate(graph: &ResolvedGraph, constraint: &Constraint) -> Result<(), Co
                     source: source.clone(),
                     kind: *kind,
                     target_kind: *target_kind,
+                })
+            }
+        }
+        Constraint::RelationCardinality {
+            source,
+            kind,
+            target_kind,
+            min,
+            max,
+        } => {
+            if graph.resolve(source).is_none() {
+                return Err(ConstraintViolation::MissingEntity {
+                    entity: source.clone(),
+                });
+            }
+            if let Some(maximum) = max {
+                if maximum < min {
+                    return Err(ConstraintViolation::InvalidCardinalityBounds {
+                        min: *min,
+                        max: *maximum,
+                    });
+                }
+            }
+
+            let actual = graph
+                .relations()
+                .iter()
+                .filter(|relation| {
+                    relation.source == *source
+                        && relation.kind == *kind
+                        && graph.resolve(&relation.target).is_some_and(|target| {
+                            target.kind == ResolvedNodeKind::Entity(*target_kind)
+                        })
+                })
+                .count();
+            let within_maximum = max.as_ref().map_or(true, |maximum| actual <= *maximum);
+
+            if actual >= *min && within_maximum {
+                Ok(())
+            } else {
+                Err(ConstraintViolation::CardinalityMismatch {
+                    source: source.clone(),
+                    kind: *kind,
+                    target_kind: *target_kind,
+                    min: *min,
+                    max: *max,
+                    actual,
                 })
             }
         }
@@ -272,6 +340,59 @@ mod tests {
                 kind: RelationKind::ClosedBy,
                 target_kind: EntityKind::ConstitutiveModel,
             })
+        );
+    }
+
+    #[test]
+    fn thermal_represented_by_cardinality_is_exactly_one() {
+        let graph = thermal_graph();
+        let constraint = Constraint::RelationCardinality {
+            source: "thermal.heat_transfer".parse().unwrap(),
+            kind: RelationKind::RepresentedBy,
+            target_kind: EntityKind::MathematicalModel,
+            min: 1,
+            max: Some(1),
+        };
+        assert_eq!(evaluate(&graph, &constraint), Ok(()));
+    }
+
+    #[test]
+    fn relation_cardinality_violation_is_rejected() {
+        let graph = thermal_graph();
+        let source: CanonicalId = "thermal.heat_transfer".parse().unwrap();
+        let constraint = Constraint::RelationCardinality {
+            source: source.clone(),
+            kind: RelationKind::RepresentedBy,
+            target_kind: EntityKind::MathematicalModel,
+            min: 2,
+            max: Some(2),
+        };
+        assert_eq!(
+            evaluate(&graph, &constraint),
+            Err(ConstraintViolation::CardinalityMismatch {
+                source,
+                kind: RelationKind::RepresentedBy,
+                target_kind: EntityKind::MathematicalModel,
+                min: 2,
+                max: Some(2),
+                actual: 1,
+            })
+        );
+    }
+
+    #[test]
+    fn invalid_cardinality_bounds_are_rejected() {
+        let graph = thermal_graph();
+        let constraint = Constraint::RelationCardinality {
+            source: "thermal.heat_transfer".parse().unwrap(),
+            kind: RelationKind::RepresentedBy,
+            target_kind: EntityKind::MathematicalModel,
+            min: 2,
+            max: Some(1),
+        };
+        assert_eq!(
+            evaluate(&graph, &constraint),
+            Err(ConstraintViolation::InvalidCardinalityBounds { min: 2, max: 1 })
         );
     }
 }
