@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.1 SimulationDto",
+  "type": "object",
+  "required": ["public_contract_version", "ontology_version", "model", "tasks", "relations"],
+  "properties": {
+    "public_contract_version": { "$ref": "shared.schema.json#/$defs/publicContractVersion" },
+    "ontology_version": { "type": "string" },
+    "model": {
+      "type": "object",
+      "required": [
+        "id",
+        "physics",
+        "mathematical",
+        "constitutive",
+        "spatial",
+        "material",
+        "conditions",
+        "numerical",
+        "observations"
+      ],
+      "properties": {
+        "id": { "$ref": "shared.schema.json#/$defs/canonicalReference" },
+        "physics": { "type": "array", "items": { "$ref": "shared.schema.json#/$defs/ontologyEntity" } },
+        "mathematical": { "type": "array", "items": { "$ref": "shared.schema.json#/$defs/ontologyEntity" } },
+        "constitutive": { "type": "array", "items": { "$ref": "shared.schema.json#/$defs/ontologyEntity" } },
+        "spatial": { "type": "array", "items": { "$ref": "shared.schema.json#/$defs/ontologyEntity" } },
+        "scopes": { "type": "array", "items": { "$ref": "shared.schema.json#/$defs/spatialScope" } },
+        "material": { "type": "array", "items": { "$ref": "shared.schema.json#/$defs/ontologyEntity" } },
+        "conditions": { "type": "array", "items": { "$ref": "shared.schema.json#/$defs/ontologyEntity" } },
+        "numerical": { "type": "array", "items": { "$ref": "shared.schema.json#/$defs/ontologyEntity" } },
+        "observations": { "type": "array", "items": { "$ref": "shared.schema.json#/$defs/ontologyEntity" } }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "analyses", "solver_configurations"],
+        "properties": {
+          "id": { "$ref": "shared.schema.json#/$defs/canonicalReference" },
+          "analyses": { "type": "array", "items": { "$ref": "shared.schema.json#/$defs/ontologyEntity" } },
+          "solver_configurations": { "type": "array", "items": { "$ref": "shared.schema.json#/$defs/ontologyEntity" } }
+        }
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": { "$ref": "shared.schema.json#/$defs/semanticRelation" }
+    }
+  }
+}
