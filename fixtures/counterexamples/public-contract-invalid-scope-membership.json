@@ -1,0 +1,30 @@
+{
+  "public_contract_version": "0.1",
+  "ontology_version": "0.1",
+  "model": {
+    "id": "model.invalid_scope",
+    "physics": [],
+    "mathematical": [
+      {
+        "id": "thermal.temperature_field",
+        "kind": "mathematical_model",
+        "semantic_type": "Field",
+        "label": "Temperature field"
+      }
+    ],
+    "constitutive": [],
+    "spatial": [],
+    "scopes": [
+      {
+        "id": "scope.invalid",
+        "members": ["thermal.temperature_field"]
+      }
+    ],
+    "material": [],
+    "conditions": [],
+    "numerical": [],
+    "observations": []
+  },
+  "tasks": [],
+  "relations": []
+}
