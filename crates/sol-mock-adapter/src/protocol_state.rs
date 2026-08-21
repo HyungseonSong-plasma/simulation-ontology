@@ -132,9 +132,7 @@ impl MockAdapter {
     }
 }
 
-pub const fn mock_plan_operation_idempotency(
-    operation: PlanOperation,
-) -> PlanOperationIdempotency {
+pub const fn mock_plan_operation_idempotency(operation: PlanOperation) -> PlanOperationIdempotency {
     sol_adapter_protocol::plan_operation_idempotency(operation)
 }
 
