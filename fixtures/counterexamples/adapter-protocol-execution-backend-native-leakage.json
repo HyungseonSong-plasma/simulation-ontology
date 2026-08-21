@@ -1,0 +1,13 @@
+{
+  "adapter_protocol_version":"0.1",
+  "execution":"completed",
+  "execution_batches":[["thermal.domain"],["thermal.material"],["thermal.solve"]],
+  "action_reports":[
+    {"action_id":"thermal.domain","state":"completed","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.material","state":"completed","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.solve","state":"completed","effects":[],"diagnostics":[]}
+  ],
+  "effects":[],
+  "diagnostics":[],
+  "backend_object":{"type":"MockSolverObject","id":"native-42"}
+}
