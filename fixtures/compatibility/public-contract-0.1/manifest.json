@@ -1,0 +1,77 @@
+{
+  "public_contract_version": "0.1",
+  "outcomes": ["compatible", "incompatible", "unknown"],
+  "cases": [
+    {
+      "id": "additive_optional_fields",
+      "category": "additive",
+      "rule": "simulation",
+      "old_fixture": "fixtures/compatibility/public-contract-0.1/simulation-base.json",
+      "candidate_fixture": "fixtures/compatibility/public-contract-0.1/simulation-additive-optional.json",
+      "expected_outcome": "compatible"
+    },
+    {
+      "id": "object_key_reordering",
+      "category": "normalization",
+      "rule": "simulation",
+      "old_fixture": "fixtures/compatibility/public-contract-0.1/simulation-base.json",
+      "candidate_fixture": "fixtures/compatibility/public-contract-0.1/simulation-reordered.json",
+      "expected_outcome": "compatible"
+    },
+    {
+      "id": "required_field_rename",
+      "category": "structural",
+      "rule": "simulation",
+      "old_fixture": "fixtures/compatibility/public-contract-0.1/simulation-base.json",
+      "candidate_fixture": "fixtures/compatibility/public-contract-0.1/simulation-required-rename.json",
+      "expected_outcome": "incompatible"
+    },
+    {
+      "id": "incompatible_type_cardinality",
+      "category": "structural",
+      "rule": "simulation",
+      "old_fixture": "fixtures/compatibility/public-contract-0.1/simulation-base.json",
+      "candidate_fixture": "fixtures/compatibility/public-contract-0.1/simulation-type-break.json",
+      "expected_outcome": "incompatible"
+    },
+    {
+      "id": "canonical_identity_change",
+      "category": "semantic",
+      "rule": "simulation",
+      "old_fixture": "fixtures/compatibility/public-contract-0.1/simulation-base.json",
+      "candidate_fixture": "fixtures/compatibility/public-contract-0.1/simulation-identity-break.json",
+      "expected_outcome": "incompatible"
+    },
+    {
+      "id": "closed_enum_replacement",
+      "category": "structural",
+      "rule": "evaluation",
+      "old_fixture": "fixtures/public-contract/0.1/thermal-evaluation.json",
+      "candidate_fixture": "fixtures/counterexamples/public-contract-schema-invalid-evaluation-status.json",
+      "expected_outcome": "incompatible"
+    },
+    {
+      "id": "evaluation_state_semantic_redefinition",
+      "category": "semantic",
+      "rule": "evaluation",
+      "old_fixture": "fixtures/counterexamples/public-contract-evaluation-unsupported.json",
+      "candidate_fixture": "fixtures/compatibility/public-contract-0.1/evaluation-unsupported-redefined.json",
+      "expected_outcome": "incompatible"
+    },
+    {
+      "id": "diagnostic_severity_semantic_redefinition",
+      "category": "semantic",
+      "rule": "validation_report",
+      "old_fixture": "fixtures/compatibility/public-contract-0.1/diagnostic-base.json",
+      "candidate_fixture": "fixtures/compatibility/public-contract-0.1/diagnostic-severity-redefinition.json",
+      "expected_outcome": "incompatible"
+    },
+    {
+      "id": "missing_external_compatibility_evidence",
+      "category": "evidence",
+      "rule": "missing_evidence",
+      "old_fixture": "fixtures/compatibility/public-contract-0.1/simulation-base.json",
+      "expected_outcome": "unknown"
+    }
+  ]
+}
