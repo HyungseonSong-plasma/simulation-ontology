@@ -150,6 +150,7 @@ dependencies = [
 name = "sol-mock-adapter"
 version = "0.1.0"
 dependencies = [
+ "sol-adapter-protocol",
  "sol-core-effect",
  "sol-core-evaluation",
  "sol-core-mapping",
