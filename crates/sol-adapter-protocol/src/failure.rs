@@ -5,10 +5,8 @@ use std::fmt::{Display, Formatter};
 
 use crate::{canonicalize_value, reject_transport_markers, Extensions};
 
-pub const FAILURE_COMPATIBILITY_NOT_ESTABLISHED: &str =
-    "protocol.compatibility_not_established";
-pub const FAILURE_UNSUPPORTED_ADAPTER_PROTOCOL: &str =
-    "protocol.unsupported_adapter_protocol";
+pub const FAILURE_COMPATIBILITY_NOT_ESTABLISHED: &str = "protocol.compatibility_not_established";
+pub const FAILURE_UNSUPPORTED_ADAPTER_PROTOCOL: &str = "protocol.unsupported_adapter_protocol";
 pub const FAILURE_UNSUPPORTED_PUBLIC_CONTRACT: &str = "protocol.unsupported_public_contract";
 pub const FAILURE_MALFORMED_BOOTSTRAP: &str = "protocol.malformed_bootstrap";
 pub const FAILURE_INVALID_REQUEST: &str = "protocol.invalid_request";
@@ -155,9 +153,8 @@ impl ProtocolFailure {
     pub fn from_json(input: &str) -> Result<Self, ProtocolFailureError> {
         let value: Value = serde_json::from_str(input)
             .map_err(|error| ProtocolFailureError::InvalidJson(error.to_string()))?;
-        reject_transport_markers(&value).map_err(|error| {
-            ProtocolFailureError::ForbiddenField(error.to_string())
-        })?;
+        reject_transport_markers(&value)
+            .map_err(|error| ProtocolFailureError::ForbiddenField(error.to_string()))?;
         reject_failure_root_fields(&value)?;
         let mut failure: Self = serde_json::from_value(value)
             .map_err(|error| ProtocolFailureError::InvalidShape(error.to_string()))?;
@@ -266,9 +263,9 @@ fn require_failure_code(code: &str) -> Result<(), ProtocolFailureError> {
 }
 
 fn reject_failure_root_fields(value: &Value) -> Result<(), ProtocolFailureError> {
-    let object = value
-        .as_object()
-        .ok_or_else(|| ProtocolFailureError::InvalidShape("failure root must be an object".to_owned()))?;
+    let object = value.as_object().ok_or_else(|| {
+        ProtocolFailureError::InvalidShape("failure root must be an object".to_owned())
+    })?;
     for key in object.keys() {
         if failure_forbidden_root_field(key) {
             return Err(ProtocolFailureError::ForbiddenField(key.clone()));
