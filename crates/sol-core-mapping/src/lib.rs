@@ -44,12 +44,46 @@ pub enum MappingSubjectRef {
     },
 }
 
+/// Evidence supporting why a concrete mapping claim is asserted.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MappingEvidence {
+    pub source: String,
+    pub detail: String,
+}
+
+impl MappingEvidence {
+    pub fn new(source: impl Into<String>, detail: impl Into<String>) -> Self {
+        Self {
+            source: source.into(),
+            detail: detail.into(),
+        }
+    }
+}
+
+/// Provenance describing who or what produced a mapping claim.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MappingProvenance {
+    pub producer: String,
+    pub revision: Option<String>,
+}
+
+impl MappingProvenance {
+    pub fn new(producer: impl Into<String>, revision: Option<String>) -> Self {
+        Self {
+            producer: producer.into(),
+            revision,
+        }
+    }
+}
+
 /// Concrete assertion that a mapping rule applies to a semantic subject.
 /// Backend-native identity and realization effects are intentionally absent.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct MappingClaim {
     pub rule_id: String,
     pub subject: MappingSubjectRef,
+    pub evidence: Vec<MappingEvidence>,
+    pub provenance: Option<MappingProvenance>,
 }
 
 impl MappingClaim {
@@ -57,7 +91,19 @@ impl MappingClaim {
         Self {
             rule_id: rule_id.into(),
             subject,
+            evidence: Vec::new(),
+            provenance: None,
         }
+    }
+
+    pub fn with_evidence(mut self, evidence: MappingEvidence) -> Self {
+        self.evidence.push(evidence);
+        self
+    }
+
+    pub fn with_provenance(mut self, provenance: MappingProvenance) -> Self {
+        self.provenance = Some(provenance);
+        self
     }
 }
 
@@ -94,7 +140,8 @@ pub fn is_applicable(
 #[cfg(test)]
 mod tests {
     use super::{
-        is_applicable, MappingClaim, MappingRule, MappingSubjectPattern, MappingSubjectRef,
+        is_applicable, MappingClaim, MappingEvidence, MappingProvenance, MappingRule,
+        MappingSubjectPattern, MappingSubjectRef,
     };
     use sol_core_identity::IdentityResolver;
     use sol_core_model::{
@@ -198,6 +245,32 @@ mod tests {
                 kind: RelationKind::RepresentedBy,
                 target: "thermal.energy_conservation".parse().unwrap(),
             }
+        );
+    }
+
+    #[test]
+    fn thermal_claim_carries_evidence_and_provenance() {
+        let claim = MappingClaim::new(
+            "thermal.energy-equation",
+            MappingSubjectRef::Entity("thermal.energy_conservation".parse().unwrap()),
+        )
+        .with_evidence(MappingEvidence::new(
+            "thermal-reference",
+            "mathematical model matches equation realization rule",
+        ))
+        .with_provenance(MappingProvenance::new(
+            "sol-core-mapping",
+            Some("0.1".to_owned()),
+        ));
+
+        assert_eq!(claim.evidence.len(), 1);
+        assert_eq!(claim.evidence[0].source, "thermal-reference");
+        assert_eq!(
+            claim.provenance,
+            Some(MappingProvenance::new(
+                "sol-core-mapping",
+                Some("0.1".to_owned())
+            ))
         );
     }
 
