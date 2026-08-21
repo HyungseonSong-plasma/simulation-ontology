@@ -23,9 +23,8 @@ const SUBJECT_MISMATCH: &str = include_str!(
 const MISMATCH_FALSE_PASS: &str = include_str!(
     "../../../fixtures/counterexamples/public-contract-evaluation-mismatch-false-pass.json"
 );
-const BACKEND_NATIVE_LEAKAGE: &str = include_str!(
-    "../../../fixtures/counterexamples/public-contract-backend-native-leakage.json"
-);
+const BACKEND_NATIVE_LEAKAGE: &str =
+    include_str!("../../../fixtures/counterexamples/public-contract-backend-native-leakage.json");
 
 #[test]
 fn thermal_mapping_claims_round_trip_canonically() {
