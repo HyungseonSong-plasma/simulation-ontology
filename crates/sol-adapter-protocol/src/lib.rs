@@ -497,6 +497,9 @@ fn require_stable_symbol(field: &'static str, value: &str) -> Result<(), Protoco
 fn reject_transport_markers(value: &Value) -> Result<(), ProtocolError> {
     const FORBIDDEN: &[&str] = &[
         "jsonrpc",
+        "request_id",
+        "jsonrpc_id",
+        "transport_id",
         "stdio_frame",
         "process_id",
         "retry_policy",
