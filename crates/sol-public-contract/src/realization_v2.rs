@@ -126,8 +126,7 @@ impl MappingClaimDto {
             }
             reject_backend_native_fields(&evidence.extensions)?;
         }
-        self.evidence
-            .sort_by(|left, right| evidence_key(left).cmp(&evidence_key(right)));
+        self.evidence.sort_by_key(evidence_key);
         self.evidence.dedup();
 
         if let Some(provenance) = &self.provenance {
