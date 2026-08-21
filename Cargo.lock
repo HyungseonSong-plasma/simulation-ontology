@@ -78,6 +78,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-core-effect"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "sol-core-mapping",
+]
+
+[[package]]
 name = "sol-core-identity"
 version = "0.1.0"
 dependencies = [
