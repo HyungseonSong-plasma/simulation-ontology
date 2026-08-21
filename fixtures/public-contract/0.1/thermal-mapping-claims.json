@@ -1,0 +1,22 @@
+{
+  "public_contract_version": "0.1",
+  "claims": [
+    {
+      "rule_id": "thermal.energy-equation",
+      "subject": {
+        "subject_kind": "entity",
+        "id": "thermal.energy_conservation"
+      },
+      "evidence": [
+        {
+          "source": "semantic-applicability",
+          "detail": "matched rule thermal.energy-equation"
+        }
+      ],
+      "provenance": {
+        "producer": "sol-core-mapping",
+        "revision": "0.1.0"
+      }
+    }
+  ]
+}
