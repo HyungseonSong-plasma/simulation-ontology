@@ -190,26 +190,46 @@ Manager: meeting
    -> user confirmation when required
    -> ACCEPTED
    -> Operator: resume
-   -> fixture/test -> implementation -> CI -> issue evidence
+   -> fixture/test -> implementation -> CI -> evidence
 ```
 
 The named work modes are:
 
 - `meeting` — Manager coordinates Planner, Researcher, Validator, and user confirmation when required until a decision is accepted, rejected, deferred, or revised;
-- `resume` — Operator continues implementation from the current repository/issue/PR/CI state until a real merge, decision, permission, or architecture gate is reached;
+- `resume` — Operator continues implementation from the current repository/issue/PR/CI state until a **real gate** is reached. For already accepted milestone Phase work, a CI-green merge is not itself a stop gate: Operator may merge the verified PR, update issue/parent state, and continue to the next eligible Phase;
 - `update` — Operator synchronizes user/developer-facing guides with accepted current behavior, including the root README and future API, SDK, adapter, CLI, schema, examples, and onboarding documentation.
 
 `meeting` does not give Manager semantic authority. Researcher owns semantic investigation, Validator independently challenges the proposal, Planner critically incorporates feedback, and Manager escalates material unresolved disagreement rather than deciding the technical substance itself. User confirmation is required for compatibility-sensitive acceptance unless that authority has already been explicitly delegated.
 
 `resume` and `update` are not semantic decision authority. If implementation or guide maintenance exposes an unresolved architecture/Public Contract/Protocol/compatibility contradiction, Operator stops that decision path and escalates it to Manager `meeting` instead of silently choosing an answer.
 
+### Bounded Operator auto-merge
+
+The user has delegated merge authority to Operator for implementation PRs that remain inside an already accepted milestone Phase. Operator may merge and continue without a separate per-PR user turn only when the required CI is green on the exact head, issue evidence is complete, the PR is mergeable, and no new semantic/architecture/Public Contract/Adapter Protocol/compatibility decision has appeared.
+
+The resulting execution loop is:
+
+```text
+accepted Phase N
+   -> implementation
+   -> PR
+   -> CI/fix loop
+   -> evidence
+   -> bounded auto-merge
+   -> verify main
+   -> close/update Phase N
+   -> continue Phase N+1
+```
+
+Operator must still stop for a real gate: unresolved semantic or compatibility decisions, Validator `REJECT/REVISE`, milestone exit audits, merge conflicts, blocking review/branch protection/permission issues, non-green required CI, or an explicit user stop request. Bounded auto-merge therefore increases execution continuity without delegating semantic authority.
+
 Manager is normally used for architecture/public-contract/protocol/roadmap decisions or other work with multiple reasonable alternatives. Already accepted implementation tasks, CI fixes, mechanical maintenance, and routine guide synchronization do not need a meeting.
 
-For implementation work, a failed CI gate blocks the next task. The operating loop is `push -> wait/check CI -> inspect failure -> minimal fix -> re-check -> continue only after success`.
+For implementation work, a failed CI gate blocks the next task. The operating loop is `push -> wait/check CI -> inspect failure -> minimal fix -> re-check -> merge/continue only after success and all bounded-merge conditions are satisfied`.
 
-For compatibility-sensitive milestone transitions, the preferred handoff is `implementation complete -> Validator exit audit -> Operator resume for required fixes -> milestone close -> Operator update -> Manager meeting / Planner preparation when the next milestone contains new decisions`.
+For compatibility-sensitive milestone transitions, the preferred handoff is `implementation complete -> Validator exit audit -> Operator resume for required fixes -> milestone close -> Operator update -> Manager meeting / Planner preparation when the next milestone contains new decisions`. Bounded auto-merge does not bypass the milestone exit audit.
 
-See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md) for the detailed role, decision-state, escalation, and work-mode conventions.
+See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md) for the detailed role, decision-state, escalation, bounded auto-merge, and work-mode conventions.
 
 ## Repository and project baselines
 
