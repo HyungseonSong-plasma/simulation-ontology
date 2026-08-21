@@ -1,5 +1,11 @@
 #![forbid(unsafe_code)]
 
+mod model;
+mod validation;
+
+pub use model::*;
+pub use validation::*;
+
 use serde_json::{Map, Value};
 use std::error::Error;
 use std::fmt::{Display, Formatter};
