@@ -1,8 +1,8 @@
 use sol_adapter_protocol::{
-    ActionExecutionState, ExecutePlanRequest, ExecutePlanResponse, ExecutionError, ExecutionOutcome,
-    ValidatePlanRequest,
+    ActionExecutionState, ExecutePlanRequest, ExecutePlanResponse, ExecutionError,
+    ExecutionOutcome, ValidatePlanRequest,
 };
-use sol_public_contract::{RealizationQualityDto, MappingSubjectDto};
+use sol_public_contract::{MappingSubjectDto, RealizationQualityDto};
 
 const THERMAL_REQUEST: &str =
     include_str!("../../../fixtures/adapter-protocol/0.1/execute-plan-thermal-request.json");
@@ -112,7 +112,10 @@ fn degraded_and_unsupported_effects_are_realization_data_not_lifecycle_results()
     assert_eq!(degraded.execution, ExecutionOutcome::Completed);
     assert_eq!(unsupported.execution, ExecutionOutcome::Completed);
     assert_eq!(degraded.effects[0].quality, RealizationQualityDto::Degraded);
-    assert_eq!(unsupported.effects[0].quality, RealizationQualityDto::Unsupported);
+    assert_eq!(
+        unsupported.effects[0].quality,
+        RealizationQualityDto::Unsupported
+    );
 
     for fixture in [DEGRADED, UNSUPPORTED] {
         assert!(!fixture.contains("PASS"));
@@ -132,8 +135,14 @@ fn independent_actions_may_use_alternate_topological_or_parallel_schedule() {
 
     assert_eq!(alternate.execution_batches[0], vec!["thermal.b"]);
     assert_eq!(alternate.execution_batches[1], vec!["thermal.a"]);
-    assert_eq!(parallel.execution_batches[0], vec!["thermal.a", "thermal.b"]);
-    assert_eq!(request.plan.topological_order().unwrap(), vec!["thermal.a", "thermal.b", "thermal.c"]);
+    assert_eq!(
+        parallel.execution_batches[0],
+        vec!["thermal.a", "thermal.b"]
+    );
+    assert_eq!(
+        request.plan.topological_order().unwrap(),
+        vec!["thermal.a", "thermal.b", "thermal.c"]
+    );
 }
 
 #[test]
