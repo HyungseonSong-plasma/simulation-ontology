@@ -79,8 +79,12 @@ pub enum ContractDocumentError {
 impl Display for ContractDocumentError {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::InvalidJson(detail) => write!(formatter, "invalid public contract JSON: {detail}"),
-            Self::RootNotObject => write!(formatter, "public contract document root must be an object"),
+            Self::InvalidJson(detail) => {
+                write!(formatter, "invalid public contract JSON: {detail}")
+            }
+            Self::RootNotObject => {
+                write!(formatter, "public contract document root must be an object")
+            }
             Self::MissingVersion => write!(
                 formatter,
                 "public contract document is missing public_contract_version"
@@ -188,9 +192,7 @@ fn canonicalize_value(value: Value) -> Value {
             }
             Value::Object(canonical)
         }
-        Value::Array(values) => {
-            Value::Array(values.into_iter().map(canonicalize_value).collect())
-        }
+        Value::Array(values) => Value::Array(values.into_iter().map(canonicalize_value).collect()),
         scalar => scalar,
     }
 }
@@ -201,7 +203,10 @@ mod tests {
 
     #[test]
     fn supported_version_is_exact_major_minor() {
-        assert_eq!(ContractVersion::parse("0.1").unwrap(), ContractVersion::supported());
+        assert_eq!(
+            ContractVersion::parse("0.1").unwrap(),
+            ContractVersion::supported()
+        );
         assert_eq!(ContractVersion::supported().to_string(), "0.1");
     }
 
