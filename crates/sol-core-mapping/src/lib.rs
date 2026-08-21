@@ -137,11 +137,80 @@ pub fn is_applicable(
     }
 }
 
+/// Generate mapping claims in deterministic rule/subject order from the
+/// resolved semantic graph. Capability availability is not decided here.
+pub fn generate_mapping_claims(
+    graph: &ResolvedGraph,
+    rules: &[MappingRule],
+) -> Vec<MappingClaim> {
+    let mut ordered_rules: Vec<&MappingRule> = rules.iter().collect();
+    ordered_rules.sort_by(|left, right| left.id.cmp(&right.id));
+
+    let mut claims = Vec::new();
+
+    for rule in ordered_rules {
+        let mut candidates: Vec<(String, MappingSubjectRef)> = match rule.subject {
+            MappingSubjectPattern::Entity(expected_kind) => graph
+                .nodes()
+                .iter()
+                .filter_map(|(id, node)| {
+                    if node.kind == ResolvedNodeKind::Entity(expected_kind) {
+                        Some((format!("entity:{id}"), MappingSubjectRef::Entity(id.clone())))
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+            MappingSubjectPattern::Relation(expected_kind) => graph
+                .relations()
+                .iter()
+                .filter_map(|relation| {
+                    if relation.kind == expected_kind {
+                        Some((
+                            format!(
+                                "relation:{}:{:?}:{}",
+                                relation.source, relation.kind, relation.target
+                            ),
+                            MappingSubjectRef::Relation {
+                                source: relation.source.clone(),
+                                kind: relation.kind,
+                                target: relation.target.clone(),
+                            },
+                        ))
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+        };
+
+        candidates.sort_by(|left, right| left.0.cmp(&right.0));
+
+        for (_, subject) in candidates {
+            if is_applicable(rule, graph, &subject) {
+                claims.push(
+                    MappingClaim::new(&rule.id, subject)
+                        .with_evidence(MappingEvidence::new(
+                            "semantic-applicability",
+                            format!("matched rule {}", rule.id),
+                        ))
+                        .with_provenance(MappingProvenance::new(
+                            "sol-core-mapping",
+                            Some(env!("CARGO_PKG_VERSION").to_owned()),
+                        )),
+                );
+            }
+        }
+    }
+
+    claims
+}
+
 #[cfg(test)]
 mod tests {
     use super::{
-        is_applicable, MappingClaim, MappingEvidence, MappingProvenance, MappingRule,
-        MappingSubjectPattern, MappingSubjectRef,
+        generate_mapping_claims, is_applicable, MappingClaim, MappingEvidence, MappingProvenance,
+        MappingRule, MappingSubjectPattern, MappingSubjectRef,
     };
     use sol_core_identity::IdentityResolver;
     use sol_core_model::{
@@ -332,5 +401,35 @@ mod tests {
         };
 
         assert!(!is_applicable(&rule, &graph, &subject));
+    }
+
+    #[test]
+    fn thermal_mapping_claims_are_deterministic() {
+        let graph = thermal_graph();
+        let rules = vec![
+            MappingRule::new(
+                "z.represented-by",
+                MappingSubjectPattern::Relation(RelationKind::RepresentedBy),
+                "semantic-relation.realization",
+            ),
+            MappingRule::new(
+                "a.energy-equation",
+                MappingSubjectPattern::Entity(EntityKind::MathematicalModel),
+                "equation.realization",
+            ),
+        ];
+
+        let first = generate_mapping_claims(&graph, &rules);
+        let second = generate_mapping_claims(&graph, &rules);
+
+        assert_eq!(first, second);
+        assert_eq!(first.len(), 2);
+        assert_eq!(first[0].rule_id, "a.energy-equation");
+        assert_eq!(first[1].rule_id, "z.represented-by");
+        assert_eq!(first[0].evidence[0].source, "semantic-applicability");
+        assert_eq!(
+            first[0].provenance.as_ref().map(|value| value.producer.as_str()),
+            Some("sol-core-mapping")
+        );
     }
 }
