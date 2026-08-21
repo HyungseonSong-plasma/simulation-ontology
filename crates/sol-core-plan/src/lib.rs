@@ -56,7 +56,11 @@ impl MappingPlan {
     pub fn from_actions(actions: impl IntoIterator<Item = PlanAction>) -> Result<Self, PlanError> {
         let mut plan = Self::default();
         for action in actions {
-            if plan.actions.insert(action.id.clone(), action.clone()).is_some() {
+            if plan
+                .actions
+                .insert(action.id.clone(), action.clone())
+                .is_some()
+            {
                 return Err(PlanError::DuplicateAction(action.id));
             }
         }
@@ -82,7 +86,9 @@ impl MappingPlan {
                 .collect();
 
             if ready.is_empty() {
-                return Err(PlanError::CycleDetected(remaining.keys().cloned().collect()));
+                return Err(PlanError::CycleDetected(
+                    remaining.keys().cloned().collect(),
+                ));
             }
 
             for id in ready {
