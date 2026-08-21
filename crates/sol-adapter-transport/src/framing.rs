@@ -19,7 +19,9 @@ impl Display for StdioFrameError {
         match self {
             Self::EmptyFrame => write!(formatter, "stdio frame must contain a JSON object"),
             Self::InvalidUtf8 => write!(formatter, "stdio frame must be valid UTF-8"),
-            Self::InvalidJson(detail) => write!(formatter, "stdio frame is not valid JSON: {detail}"),
+            Self::InvalidJson(detail) => {
+                write!(formatter, "stdio frame is not valid JSON: {detail}")
+            }
             Self::NonObjectMessage => write!(formatter, "stdio frame must contain one JSON object"),
             Self::UnterminatedFrame { buffered_bytes } => write!(
                 formatter,
@@ -81,9 +83,7 @@ impl StdioFrameDecoder {
                 continue;
             }
 
-            frames.push(
-                String::from_utf8(frame).map_err(|_| StdioFrameError::InvalidUtf8),
-            );
+            frames.push(String::from_utf8(frame).map_err(|_| StdioFrameError::InvalidUtf8));
         }
 
         frames
