@@ -14,16 +14,16 @@ const PROTOCOL_INCOMPATIBLE: &str =
 const PUBLIC_CONTRACT_INCOMPATIBLE: &str = include_str!(
     "../../../fixtures/counterexamples/adapter-protocol-public-contract-incompatible.json"
 );
-const MISSING_PROTOCOL: &str =
-    include_str!("../../../fixtures/counterexamples/adapter-protocol-missing-protocol-support.json");
+const MISSING_PROTOCOL: &str = include_str!(
+    "../../../fixtures/counterexamples/adapter-protocol-missing-protocol-support.json"
+);
 const MISSING_PUBLIC_CONTRACT: &str = include_str!(
     "../../../fixtures/counterexamples/adapter-protocol-missing-public-contract-support.json"
 );
 const MALFORMED_VERSION: &str =
     include_str!("../../../fixtures/counterexamples/adapter-protocol-malformed-version.json");
-const MALFORMED_SUPPORT_TYPE: &str = include_str!(
-    "../../../fixtures/counterexamples/adapter-protocol-malformed-support-type.json"
-);
+const MALFORMED_SUPPORT_TYPE: &str =
+    include_str!("../../../fixtures/counterexamples/adapter-protocol-malformed-support-type.json");
 const TRANSPORT_LEAKAGE: &str =
     include_str!("../../../fixtures/counterexamples/adapter-protocol-transport-leakage.json");
 
@@ -107,7 +107,8 @@ fn public_contract_compatible_is_insufficient_when_protocol_is_incompatible() {
 fn missing_support_information_is_unknown_not_compatible() {
     for fixture in [MISSING_PROTOCOL, MISSING_PUBLIC_CONTRACT] {
         let bootstrap = parse_bootstrap(fixture).unwrap();
-        let assessment = assess_compatibility(&CompatibilitySupport::current(), &bootstrap).unwrap();
+        let assessment =
+            assess_compatibility(&CompatibilitySupport::current(), &bootstrap).unwrap();
         assert_eq!(assessment.overall, CompatibilityOutcome::Unknown);
     }
 }
