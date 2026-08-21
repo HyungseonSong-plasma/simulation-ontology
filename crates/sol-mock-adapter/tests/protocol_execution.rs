@@ -84,7 +84,8 @@ fn execute_time_unavailability_is_authoritative() {
 
 #[test]
 fn prior_accepted_preflight_does_not_authorize_changed_execute_request() {
-    let adapter = MockAdapter::thermal().with_execution_state(MockExecutionState::AuthoritativeRejected);
+    let adapter =
+        MockAdapter::thermal().with_execution_state(MockExecutionState::AuthoritativeRejected);
     let preflight = ValidatePlanRequest::from_json(&fixture(
         "adapter-protocol/0.1/validate-plan-accepted-request.json",
     ))
