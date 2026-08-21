@@ -39,10 +39,7 @@ mod tests {
 
     #[test]
     fn exact_thermal_realization_passes() {
-        assert_eq!(
-            classify(SemanticComparison::Exact),
-            EvaluationStatus::Pass
-        );
+        assert_eq!(classify(SemanticComparison::Exact), EvaluationStatus::Pass);
     }
 
     #[test]
