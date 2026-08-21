@@ -1,6 +1,6 @@
 # SOL Adapter Protocol 0.1
 
-Status: **publication candidate**. This document becomes the published versioned Protocol 0.1 baseline when the Phase 5 publication PR is merged after CI and Validator exit audit.
+Status: **published v0.x interoperability baseline**. Published by M0.3 Phase 5 after exact-head CI and Validator exit audit, then merged to `main` in PR #63.
 
 Adapter Protocol 0.1 is the language-neutral, transport-independent interoperability contract between SOL Core and an adapter. It consumes Public Contract 0.1 payload semantics where those semantics overlap; it does not redefine them.
 
@@ -65,4 +65,4 @@ Protocol 0.1 does not define JSON-RPC framing or error numbers, request IDs, std
 
 ## Evolution rule
 
-Protocol 0.1 is a published v0.x interoperability baseline, not a claim of mature long-term stability. Once published, its declared structural and normative meanings cannot be silently redefined. An incompatible structural or semantic change requires an explicit protocol-version boundary such as 0.2 and migration evidence.
+Protocol 0.1 is a published v0.x interoperability baseline, not a claim of mature long-term stability. Its declared structural and normative meanings cannot be silently redefined. An incompatible structural or semantic change requires an explicit protocol-version boundary such as 0.2 and migration evidence.
