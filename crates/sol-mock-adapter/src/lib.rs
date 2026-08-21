@@ -60,6 +60,7 @@ pub trait Adapter {
 pub struct MockAdapter {
     capabilities: BTreeSet<AdapterCapability>,
     failure: FailureInjection,
+    protocol_preflight_state: MockPreflightState,
 }
 
 impl MockAdapter {
@@ -73,6 +74,7 @@ impl MockAdapter {
             .into_iter()
             .collect(),
             failure: FailureInjection::None,
+            protocol_preflight_state: MockPreflightState::Ready,
         }
     }
 
