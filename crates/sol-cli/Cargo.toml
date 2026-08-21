@@ -12,4 +12,5 @@ sol-core-identity = { path = "../sol-core-identity" }
 sol-core-model = { path = "../sol-core-model" }
 sol-core-plan = { path = "../sol-core-plan" }
 sol-mock-adapter = { path = "../sol-mock-adapter" }
+sol-public-contract = { path = "../sol-public-contract" }
 sol-target-resolver = { path = "../sol-target-resolver" }
