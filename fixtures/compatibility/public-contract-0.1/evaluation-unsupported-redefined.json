@@ -1,0 +1,17 @@
+{
+  "public_contract_version": "0.1",
+  "intended_subject": {
+    "subject_kind": "entity",
+    "id": "thermal.energy_conservation"
+  },
+  "effect": {
+    "subject": {
+      "subject_kind": "entity",
+      "id": "thermal.energy_conservation"
+    },
+    "quality": "unsupported",
+    "detail": "requested realization is unavailable"
+  },
+  "comparison": "unsupported",
+  "status": "fail"
+}
