@@ -9,7 +9,10 @@ fn crate_root() -> PathBuf {
 fn protocol_facing_source_is_separate_from_legacy_helper_surface() {
     let root = crate_root();
     let protocol = root.join("src/protocol.rs");
-    assert!(protocol.exists(), "M0.4 protocol-facing source boundary must exist");
+    assert!(
+        protocol.exists(),
+        "M0.4 protocol-facing source boundary must exist"
+    );
 
     let source = fs::read_to_string(protocol).unwrap();
     for forbidden in [
@@ -42,14 +45,7 @@ fn mock_adapter_crate_remains_solver_and_transport_dependency_free() {
     let cargo = fs::read_to_string(crate_root().join("Cargo.toml")).unwrap();
 
     for forbidden in [
-        "moose",
-        "comsol",
-        "ansys",
-        "jsonrpc",
-        "reqwest",
-        "tokio",
-        "tonic",
-        "zmq",
+        "moose", "comsol", "ansys", "jsonrpc", "reqwest", "tokio", "tonic", "zmq",
     ] {
         assert!(
             !cargo.to_ascii_lowercase().contains(forbidden),
@@ -60,8 +56,8 @@ fn mock_adapter_crate_remains_solver_and_transport_dependency_free() {
 
 #[test]
 fn phase_zero_boundary_document_classifies_legacy_api_as_non_normative() {
-    let doc = crate_root()
-        .join("../../docs/implementation/m0.4-mock-adapter-conformance-boundary.md");
+    let doc =
+        crate_root().join("../../docs/implementation/m0.4-mock-adapter-conformance-boundary.md");
     let text = fs::read_to_string(doc).unwrap();
 
     for required in [
@@ -72,6 +68,9 @@ fn phase_zero_boundary_document_classifies_legacy_api_as_non_normative() {
         "Transport boundary",
         "Additive compatibility strategy",
     ] {
-        assert!(text.contains(required), "missing Phase 0 boundary evidence: {required}");
+        assert!(
+            text.contains(required),
+            "missing Phase 0 boundary evidence: {required}"
+        );
     }
 }
