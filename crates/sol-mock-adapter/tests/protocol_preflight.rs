@@ -40,9 +40,8 @@ fn target_mismatch_is_deterministic_and_uses_published_diagnostics() {
     request.target.required_capabilities = vec!["thermal.solve".to_owned()];
 
     let response = adapter.validate_plan(&request).unwrap();
-    let expected = expected_response(
-        "counterexamples/adapter-protocol-target-mismatch-response.json",
-    );
+    let expected =
+        expected_response("counterexamples/adapter-protocol-target-mismatch-response.json");
 
     assert_eq!(response, expected);
 }
@@ -54,9 +53,8 @@ fn missing_capability_is_rejected_with_canonical_context() {
     request.target.required_capabilities = vec!["thermal.radiation".to_owned()];
 
     let response = adapter.validate_plan(&request).unwrap();
-    let expected = expected_response(
-        "counterexamples/adapter-protocol-missing-capability-response.json",
-    );
+    let expected =
+        expected_response("counterexamples/adapter-protocol-missing-capability-response.json");
 
     assert_eq!(response, expected);
 }
@@ -68,9 +66,8 @@ fn unsupported_plan_action_is_rejected_without_changing_plan_semantics() {
     request.plan.actions[2].id = "thermal.radiation".to_owned();
 
     let response = adapter.validate_plan(&request).unwrap();
-    let expected = expected_response(
-        "counterexamples/adapter-protocol-unsupported-action-response.json",
-    );
+    let expected =
+        expected_response("counterexamples/adapter-protocol-unsupported-action-response.json");
 
     assert_eq!(response, expected);
 }
@@ -81,9 +78,8 @@ fn rejected_prerequisite_matches_published_preflight_shape() {
         MockAdapter::thermal().with_preflight_state(MockPreflightState::PrerequisiteRejected);
 
     let response = adapter.validate_plan(&accepted_request()).unwrap();
-    let expected = expected_response(
-        "counterexamples/adapter-protocol-precondition-rejected-response.json",
-    );
+    let expected =
+        expected_response("counterexamples/adapter-protocol-precondition-rejected-response.json");
 
     assert_eq!(response, expected);
 }
@@ -94,9 +90,8 @@ fn transient_unavailability_matches_published_preflight_shape() {
         MockAdapter::thermal().with_preflight_state(MockPreflightState::TransientUnavailable);
 
     let response = adapter.validate_plan(&accepted_request()).unwrap();
-    let expected = expected_response(
-        "counterexamples/adapter-protocol-transient-unavailable-response.json",
-    );
+    let expected =
+        expected_response("counterexamples/adapter-protocol-transient-unavailable-response.json");
 
     assert_eq!(response, expected);
 }
