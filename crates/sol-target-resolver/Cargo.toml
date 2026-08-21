@@ -6,5 +6,6 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+sol-adapter-protocol = { path = "../sol-adapter-protocol" }
 sol-core-plan = { path = "../sol-core-plan" }
-sol-mock-adapter = { path = "../sol-mock-adapter" }
+sol-public-contract = { path = "../sol-public-contract" }
