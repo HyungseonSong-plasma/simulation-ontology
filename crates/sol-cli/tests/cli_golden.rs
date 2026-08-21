@@ -16,7 +16,7 @@ fn validate_thermal_cli_output_matches_golden_contract() {
     assert!(output.status.success());
     assert_eq!(
         String::from_utf8(output.stdout).unwrap(),
-        "VALIDATION PASS\nontology_version=0.1\nmodel=model.thermal_reference\ncanonical_nodes=15\ncanonical_relations=9\n"
+        "VALIDATION PASS\nontology_version=0.1\nmodel=model.thermal_reference\ncanonical_nodes=17\ncanonical_relations=9\n"
     );
 }
 
