@@ -2,7 +2,7 @@
 
 **Status:** Planning decision  
 **Date:** 2026-08-21  
-**Scope:** Public product boundary, adapter ownership, and support roadmap
+**Scope:** Public product boundary, adapter ownership, protocol boundary, MockAdapter role, and support roadmap
 
 ## Purpose
 
@@ -20,9 +20,9 @@ The `simulation-ontology` repository owns the SOL platform itself.
 - TypeScript SDK/binding
 - Python SDK/binding
 - schema and ontology runtime support
-- adapter protocol contract
-- MockAdapter
-- adapter conformance tests
+- versioned adapter protocol contract
+- MockAdapter reference conformance implementation
+- adapter conformance tests/tooling
 - adapter authoring guide and reference skeleton
 
 The Core repository SHALL NOT acquire solver-specific runtime dependencies solely to support a real backend adapter.
@@ -145,24 +145,140 @@ External developer provides
 
 A COMSOL or Ansys adapter MAY later be promoted to an official/reference adapter if maintainers have stable access to the required licensed environment and can support repeatable integration validation.
 
-## 6. MockAdapter role
+## 6. Adapter Protocol scope
 
-MockAdapter is not a substitute for every real-backend validation, but it is an official Core test asset and reference conformance implementation.
+The SOL Adapter Protocol is an official, language-neutral public contract owned by the Core repository. It defines what an adapter must expose to SOL, not how a backend must be implemented internally.
 
-It SHOULD exercise at least:
+### 6.1 Normative protocol responsibilities
 
+The protocol SHALL define versioned canonical request/response contracts for at least:
+
+- adapter identity and protocol compatibility description;
+- BackendTarget requirement resolution;
+- capability discovery;
+- realization normalization;
+- RealizationEffect comparison;
+- MappingPlan validation at the adapter boundary;
+- PlanAction execution;
+- realization/execution reporting.
+
+A conceptual minimal method surface is:
+
+```text
+describe_adapter
+resolve_target
+discover_capabilities
+normalize_realization
+compare_effects
+validate_plan
+execute_plan
+report_realization
+```
+
+Exact method names and payload schemas remain subject to the canonical public-contract/schema work. Solver-native object models, vendor API wrappers, and vendor-specific implementation details SHALL NOT become part of the Core protocol merely because one adapter requires them.
+
+### 6.2 Language-neutral contract
+
+Protocol payloads SHALL use the canonical SOL public representation. JSON is the baseline wire representation for v0.x so that Rust, Python, Java, C++, and other adapter implementations can interoperate without a language-specific FFI dependency.
+
+Adapter-specific capability vocabularies MAY be owned by the adapter, provided their identity, version/provenance, and interpretation are exposed through the published protocol contract where required by SOL validation.
+
+### 6.3 Default v0.x transport
+
+The default local transport for v0.x SHALL be JSON-RPC over process standard input/output (`stdio`).
+
+```text
+SOL Core / CLI
+      <-> JSON-RPC over stdio
+Adapter process
+```
+
+This is the baseline because it:
+
+- is language neutral;
+- isolates solver/vendor runtime dependencies from the Core process;
+- is straightforward to mock and test;
+- supports Python, Java, C++, Rust, and other adapter implementation languages;
+- avoids requiring a network service for local simulation workflows.
+
+Remote/network transports such as gRPC are explicitly deferred until a demonstrated use case requires them. A future transport SHALL preserve the same semantic adapter contract rather than redefine adapter semantics around the transport.
+
+## 7. MockAdapter role
+
+MockAdapter is not merely a test double. It SHALL serve as the Core repository's reference conformance implementation of the Adapter Protocol.
+
+It does not claim to validate solver-native behavior. Its purpose is to provide an executable specification for the protocol and deterministic Core/adapter interaction semantics without requiring a real solver installation.
+
+MockAdapter SHOULD exercise at least:
+
+- adapter description/protocol negotiation;
 - BackendTarget resolution;
 - capability discovery;
 - realization normalization;
 - RealizationEffect comparison;
-- PlanAction/MappingPlan generation and validation;
+- PlanAction/MappingPlan validation;
 - deterministic PASS / FAIL / BLOCKED / INDETERMINATE behavior;
+- exact / transformed / lossy / unsupported representability scenarios;
+- resource alias/collision cases;
+- duplicate producer detection;
+- unresolved prerequisite behavior;
+- dependency cycle detection;
+- state-dependent idempotency cases;
 - execution-protocol behavior without a solver;
 - realization reporting.
 
-This keeps the Core test suite deterministic and free from external solver installations while real adapters validate backend-specific behavior in their own projects.
+The Core conformance suite SHALL be runnable against MockAdapter and SHOULD be reusable by external adapter projects. A future CLI workflow MAY expose this as a command such as:
 
-## 7. Release independence
+```text
+sol adapter test <adapter-command>
+```
+
+The exact CLI syntax is non-normative at this planning stage.
+
+## 8. Adapter conformance boundary
+
+Passing Core conformance tests means that an adapter satisfies the published SOL Adapter Protocol for the tested protocol version. It SHALL NOT be interpreted as proof that the adapter's solver-native mapping is physically correct or that the target solver itself has been validated.
+
+Therefore validation responsibility is separated as follows:
+
+```text
+Core repository
+  -> protocol/schema conformance
+  -> deterministic contract behavior
+  -> MockAdapter reference behavior
+
+Adapter repository
+  -> backend-native realization correctness
+  -> solver API integration
+  -> solver-specific regression tests
+  -> physical/numerical validation where applicable
+```
+
+This distinction is particularly important for proprietary adapters that the Core maintainers cannot execute because of licensing or installation constraints.
+
+## 9. Protocol roadmap
+
+### v0.1
+
+- canonical JSON protocol payloads;
+- JSON-RPC over stdio as the default transport;
+- MockAdapter reference conformance implementation;
+- reusable adapter conformance tests;
+- MOOSE adapter developed in its external reference repository.
+
+### v0.2
+
+- harden protocol contracts using evidence from MOOSE and initial Zapdos/CRANE work;
+- expand adapter authoring documentation and reference skeletons;
+- strengthen compatibility/conformance diagnostics without introducing solver-native concepts into Core.
+
+### v0.3+
+
+- validate the protocol against additional open-source adapters;
+- consider remote transport only if real deployment requirements justify it;
+- preserve transport-independent semantic contracts.
+
+## 10. Release independence
 
 Core and adapters SHALL be versioned independently.
 
@@ -178,13 +294,20 @@ Community COMSOL    0.2
 
 Compatibility SHALL be expressed through published adapter-protocol and BackendTarget compatibility contracts rather than assuming matching package versions.
 
-## 8. Current decision summary
+## 11. Current decision summary
 
 The current canonical product boundary is:
 
 ```text
 SOL Core repository
-  = platform + SDKs + CLI + protocol + MockAdapter + conformance tooling
+  = platform + SDKs + CLI
+  + language-neutral Adapter Protocol
+  + MockAdapter reference conformance implementation
+  + conformance tooling
+
+Adapter contract
+  = canonical JSON payloads
+  + JSON-RPC over stdio as the v0.x default local transport
 
 Real adapters
   = separate repositories/projects
