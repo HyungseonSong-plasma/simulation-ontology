@@ -1,0 +1,11 @@
+{
+  "public_contract_version": "0.1",
+  "effect": {
+    "subject": {
+      "subject_kind": "entity",
+      "id": "thermal.energy_conservation"
+    },
+    "quality": "exact",
+    "detail": "semantic intent preserved exactly"
+  }
+}

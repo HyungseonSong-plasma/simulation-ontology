@@ -1,0 +1,17 @@
+{
+  "ontology_version": "0.1",
+  "model": {
+    "id": "model.schema_missing_version",
+    "physics": [],
+    "mathematical": [],
+    "constitutive": [],
+    "spatial": [],
+    "scopes": [],
+    "material": [],
+    "conditions": [],
+    "numerical": [],
+    "observations": []
+  },
+  "tasks": [],
+  "relations": []
+}

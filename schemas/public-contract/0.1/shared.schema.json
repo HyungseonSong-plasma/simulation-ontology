@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.1 shared definitions",
+  "$defs": {
+    "publicContractVersion": {
+      "type": "string",
+      "const": "0.1"
+    },
+    "canonicalReference": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+$"
+    },
+    "stableSymbol": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "entityKind": {
+      "type": "string",
+      "enum": [
+        "physics_model",
+        "mathematical_model",
+        "constitutive_model",
+        "spatial_model",
+        "material_model",
+        "condition_model",
+        "numerical_model",
+        "observation_model",
+        "analysis",
+        "solver_configuration"
+      ]
+    },
+    "relationKind": {
+      "type": "string",
+      "enum": [
+        "represented_by",
+        "closed_by",
+        "parameterized_by",
+        "defined_on",
+        "discretized_by",
+        "applied_to",
+        "analyzed_by",
+        "solved_by",
+        "produces",
+        "observed_by"
+      ]
+    },
+    "ontologyEntity": {
+      "type": "object",
+      "required": ["id", "kind", "semantic_type", "label"],
+      "properties": {
+        "id": { "$ref": "#/$defs/canonicalReference" },
+        "kind": { "$ref": "#/$defs/entityKind" },
+        "semantic_type": { "type": "string" },
+        "label": { "type": "string" }
+      }
+    },
+    "spatialScope": {
+      "type": "object",
+      "required": ["id", "members"],
+      "properties": {
+        "id": { "$ref": "#/$defs/canonicalReference" },
+        "members": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/canonicalReference" }
+        }
+      }
+    },
+    "semanticRelation": {
+      "type": "object",
+      "required": ["kind", "source", "target"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/relationKind" },
+        "source": { "$ref": "#/$defs/canonicalReference" },
+        "target": { "$ref": "#/$defs/canonicalReference" }
+      }
+    },
+    "mappingSubject": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["subject_kind", "id"],
+          "properties": {
+            "subject_kind": { "const": "entity" },
+            "id": { "$ref": "#/$defs/canonicalReference" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["subject_kind", "source", "relation_kind", "target"],
+          "properties": {
+            "subject_kind": { "const": "relation" },
+            "source": { "$ref": "#/$defs/canonicalReference" },
+            "relation_kind": { "$ref": "#/$defs/relationKind" },
+            "target": { "$ref": "#/$defs/canonicalReference" }
+          }
+        }
+      ]
+    },
+    "mappingEvidence": {
+      "type": "object",
+      "required": ["source", "detail"],
+      "properties": {
+        "source": { "type": "string", "minLength": 1 },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    },
+    "mappingProvenance": {
+      "type": "object",
+      "required": ["producer"],
+      "properties": {
+        "producer": { "type": "string", "minLength": 1 },
+        "revision": { "type": "string" },
+        "backend_artifact_ref": { "type": "string" }
+      }
+    },
+    "mappingClaim": {
+      "type": "object",
+      "required": ["rule_id", "subject"],
+      "properties": {
+        "rule_id": { "$ref": "#/$defs/stableSymbol" },
+        "subject": { "$ref": "#/$defs/mappingSubject" },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/mappingEvidence" }
+        },
+        "provenance": { "$ref": "#/$defs/mappingProvenance" }
+      }
+    },
+    "planAction": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableSymbol" },
+        "dependencies": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/stableSymbol" }
+        }
+      }
+    },
+    "realizationQuality": {
+      "type": "string",
+      "enum": ["exact", "compatible", "degraded", "unsupported", "unknown"]
+    },
+    "realizationEffect": {
+      "type": "object",
+      "required": ["subject", "quality"],
+      "properties": {
+        "subject": { "$ref": "#/$defs/mappingSubject" },
+        "quality": { "$ref": "#/$defs/realizationQuality" },
+        "detail": { "type": "string" }
+      }
+    },
+    "semanticComparison": {
+      "type": "string",
+      "enum": ["exact", "compatible", "degraded", "unsupported", "unknown", "subject_mismatch"]
+    },
+    "evaluationStatus": {
+      "type": "string",
+      "enum": ["pass", "fail", "blocked", "indeterminate"]
+    },
+    "diagnosticSeverity": {
+      "type": "string",
+      "enum": ["error", "warning", "info"]
+    },
+    "diagnostic": {
+      "type": "object",
+      "required": ["code", "severity", "detail"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9_-]+(?:\\.[a-z0-9_-]+)*$"
+        },
+        "severity": { "$ref": "#/$defs/diagnosticSeverity" },
+        "subject": { "$ref": "#/$defs/canonicalReference" },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

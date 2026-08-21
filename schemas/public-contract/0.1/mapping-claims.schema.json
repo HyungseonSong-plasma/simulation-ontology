@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.1 MappingClaimsDto",
+  "type": "object",
+  "required": ["public_contract_version", "claims"],
+  "properties": {
+    "public_contract_version": { "$ref": "shared.schema.json#/$defs/publicContractVersion" },
+    "claims": {
+      "type": "array",
+      "items": { "$ref": "shared.schema.json#/$defs/mappingClaim" }
+    }
+  }
+}

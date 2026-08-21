@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.1 MappingPlanDto",
+  "type": "object",
+  "required": ["public_contract_version", "actions"],
+  "properties": {
+    "public_contract_version": { "$ref": "shared.schema.json#/$defs/publicContractVersion" },
+    "actions": {
+      "type": "array",
+      "items": { "$ref": "shared.schema.json#/$defs/planAction" }
+    }
+  }
+}

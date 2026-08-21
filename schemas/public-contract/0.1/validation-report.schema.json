@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.1 ValidationReport",
+  "type": "object",
+  "required": ["public_contract_version", "valid", "diagnostics"],
+  "properties": {
+    "public_contract_version": { "$ref": "shared.schema.json#/$defs/publicContractVersion" },
+    "valid": { "type": "boolean" },
+    "diagnostics": {
+      "type": "array",
+      "items": { "$ref": "shared.schema.json#/$defs/diagnostic" }
+    }
+  }
+}

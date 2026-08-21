@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.1 RealizationEffectDocumentDto",
+  "type": "object",
+  "required": ["public_contract_version", "effect"],
+  "properties": {
+    "public_contract_version": { "$ref": "shared.schema.json#/$defs/publicContractVersion" },
+    "effect": { "$ref": "shared.schema.json#/$defs/realizationEffect" }
+  }
+}
