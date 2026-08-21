@@ -74,7 +74,11 @@ dependencies = [
 name = "sol-cli"
 version = "0.1.0"
 dependencies = [
+ "sol-core-identity",
  "sol-core-model",
+ "sol-core-plan",
+ "sol-mock-adapter",
+ "sol-target-resolver",
 ]
 
 [[package]]
