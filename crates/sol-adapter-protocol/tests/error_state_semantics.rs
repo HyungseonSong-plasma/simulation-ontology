@@ -1,11 +1,11 @@
 use serde_json::Value;
 use sol_adapter_protocol::{
     conservative_execute_side_effect_evidence, diagnostic_context, plan_operation_idempotency,
-    ActionExecutionState, ExecutePlanRequest, ExecutePlanResponse, ExecutionOutcome, FailureCategory,
-    PlanOperation, PlanOperationIdempotency, PreflightOutcome, ProtocolFailure, ProtocolFailureError,
-    ProtocolOperation, SideEffectEvidence, ValidatePlanResponse, DIAGNOSTIC_PRECONDITION_REJECTED,
-    PRECONDITION_ALREADY_REALIZED, PRECONDITION_PARTIAL_PRIOR_EXECUTION,
-    PRECONDITION_UNRESOLVED_PREREQUISITE,
+    ActionExecutionState, ExecutePlanRequest, ExecutePlanResponse, ExecutionOutcome,
+    FailureCategory, PlanOperation, PlanOperationIdempotency, PreflightOutcome, ProtocolFailure,
+    ProtocolFailureError, ProtocolOperation, SideEffectEvidence, ValidatePlanResponse,
+    DIAGNOSTIC_PRECONDITION_REJECTED, PRECONDITION_ALREADY_REALIZED,
+    PRECONDITION_PARTIAL_PRIOR_EXECUTION, PRECONDITION_UNRESOLVED_PREREQUISITE,
 };
 
 const FAILURE_PROTOCOL: &str = include_str!(
@@ -28,9 +28,8 @@ const FAILURE_VALIDATE: &str = include_str!(
 const FAILURE_EXECUTE_NONE: &str = include_str!(
     "../../../fixtures/adapter-protocol/0.1/protocol-failure-execute-before-side-effect.json"
 );
-const FAILURE_EXECUTE_AMBIGUOUS: &str = include_str!(
-    "../../../fixtures/adapter-protocol/0.1/protocol-failure-execute-ambiguous.json"
-);
+const FAILURE_EXECUTE_AMBIGUOUS: &str =
+    include_str!("../../../fixtures/adapter-protocol/0.1/protocol-failure-execute-ambiguous.json");
 
 const VALIDATE_REJECTED: &str =
     include_str!("../../../fixtures/adapter-protocol/0.1/validate-plan-rejected-response.json");
@@ -58,9 +57,8 @@ const UNRESOLVED_PREREQUISITE: &str = include_str!(
 const LIFECYCLE_CONFLATION: &str = include_str!(
     "../../../fixtures/counterexamples/adapter-protocol-failure-lifecycle-conflation.json"
 );
-const RETRYABLE_FIELD: &str = include_str!(
-    "../../../fixtures/counterexamples/adapter-protocol-failure-retryable-field.json"
-);
+const RETRYABLE_FIELD: &str =
+    include_str!("../../../fixtures/counterexamples/adapter-protocol-failure-retryable-field.json");
 const RESPONSE_LOSS_SAFE_RETRY: &str = include_str!(
     "../../../fixtures/counterexamples/adapter-protocol-response-loss-safe-retry.json"
 );
@@ -91,7 +89,10 @@ fn failure_algebra_separates_compatibility_invalid_request_and_operational_failu
         let failure = ProtocolFailure::from_json(fixture).unwrap();
         assert_eq!(failure.category, FailureCategory::Compatibility);
         assert_eq!(failure.side_effects, SideEffectEvidence::None);
-        assert!(!failure.to_canonical_json().unwrap().contains("adapter_protocol_version"));
+        assert!(!failure
+            .to_canonical_json()
+            .unwrap()
+            .contains("adapter_protocol_version"));
     }
 
     for fixture in [FAILURE_BOOTSTRAP, FAILURE_REQUEST] {
@@ -158,7 +159,10 @@ fn validate_plan_is_idempotent_for_equivalent_input_and_state_but_execute_is_not
     );
 
     let fixture: Value = serde_json::from_str(REPEATED_VALIDATION).unwrap();
-    assert_eq!(fixture["relevant_state_evidence"]["availability"], "available");
+    assert_eq!(
+        fixture["relevant_state_evidence"]["availability"],
+        "available"
+    );
     let first = ValidatePlanResponse::from_json(
         &serde_json::to_string(&fixture["first_response"]).unwrap(),
     )
