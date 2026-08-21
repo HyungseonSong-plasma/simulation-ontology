@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.1 EvaluationResultDto",
+  "type": "object",
+  "required": ["public_contract_version", "intended_subject", "effect", "comparison", "status"],
+  "properties": {
+    "public_contract_version": { "$ref": "shared.schema.json#/$defs/publicContractVersion" },
+    "intended_subject": { "$ref": "shared.schema.json#/$defs/mappingSubject" },
+    "effect": { "$ref": "shared.schema.json#/$defs/realizationEffect" },
+    "comparison": { "$ref": "shared.schema.json#/$defs/semanticComparison" },
+    "status": { "$ref": "shared.schema.json#/$defs/evaluationStatus" }
+  }
+}
