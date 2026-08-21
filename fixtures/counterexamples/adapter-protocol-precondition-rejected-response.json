@@ -1,0 +1,16 @@
+{
+  "adapter_protocol_version": "0.1",
+  "target_compatible": true,
+  "capabilities_satisfied": true,
+  "preflight": "rejected",
+  "diagnostics": [
+    {
+      "code": "adapter.precondition_rejected",
+      "severity": "error",
+      "detail": "adapter-specific prerequisite is not satisfied",
+      "sol_adapter_protocol_context": {
+        "precondition": "mesh.loaded"
+      }
+    }
+  ]
+}
