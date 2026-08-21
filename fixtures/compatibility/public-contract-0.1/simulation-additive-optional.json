@@ -1,0 +1,22 @@
+{
+  "public_contract_version": "0.1",
+  "ontology_version": "0.1",
+  "future_root": {
+    "enabled": true
+  },
+  "model": {
+    "id": "model.compatibility",
+    "physics": [],
+    "mathematical": [],
+    "constitutive": [],
+    "spatial": [],
+    "scopes": [],
+    "material": [],
+    "conditions": [],
+    "numerical": [],
+    "observations": [],
+    "future_model_option": 42
+  },
+  "tasks": [],
+  "relations": []
+}
