@@ -1,22 +1,23 @@
 use sol_adapter_protocol::{
     diagnostic_context, AdapterProtocolDiagnosticContext, PreflightError, PreflightOutcome,
     ValidatePlanRequest, ValidatePlanResponse, DIAGNOSTIC_CONTEXT_EXTENSION,
-    DIAGNOSTIC_MISSING_CAPABILITY, DIAGNOSTIC_PRECONDITION_REJECTED,
-    DIAGNOSTIC_TARGET_MISMATCH, DIAGNOSTIC_TRANSIENT_UNAVAILABLE,
-    DIAGNOSTIC_UNSUPPORTED_ACTION,
+    DIAGNOSTIC_MISSING_CAPABILITY, DIAGNOSTIC_PRECONDITION_REJECTED, DIAGNOSTIC_TARGET_MISMATCH,
+    DIAGNOSTIC_TRANSIENT_UNAVAILABLE, DIAGNOSTIC_UNSUPPORTED_ACTION,
 };
 
 const ACCEPTED_REQUEST: &str =
     include_str!("../../../fixtures/adapter-protocol/0.1/validate-plan-accepted-request.json");
 const ACCEPTED_RESPONSE: &str =
     include_str!("../../../fixtures/adapter-protocol/0.1/validate-plan-accepted-response.json");
-const TARGET_MISMATCH: &str =
-    include_str!("../../../fixtures/counterexamples/adapter-protocol-target-mismatch-response.json");
+const TARGET_MISMATCH: &str = include_str!(
+    "../../../fixtures/counterexamples/adapter-protocol-target-mismatch-response.json"
+);
 const MISSING_CAPABILITY: &str = include_str!(
     "../../../fixtures/counterexamples/adapter-protocol-missing-capability-response.json"
 );
-const UNSUPPORTED_ACTION: &str =
-    include_str!("../../../fixtures/counterexamples/adapter-protocol-unsupported-action-response.json");
+const UNSUPPORTED_ACTION: &str = include_str!(
+    "../../../fixtures/counterexamples/adapter-protocol-unsupported-action-response.json"
+);
 const PRECONDITION_REJECTED: &str = include_str!(
     "../../../fixtures/counterexamples/adapter-protocol-precondition-rejected-response.json"
 );
@@ -26,8 +27,9 @@ const TRANSIENT_UNAVAILABLE: &str = include_str!(
 const INCONSISTENT_ACCEPTED: &str = include_str!(
     "../../../fixtures/counterexamples/adapter-protocol-inconsistent-accepted-response.json"
 );
-const TOKEN_AUTHORITY: &str =
-    include_str!("../../../fixtures/counterexamples/adapter-protocol-preflight-token-authority.json");
+const TOKEN_AUTHORITY: &str = include_str!(
+    "../../../fixtures/counterexamples/adapter-protocol-preflight-token-authority.json"
+);
 const BACKEND_NATIVE: &str = include_str!(
     "../../../fixtures/counterexamples/adapter-protocol-preflight-backend-native-leakage.json"
 );
@@ -112,7 +114,11 @@ fn adapter_rejection_and_transient_unavailability_are_not_lifecycle_states() {
         .iter()
         .any(|diagnostic| diagnostic.code == DIAGNOSTIC_TRANSIENT_UNAVAILABLE));
 
-    for fixture in [UNSUPPORTED_ACTION, PRECONDITION_REJECTED, TRANSIENT_UNAVAILABLE] {
+    for fixture in [
+        UNSUPPORTED_ACTION,
+        PRECONDITION_REJECTED,
+        TRANSIENT_UNAVAILABLE,
+    ] {
         assert!(!fixture.contains("PASS"));
         assert!(!fixture.contains("FAIL"));
         assert!(!fixture.contains("BLOCKED"));
