@@ -28,9 +28,11 @@ pub fn plan_document(input: &str, target: &str) -> Result<String, String> {
     let graph = IdentityResolver::resolve(&simulation).map_err(|error| error.to_string())?;
     verify_thermal_reference(&graph)?;
 
-    let plan = thermal_mapping_plan().map_err(|error| format!("invalid mapping plan: {error:?}"))?;
+    let plan =
+        thermal_mapping_plan().map_err(|error| format!("invalid mapping plan: {error:?}"))?;
     let adapter = MockAdapter::thermal();
-    let descriptor = AdapterDescriptor::from_adapter("mock.thermal", BackendTarget::mock(), &adapter);
+    let descriptor =
+        AdapterDescriptor::from_adapter("mock.thermal", BackendTarget::mock(), &adapter);
     let descriptors = [descriptor];
     let required = thermal_requirements();
     let target = BackendTarget::new(target);
@@ -64,7 +66,9 @@ fn verify_thermal_reference(graph: &ResolvedGraph) -> Result<(), String> {
     ] {
         let id: CanonicalId = raw_id.parse().map_err(|error| format!("{error}"))?;
         if graph.resolve(&id).is_none() {
-            return Err(format!("thermal reference missing required semantic entity: {id}"));
+            return Err(format!(
+                "thermal reference missing required semantic entity: {id}"
+            ));
         }
     }
     Ok(())
