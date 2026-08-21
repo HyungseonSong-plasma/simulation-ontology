@@ -30,18 +30,20 @@ The platform is intended to enable solver-independent model exchange, semantic v
 
 ## Current status
 
-The first three foundation milestones are complete and merged to `main`:
+The first three foundation milestones are complete and M0.4 is active:
 
 ```text
-M0.1  Semantic Core Bootstrap          COMPLETE
-M0.2  Canonical Public Contract 0.1    COMPLETE
-M0.3  Adapter Protocol 0.1             COMPLETE
-M0.4  MockAdapter Protocol Conformance NEXT
-M0.5  JSON-RPC over stdio Transport
-M0.6  Adapter Conformance Tooling
+M0.1  Semantic Core Bootstrap                  COMPLETE
+M0.2  Canonical Public Contract 0.1            COMPLETE
+M0.3  Adapter Protocol 0.1                     COMPLETE
+M0.4  MockAdapter Protocol Conformance         ACTIVE (Phase 2 current)
+M0.5  JSON-RPC / stdio Transport               PLANNED
+M0.6  Adapter Conformance Tooling              PLANNED
 ```
 
 M0.3 closed after exact-head CI, a Validator exit audit with verdict **APPROVE**, and PR #63 publication merge. Adapter Protocol 0.1 is now a published, versioned, transport-independent v0.x interoperability baseline.
+
+M0.4 Phase 0 established the protocol-facing MockAdapter conformance boundary and Phase 1 implemented deterministic Adapter Protocol 0.1 description/dual-compatibility reference behavior. Phase 2 advisory `validate_plan` reference behavior is the current implementation phase.
 
 The repository currently contains:
 
@@ -54,7 +56,7 @@ The repository currently contains:
 - an intentional Rust public facade plus explicit `sol-cli --json` machine-facing paths;
 - independently versioned Adapter Protocol 0.1 bootstrap, compatibility, preflight, execution, failure, idempotency, and provenance semantics;
 - canonical Adapter Protocol 0.1 Draft 2020-12 schemas and executable counterexamples;
-- MockAdapter and BackendTarget resolution foundations ready for M0.4 conformance work.
+- MockAdapter protocol-facing description/compatibility behavior with later conformance phases active/planned.
 
 ## Public Contract 0.1
 
@@ -143,13 +145,13 @@ M0.2  Canonical Public Contract 0.1            complete
 M0.3  Adapter Protocol 0.1                     complete
   |
   v
-M0.4  MockAdapter Protocol Conformance         next
+M0.4  MockAdapter Protocol Conformance         active — Phase 2 current
   |
   v
-M0.5  JSON-RPC over stdio Transport
+M0.5  JSON-RPC / stdio Transport               planned — parent #74 / phases #75–#80
   |
   v
-M0.6  Adapter Conformance Tooling
+M0.6  Adapter Conformance Tooling              planned — parent #81 / phases #82–#87
   |
   +-------------------------+
   |                         |
@@ -163,7 +165,7 @@ The ordering is deliberate: canonical semantics precede SDK ergonomics; Adapter 
 
 ## MockAdapter responsibility
 
-MockAdapter is the Core repository's reference conformance implementation, not evidence of solver-native physical correctness. M0.4 will promote it from the existing deterministic reference behavior into an executable implementation of the published Adapter Protocol 0.1 contract.
+MockAdapter is the Core repository's reference conformance implementation, not evidence of solver-native physical correctness. M0.4 promotes it from deterministic reference helpers into an executable implementation of the published Adapter Protocol 0.1 contract.
 
 ```text
 Core repository
@@ -219,17 +221,26 @@ Manager meeting
  -> Operator resume
 ```
 
-`resume` continues accepted implementation through PR, CI/fix loop, bounded merge, main verification, and the next eligible Phase until a real gate appears. `update` synchronizes user/developer-facing documentation with accepted repository state.
+`resume` continues accepted implementation through the current GitHub Milestone, parent tracker, Phase issue, PR, CI/fix loop, bounded merge, main verification, and the next eligible Phase until a real gate appears. A planned successor GitHub Milestone does not bypass accepted predecessor dependencies.
+
+`update` synchronizes user/developer-facing documentation with accepted repository state. A milestone-handoff `update` runs after milestone closure and its PR is not counted back into the closed milestone.
 
 Operator may auto-merge already accepted Phase implementation only when exact-head required CI is green, evidence is complete, the PR is mergeable, and no unresolved semantic/architecture/Public Contract/Adapter Protocol/compatibility decision exists. Milestone exit audits, blocking reviews, conflicts, permission failures, non-green CI, and unresolved semantic choices remain real gates.
 
-See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md) for the detailed operating convention.
+GitHub Milestone percentage is informational rather than acceptance authority. Phase issues are the canonical milestone progress units; parent tracker issues define normative gates, PRs provide implementation evidence, and Validator/main verification govern closure.
+
+See:
+
+- [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md) for the logical agent operating convention;
+- [`docs/operations/github-milestone-convention.md`](docs/operations/github-milestone-convention.md) for GitHub Milestone naming, membership, progress, closure, backfill, and `resume`/`update` integration.
 
 ## Repository baselines
 
 - Core architecture / M0.1 plan: [`docs/plans/core-simulation-ontology-v0.1-implementation-plan.md`](docs/plans/core-simulation-ontology-v0.1-implementation-plan.md)
 - Product boundary / adapter roadmap: [`docs/plans/product-boundary-and-adapter-roadmap.md`](docs/plans/product-boundary-and-adapter-roadmap.md)
 - Versioning / compatibility policy: [`docs/plans/versioning-and-compatibility-policy.md`](docs/plans/versioning-and-compatibility-policy.md)
+- Logical agent workflow: [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md)
+- GitHub Milestone convention: [`docs/operations/github-milestone-convention.md`](docs/operations/github-milestone-convention.md)
 - Spatial Scope ADR: [`docs/adr/ADR-001-first-class-spatial-scope.md`](docs/adr/ADR-001-first-class-spatial-scope.md)
 - Adapter Protocol boundary ADR: [`docs/adr/ADR-002-adapter-protocol-boundary.md`](docs/adr/ADR-002-adapter-protocol-boundary.md)
 - M0.2 completion handoff: [`docs/implementation/m0.2-completion-handoff.md`](docs/implementation/m0.2-completion-handoff.md)
@@ -237,6 +248,9 @@ See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-
 - M0.1 tracker: [Issue #2](../../issues/2)
 - M0.2 tracker: [Issue #28](../../issues/28)
 - M0.3 tracker: [Issue #38](../../issues/38)
+- M0.4 tracker: [Issue #65](../../issues/65)
+- M0.5 tracker: [Issue #74](../../issues/74)
+- M0.6 tracker: [Issue #81](../../issues/81)
 
 ## Planned distributions
 
