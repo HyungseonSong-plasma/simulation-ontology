@@ -2,6 +2,12 @@
 
 A solver-independent simulation ontology and semantic runtime for multiphysics backends.
 
+## Purpose
+
+Simulation Ontology (SOL) provides a common semantic layer for describing simulation intent independently of any particular solver or backend object model. Its goal is to make simulation models, constraints, mappings, and backend requirements explicit and machine-interpretable so that the same domain model can be validated, reasoned about, and translated toward different simulation frameworks without embedding solver-native concepts into the Core.
+
+SOL is intended to support reusable and portable simulation knowledge: domain ontologies can describe what a model means, the Core can validate whether that meaning is internally consistent and representable for a target, and independently developed adapters can realize the resulting plan in concrete backends. This enables applications such as solver-independent model authoring, automated model generation, cross-backend mapping, reproducible simulation workflows, adapter/tool development, and higher-level AI/automation systems that need structured simulation semantics rather than backend-specific input syntax.
+
 ## Project baseline
 
 - Architecture / implementation plan: [`docs/plans/core-simulation-ontology-v0.1-implementation-plan.md`](docs/plans/core-simulation-ontology-v0.1-implementation-plan.md)
