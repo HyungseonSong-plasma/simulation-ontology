@@ -85,6 +85,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-core-mapping"
+version = "0.1.0"
+dependencies = [
+ "sol-core-identity",
+ "sol-core-model",
+]
+
+[[package]]
 name = "sol-core-model"
 version = "0.1.0"
 dependencies = [

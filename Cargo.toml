@@ -4,6 +4,7 @@ members = [
     "crates/sol-core-model",
     "crates/sol-core-identity",
     "crates/sol-core-qrc",
+    "crates/sol-core-mapping",
     "crates/sol-cli",
 ]
 

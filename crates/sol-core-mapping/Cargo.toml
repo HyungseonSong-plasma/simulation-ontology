@@ -1,0 +1,12 @@
+[package]
+name = "sol-core-mapping"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+description = "Solver-independent MappingRule and MappingClaim layer for Simulation Ontology"
+
+[dependencies]
+sol-core-identity = { path = "../sol-core-identity" }
+sol-core-model = { path = "../sol-core-model" }
