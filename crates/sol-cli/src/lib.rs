@@ -95,10 +95,7 @@ pub fn plan_public_contract_document(input: &str, target: &str) -> Result<String
     .map_err(|error| error.to_string())
 }
 
-fn resolve_thermal_target(
-    plan: &MappingPlan,
-    target: &str,
-) -> Result<AdapterDescriptor, String> {
+fn resolve_thermal_target(plan: &MappingPlan, target: &str) -> Result<AdapterDescriptor, String> {
     let adapter = MockAdapter::thermal();
     let descriptor =
         AdapterDescriptor::from_adapter("mock.thermal", BackendTarget::mock(), &adapter);
