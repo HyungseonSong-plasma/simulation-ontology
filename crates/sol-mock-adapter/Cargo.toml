@@ -10,4 +10,5 @@ description = "Mock-only adapter contract and simulated realization for M0.1"
 [dependencies]
 sol-core-effect = { path = "../sol-core-effect" }
 sol-core-evaluation = { path = "../sol-core-evaluation" }
+sol-core-mapping = { path = "../sol-core-mapping" }
 sol-core-plan = { path = "../sol-core-plan" }
