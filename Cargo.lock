@@ -93,6 +93,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-core-qrc"
+version = "0.1.0"
+dependencies = [
+ "sol-core-identity",
+ "sol-core-model",
+]
+
+[[package]]
 name = "syn"
 version = "2.0.77"
 source = "registry+https://github.com/rust-lang/crates.io-index"
