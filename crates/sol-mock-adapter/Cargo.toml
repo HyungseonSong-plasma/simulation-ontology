@@ -9,6 +9,7 @@ description = "MockAdapter reference behavior and protocol conformance for SOL"
 
 [dependencies]
 sol-adapter-protocol = { path = "../sol-adapter-protocol" }
+sol-public-contract = { path = "../sol-public-contract" }
 sol-core-effect = { path = "../sol-core-effect" }
 sol-core-evaluation = { path = "../sol-core-evaluation" }
 sol-core-mapping = { path = "../sol-core-mapping" }
