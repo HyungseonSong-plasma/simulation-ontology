@@ -138,7 +138,10 @@ impl TransportRequest {
 
     fn to_value(&self) -> Value {
         let mut object = Map::new();
-        object.insert("jsonrpc".to_owned(), Value::String(JSON_RPC_VERSION.to_owned()));
+        object.insert(
+            "jsonrpc".to_owned(),
+            Value::String(JSON_RPC_VERSION.to_owned()),
+        );
         object.insert(
             "method".to_owned(),
             Value::String(self.method.wire_name().to_owned()),
@@ -272,7 +275,10 @@ impl JsonRpcErrorResponse {
 
     fn to_value(&self) -> Value {
         let mut object = Map::new();
-        object.insert("jsonrpc".to_owned(), Value::String(JSON_RPC_VERSION.to_owned()));
+        object.insert(
+            "jsonrpc".to_owned(),
+            Value::String(JSON_RPC_VERSION.to_owned()),
+        );
         object.insert("error".to_owned(), self.error.to_value());
         object.insert(
             "id".to_owned(),
@@ -350,12 +356,9 @@ pub fn decode_request(input: &str) -> RequestDisposition {
 
     match TransportRequest::new(id, method, object.get("params").cloned()) {
         Ok(request) => RequestDisposition::Dispatch(request),
-        Err(RequestBuildError::InvalidParams(_)) => {
-            RequestDisposition::Reject(JsonRpcErrorResponse::standard(
-                Some(id),
-                JsonRpcErrorKind::InvalidParams,
-            ))
-        }
+        Err(RequestBuildError::InvalidParams(_)) => RequestDisposition::Reject(
+            JsonRpcErrorResponse::standard(Some(id), JsonRpcErrorKind::InvalidParams),
+        ),
     }
 }
 
@@ -411,10 +414,7 @@ pub enum JsonRpcResponse {
 }
 
 impl JsonRpcResponse {
-    pub fn protocol_success(
-        id: RequestId,
-        payload: Value,
-    ) -> Result<Self, ResponseBuildError> {
+    pub fn protocol_success(id: RequestId, payload: Value) -> Result<Self, ResponseBuildError> {
         if !payload.is_object() {
             return Err(ResponseBuildError::ProtocolPayloadMustBeObject);
         }
@@ -526,12 +526,15 @@ impl JsonRpcResponse {
                     "protocol_success" => ProtocolOutcome::Success(payload.clone()),
                     "protocol_failure" => {
                         let failure_json = canonical_json(payload);
-                        let failure = ProtocolFailure::from_json(&failure_json).map_err(|error| {
-                            ResponseDecodeError::InvalidProtocolFailure(error.to_string())
-                        })?;
-                        failure.validate_for(method.protocol_operation()).map_err(|error| {
-                            ResponseDecodeError::InvalidProtocolFailure(error.to_string())
-                        })?;
+                        let failure =
+                            ProtocolFailure::from_json(&failure_json).map_err(|error| {
+                                ResponseDecodeError::InvalidProtocolFailure(error.to_string())
+                            })?;
+                        failure
+                            .validate_for(method.protocol_operation())
+                            .map_err(|error| {
+                                ResponseDecodeError::InvalidProtocolFailure(error.to_string())
+                            })?;
                         ProtocolOutcome::Failure(failure)
                     }
                     _ => {
@@ -570,10 +573,7 @@ impl JsonRpcResponse {
                     Value::String(JSON_RPC_VERSION.to_owned()),
                 );
                 response.insert("result".to_owned(), Value::Object(result));
-                response.insert(
-                    "id".to_owned(),
-                    Value::Number(Number::from(id.value())),
-                );
+                response.insert("id".to_owned(), Value::Number(Number::from(id.value())));
                 Value::Object(response)
             }
             Self::Error(response) => response.to_value(),
@@ -613,8 +613,12 @@ pub enum ResponseDecodeError {
 impl Display for ResponseDecodeError {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::InvalidJson(detail) => write!(formatter, "invalid JSON-RPC response JSON: {detail}"),
-            Self::InvalidEnvelope(detail) => write!(formatter, "invalid JSON-RPC response: {detail}"),
+            Self::InvalidJson(detail) => {
+                write!(formatter, "invalid JSON-RPC response JSON: {detail}")
+            }
+            Self::InvalidEnvelope(detail) => {
+                write!(formatter, "invalid JSON-RPC response: {detail}")
+            }
             Self::InvalidRequestId => write!(formatter, "invalid JSON-RPC response request ID"),
             Self::InvalidProtocolFailure(detail) => {
                 write!(formatter, "invalid ProtocolFailure result: {detail}")
@@ -723,9 +727,7 @@ fn canonicalize_value(value: Value) -> Value {
             }
             Value::Object(canonical)
         }
-        Value::Array(values) => {
-            Value::Array(values.into_iter().map(canonicalize_value).collect())
-        }
+        Value::Array(values) => Value::Array(values.into_iter().map(canonicalize_value).collect()),
         scalar => scalar,
     }
 }
