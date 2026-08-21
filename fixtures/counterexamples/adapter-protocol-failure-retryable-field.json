@@ -1,0 +1,7 @@
+{
+  "category": "operational",
+  "code": "adapter.operational_failure",
+  "detail": "execution response was lost",
+  "side_effects": "may_have_occurred",
+  "retryable": true
+}
