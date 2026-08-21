@@ -582,27 +582,29 @@ fn effects_for_action(action_id: &str, style: EffectStyle) -> Vec<RealizationEff
             MappingSubjectDto::entity(subject),
             RealizationQualityDto::Exact,
         )],
-        EffectStyle::Degraded if action_id == "thermal.solve" => vec![
-            RealizationEffectDto::new(
-                MappingSubjectDto::entity(subject),
-                RealizationQualityDto::Degraded,
-            )
-            .with_detail("backend used an approximate realization"),
-        ],
-        EffectStyle::Unsupported if action_id == "thermal.solve" => vec![
-            RealizationEffectDto::new(
+        EffectStyle::Degraded if action_id == "thermal.solve" => vec![RealizationEffectDto::new(
+            MappingSubjectDto::entity(subject),
+            RealizationQualityDto::Degraded,
+        )
+        .with_detail("backend used an approximate realization")],
+        EffectStyle::Unsupported if action_id == "thermal.solve" => {
+            vec![RealizationEffectDto::new(
                 MappingSubjectDto::entity(subject),
                 RealizationQualityDto::Unsupported,
             )
-            .with_detail("requested semantic realization is not supported"),
-        ],
+            .with_detail("requested semantic realization is not supported")]
+        }
         EffectStyle::Degraded | EffectStyle::Unsupported | EffectStyle::None => Vec::new(),
     }
 }
 
 fn schedule(plan: &MappingPlanDto, style: ScheduleStyle) -> Vec<Vec<String>> {
     if style == ScheduleStyle::AlternateIndependent
-        && plan.actions.iter().map(|action| action.id.as_str()).collect::<BTreeSet<_>>()
+        && plan
+            .actions
+            .iter()
+            .map(|action| action.id.as_str())
+            .collect::<BTreeSet<_>>()
             == BTreeSet::from(["thermal.a", "thermal.b", "thermal.c"])
     {
         return vec![
@@ -633,7 +635,10 @@ fn schedule(plan: &MappingPlanDto, style: ScheduleStyle) -> Vec<Vec<String>> {
             })
             .cloned()
             .collect::<Vec<_>>();
-        debug_assert!(!ready.is_empty(), "MappingPlanDto validation rejects cycles");
+        debug_assert!(
+            !ready.is_empty(),
+            "MappingPlanDto validation rejects cycles"
+        );
 
         let batch = if style == ScheduleStyle::ParallelIndependent {
             ready
