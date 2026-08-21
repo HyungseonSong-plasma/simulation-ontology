@@ -87,6 +87,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-core-evaluation"
+version = "0.1.0"
+dependencies = [
+ "sol-core-effect",
+]
+
+[[package]]
 name = "sol-core-identity"
 version = "0.1.0"
 dependencies = [
