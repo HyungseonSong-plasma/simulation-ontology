@@ -8,9 +8,15 @@ fn crate_root() -> PathBuf {
 #[test]
 fn protocol_facing_source_is_separate_from_legacy_helper_surface() {
     let root = crate_root();
-    let protocol_paths = [root.join("src/protocol.rs"), root.join("src/protocol_state.rs")];
+    let protocol_paths = [
+        root.join("src/protocol.rs"),
+        root.join("src/protocol_state.rs"),
+    ];
     for path in &protocol_paths {
-        assert!(path.exists(), "M0.4 protocol-facing source boundary must exist");
+        assert!(
+            path.exists(),
+            "M0.4 protocol-facing source boundary must exist"
+        );
     }
 
     let source = protocol_paths
