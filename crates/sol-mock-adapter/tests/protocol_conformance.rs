@@ -1,6 +1,7 @@
 use sol_adapter_protocol::{
-    AdapterDescription, ExecutePlanRequest, ExecutePlanResponse, ExecutionOutcome, PreflightOutcome,
-    ProtocolFailure, SideEffectEvidence, ValidatePlanRequest, ValidatePlanResponse,
+    AdapterDescription, ExecutePlanRequest, ExecutePlanResponse, ExecutionOutcome,
+    PreflightOutcome, ProtocolFailure, SideEffectEvidence, ValidatePlanRequest,
+    ValidatePlanResponse,
 };
 use sol_mock_adapter::{
     MockAdapter, MockExecutionState, MockPreflightState, MockPriorExecutionState,
@@ -45,11 +46,15 @@ fn published_positive_operation_matrix_runs_through_mock_adapter() {
     );
     assert_eq!(
         description.bootstrap.supported_public_contract_versions,
-        published_description.bootstrap.supported_public_contract_versions
+        published_description
+            .bootstrap
+            .supported_public_contract_versions
     );
     assert_eq!(description.targets, published_description.targets);
 
-    let validation = adapter.validate_plan_operation(&validate_request()).unwrap();
+    let validation = adapter
+        .validate_plan_operation(&validate_request())
+        .unwrap();
     assert_eq!(
         validation,
         ValidatePlanResponse::from_json(VALIDATE_ACCEPTED).unwrap()
@@ -77,7 +82,10 @@ fn adversarial_matrix_keeps_operation_outcomes_failure_and_state_distinct() {
         .with_preflight_state(MockPreflightState::TransientUnavailable)
         .validate_plan_operation(&validation_request)
         .unwrap();
-    assert_eq!(unavailable_preflight.preflight, PreflightOutcome::Unavailable);
+    assert_eq!(
+        unavailable_preflight.preflight,
+        PreflightOutcome::Unavailable
+    );
 
     let partial_execution = MockAdapter::thermal()
         .with_execution_state(MockExecutionState::Partial)
@@ -89,7 +97,10 @@ fn adversarial_matrix_keeps_operation_outcomes_failure_and_state_distinct() {
         .with_execution_state(MockExecutionState::Unavailable)
         .execute_plan_operation(&execution_request)
         .unwrap();
-    assert_eq!(unavailable_execution.execution, ExecutionOutcome::Unavailable);
+    assert_eq!(
+        unavailable_execution.execution,
+        ExecutionOutcome::Unavailable
+    );
 
     let ambiguous_failure = MockAdapter::thermal()
         .with_protocol_failure_state(MockProtocolFailureState::ExecuteOperationalAmbiguous)
