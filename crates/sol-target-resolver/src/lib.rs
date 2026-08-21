@@ -57,7 +57,11 @@ impl AdapterDescriptor {
         Self {
             id: id.into(),
             target,
-            capabilities: adapter.capabilities().iter().map(BackendCapability::from).collect(),
+            capabilities: adapter
+                .capabilities()
+                .iter()
+                .map(BackendCapability::from)
+                .collect(),
         }
     }
 }
@@ -118,11 +122,8 @@ mod tests {
     #[test]
     fn adapter_descriptor_is_derived_from_mock_adapter_capabilities() {
         let adapter = MockAdapter::thermal();
-        let descriptor = AdapterDescriptor::from_adapter(
-            "mock.thermal",
-            BackendTarget::mock(),
-            &adapter,
-        );
+        let descriptor =
+            AdapterDescriptor::from_adapter("mock.thermal", BackendTarget::mock(), &adapter);
         assert!(descriptor
             .capabilities
             .contains(&BackendCapability::new("thermal.solve")));
@@ -132,16 +133,8 @@ mod tests {
     fn thermal_plan_selects_mock_adapter_deterministically() {
         let adapter = MockAdapter::thermal();
         let descriptors = vec![
-            AdapterDescriptor::from_adapter(
-                "mock.z-secondary",
-                BackendTarget::mock(),
-                &adapter,
-            ),
-            AdapterDescriptor::from_adapter(
-                "mock.a-primary",
-                BackendTarget::mock(),
-                &adapter,
-            ),
+            AdapterDescriptor::from_adapter("mock.z-secondary", BackendTarget::mock(), &adapter),
+            AdapterDescriptor::from_adapter("mock.a-primary", BackendTarget::mock(), &adapter),
         ];
 
         let selected = resolve_target(
