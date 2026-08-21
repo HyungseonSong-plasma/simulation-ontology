@@ -169,25 +169,66 @@ Responsibilities:
 - create/update branches, commits, PRs, issues, fixtures, tests, code, and documentation;
 - apply the smallest root-cause fix when CI fails;
 - record executable evidence before completing checklist items;
-- preserve the user-controlled merge gate unless explicit merge authorization is given;
+- merge a pre-authorized Phase PR when all bounded auto-merge conditions below are satisfied;
+- verify the merge on `main`, close/update the completed Phase issue, update the parent tracker, and continue to the next eligible Phase without waiting for another user turn;
 - escalate newly discovered unresolved semantic/compatibility decisions to Manager rather than resolving them implicitly during execution.
 
 Operator has two named work modes: `resume` and `update`.
 
 ### 5.1 `resume`
 
-`resume` means continue implementation/execution from the current repository state until a real gate is reached.
+`resume` means continue implementation/execution from the current repository state until a real gate is reached. A CI-green merge of an already accepted milestone Phase is not by itself a stop gate.
 
 Expected behavior:
 
 1. Inspect current PR/issue/CI state rather than assuming the previous state is still current.
-2. If a merge gate exists, verify whether the user merged the PR.
-3. Continue the next eligible Phase/task when the gate is clear.
+2. If an existing Phase PR is open, verify its head SHA, CI state, mergeability, unresolved review/permission state, and whether its work remains inside the already accepted Phase scope.
+3. Continue the next eligible Phase/task when the current gate is clear.
 4. Use counterexample-driven implementation and the established CI-first loop.
 5. On CI failure, inspect logs, apply the smallest root-cause fix, and restart verification.
-6. On CI success, record evidence, update issue checklists, and continue immediately to the next eligible task.
-7. If implementation exposes a new unresolved architecture/Public Contract/Protocol/compatibility choice, stop that decision path and hand it to Manager `meeting`.
-8. Stop only at a real decision, merge, permission, or architecture gate.
+6. On CI success, record evidence and update issue checklists before merge.
+7. When bounded auto-merge conditions are satisfied, merge the Phase PR, verify the merge on `main`, close/update the Phase issue and parent tracker, then continue immediately to the next eligible Phase.
+8. If implementation exposes a new unresolved architecture/Public Contract/Protocol/compatibility choice, stop that decision path and hand it to Manager `meeting`.
+9. Stop only at a real decision, Validator rejection/revision gate, milestone exit audit, permission/branch-protection or merge-conflict gate, explicit user stop request, or other architecture/compatibility gate.
+
+#### Bounded auto-merge authorization
+
+The user has delegated merge authority to Operator for already accepted milestone Phase implementation. Operator MAY merge without a separate per-PR user confirmation only when **all** of the following are true:
+
+- the Phase/milestone scope and acceptance criteria were already accepted before implementation;
+- the PR does not introduce a newly unresolved semantic, architecture, Public Contract, Adapter Protocol, roadmap, or compatibility decision;
+- required fixtures/tests and issue evidence are complete;
+- the required CI sequence is green on the exact current PR head;
+- the PR is mergeable with no unresolved merge conflict, blocking review, branch-protection, or permission problem;
+- the merge uses the exact verified head SHA when the merge API supports that guard;
+- the Phase is not itself a milestone exit-audit/closure decision that requires Validator or Manager/user review.
+
+After such a merge, Operator MUST verify the resulting `main` state before closing the Phase issue or starting work that depends on the merge.
+
+Bounded auto-merge does **not** authorize Operator to merge through a real decision gate. Operator must stop and escalate instead when any of these occur:
+
+- a new semantic/architecture/Public Contract/Adapter Protocol choice is required;
+- compatibility impact is unclear or potentially breaking beyond the accepted Phase decision;
+- Validator returns `REJECT/REVISE` or an unmet execution gate;
+- a milestone exit audit is due;
+- required CI is not green on the exact head;
+- merge conflict, branch protection, review, or permission blocks safe merge;
+- the user explicitly requests a stop or per-PR review.
+
+The intent is:
+
+```text
+resume
+  -> implement accepted Phase N
+  -> PR
+  -> CI/fix loop
+  -> evidence
+  -> bounded auto-merge when eligible
+  -> verify main
+  -> close Phase N / update parent
+  -> continue Phase N+1
+  -> stop only at a real gate
+```
 
 The normal CI polling loop is conceptually:
 
@@ -196,7 +237,7 @@ push / PR update
    -> detect workflow run
    -> wait/check in ~30-second intervals
    -> failure: inspect -> minimal fix -> restart
-   -> success: record evidence -> next task
+   -> success: record evidence -> merge/next task when authorized
 ```
 
 ### 5.2 `update`
@@ -280,7 +321,7 @@ ACCEPTED
 Operator: resume
       |
       v
-fixture/test -> implementation -> CI -> issue evidence
+fixture/test -> implementation -> CI -> evidence -> bounded merge -> next eligible Phase
 ```
 
 Documentation synchronization then uses:
@@ -330,6 +371,8 @@ implementation complete
         -> Operator update
         -> Manager meeting / Planner preparation of the next milestone when new decisions are required
 ```
+
+Bounded auto-merge applies to accepted Phase implementation PRs inside the milestone, but it does not bypass the Validator exit audit or other milestone closure gates.
 
 This makes milestone closure mean that validation has already passed, while `update` serves as the documentation handoff to the next milestone.
 
