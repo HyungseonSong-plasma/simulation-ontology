@@ -94,8 +94,7 @@ fn standard_transport_rejections_are_deterministic() {
         assert_eq!(response.error().code(), JSON_RPC_INVALID_REQUEST);
     }
 
-    let invalid_version =
-        rejected(r#"{"id":3,"jsonrpc":"1.0","method":"describe_adapter"}"#);
+    let invalid_version = rejected(r#"{"id":3,"jsonrpc":"1.0","method":"describe_adapter"}"#);
     assert_eq!(invalid_version.id(), Some(RequestId::new(3).unwrap()));
     assert_eq!(invalid_version.error().code(), JSON_RPC_INVALID_REQUEST);
 
@@ -103,9 +102,8 @@ fn standard_transport_rejections_are_deterministic() {
     assert_eq!(unknown.id(), Some(RequestId::new(4).unwrap()));
     assert_eq!(unknown.error().code(), JSON_RPC_METHOD_NOT_FOUND);
 
-    let invalid_params = rejected(
-        r#"{"id":5,"jsonrpc":"2.0","method":"validate_plan","params":[]}"#,
-    );
+    let invalid_params =
+        rejected(r#"{"id":5,"jsonrpc":"2.0","method":"validate_plan","params":[]}"#);
     assert_eq!(invalid_params.id(), Some(RequestId::new(5).unwrap()));
     assert_eq!(invalid_params.error().code(), JSON_RPC_INVALID_PARAMS);
 }
@@ -162,22 +160,16 @@ fn protocol_success_and_failure_both_use_the_result_channel() {
     );
 
     let failure = ProtocolFailure::invalid_request("request is not canonical").unwrap();
-    let failure_response = JsonRpcResponse::protocol_failure(
-        id,
-        AdapterTransportMethod::ValidatePlan,
-        &failure,
-    )
-    .unwrap();
+    let failure_response =
+        JsonRpcResponse::protocol_failure(id, AdapterTransportMethod::ValidatePlan, &failure)
+            .unwrap();
     let failure_json = failure_response.to_json();
     assert!(failure_json.contains(r#""kind":"protocol_failure""#));
     assert!(failure_json.contains(r#""result""#));
     assert!(!failure_json.contains(r#""error""#));
 
-    let decoded = JsonRpcResponse::from_json(
-        &failure_json,
-        AdapterTransportMethod::ValidatePlan,
-    )
-    .unwrap();
+    let decoded =
+        JsonRpcResponse::from_json(&failure_json, AdapterTransportMethod::ValidatePlan).unwrap();
     assert!(matches!(
         decoded,
         JsonRpcResponse::ProtocolResult {
@@ -208,11 +200,8 @@ fn response_ids_must_correlate_exactly() {
     let matching = JsonRpcResponse::protocol_success(expected, json!({"ok": true})).unwrap();
     matching.correlate(expected).unwrap();
 
-    let other = JsonRpcResponse::protocol_success(
-        RequestId::new(41).unwrap(),
-        json!({"ok": true}),
-    )
-    .unwrap();
+    let other = JsonRpcResponse::protocol_success(RequestId::new(41).unwrap(), json!({"ok": true}))
+        .unwrap();
     let mismatch = other.correlate(expected).unwrap_err();
     assert_eq!(mismatch.expected, expected);
     assert_eq!(mismatch.actual, Some(RequestId::new(41).unwrap()));
@@ -257,7 +246,10 @@ fn stdio_framing_handles_chunks_multiple_messages_and_crlf() {
 #[test]
 fn stdio_framing_rejects_empty_invalid_and_unterminated_frames() {
     let mut decoder = StdioFrameDecoder::new();
-    assert_eq!(decoder.push(b" \t\r\n"), vec![Err(StdioFrameError::EmptyFrame)]);
+    assert_eq!(
+        decoder.push(b" \t\r\n"),
+        vec![Err(StdioFrameError::EmptyFrame)]
+    );
     assert_eq!(
         decoder.push(&[0xff, b'\n']),
         vec![Err(StdioFrameError::InvalidUtf8)]
@@ -276,9 +268,7 @@ fn stdio_framing_rejects_empty_invalid_and_unterminated_frames() {
 
 #[test]
 fn batches_are_not_part_of_the_local_single_call_profile() {
-    let response = rejected(
-        r#"[{"id":1,"jsonrpc":"2.0","method":"describe_adapter"}]"#,
-    );
+    let response = rejected(r#"[{"id":1,"jsonrpc":"2.0","method":"describe_adapter"}]"#);
     assert_eq!(response.id(), None);
     assert_eq!(response.error().code(), JSON_RPC_INVALID_REQUEST);
 }
