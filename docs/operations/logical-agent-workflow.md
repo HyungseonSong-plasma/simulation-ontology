@@ -35,9 +35,10 @@ Responsibilities:
 - ask Researcher to resolve semantic/architecture questions and identify ADR candidates;
 - ask Validator to challenge the proposal using connectivity, extensibility, simplicity, consistency, compatibility, and counterexamples;
 - return Validator findings to Planner for critical revision rather than automatic acceptance;
-- track unresolved questions and rejected alternatives;
+- track unresolved questions and rejected/deferred alternatives;
 - prevent premature convergence when architecture/public-contract/protocol consequences remain unclear;
-- request user confirmation before important architecture/public-contract/protocol decisions become accepted;
+- request user confirmation before important compatibility-sensitive decisions become accepted unless that authority has already been explicitly delegated;
+- reopen a meeting when Operator reports a newly discovered semantic/compatibility contradiction during `resume` or `update`;
 - hand accepted decisions to Operator for implementation or documentation synchronization.
 
 Manager SHOULD make the decision state explicit using the following vocabulary where useful:
@@ -47,10 +48,18 @@ PROPOSED
    -> CHALLENGED
    -> REVISED
    -> VALIDATED
-   -> USER_APPROVED
-   -> ACCEPTED
-   -> HANDOFF_TO_OPERATOR
+        |\
+        | -> USER_APPROVED  # when required
+        |       |
+        +-------+
+                v
+             ACCEPTED
+                |
+                v
+      HANDOFF_TO_OPERATOR
 ```
+
+`USER_APPROVED` is conditional rather than mandatory for every meeting. It is required for compatibility-sensitive or otherwise important decisions unless the user has already delegated acceptance authority. A low-risk or delegated decision may move from `VALIDATED` directly to `ACCEPTED`.
 
 Other terminal states may include:
 
@@ -59,7 +68,7 @@ REJECTED
 DEFERRED
 ```
 
-Manager must not convert a proposal into semantic truth merely because the discussion appears converged. For architecture, Public Contract, Adapter Protocol, or other compatibility-sensitive decisions, user confirmation is part of acceptance unless the user has already explicitly delegated that authority.
+Manager must not convert a proposal into semantic truth merely because discussion appears converged. If Planner, Researcher, and Validator still disagree on a material semantic or compatibility question, Manager escalates the unresolved choice to the user instead of deciding the technical substance itself.
 
 A successful meeting should leave four artifacts clear:
 
@@ -160,7 +169,8 @@ Responsibilities:
 - create/update branches, commits, PRs, issues, fixtures, tests, code, and documentation;
 - apply the smallest root-cause fix when CI fails;
 - record executable evidence before completing checklist items;
-- preserve the user-controlled merge gate unless explicit merge authorization is given.
+- preserve the user-controlled merge gate unless explicit merge authorization is given;
+- escalate newly discovered unresolved semantic/compatibility decisions to Manager rather than resolving them implicitly during execution.
 
 Operator has two named work modes: `resume` and `update`.
 
@@ -176,7 +186,8 @@ Expected behavior:
 4. Use counterexample-driven implementation and the established CI-first loop.
 5. On CI failure, inspect logs, apply the smallest root-cause fix, and restart verification.
 6. On CI success, record evidence, update issue checklists, and continue immediately to the next eligible task.
-7. Stop only at a real decision, merge, permission, or architecture gate.
+7. If implementation exposes a new unresolved architecture/Public Contract/Protocol/compatibility choice, stop that decision path and hand it to Manager `meeting`.
+8. Stop only at a real decision, merge, permission, or architecture gate.
 
 The normal CI polling loop is conceptually:
 
@@ -213,8 +224,9 @@ Expected behavior:
 5. Update examples and command/output snippets when supported behavior changes.
 6. Distinguish implemented capability from planned capability clearly.
 7. Run applicable documentation/build/CI checks and record evidence in the PR.
+8. If documentation exposes an unresolved semantic or compatibility contradiction, stop that decision path and escalate it to Manager `meeting`.
 
-`update` is not authority to invent new semantics. If documentation exposes an unresolved semantic contradiction, Operator should surface it to Manager/Planner/Researcher rather than silently resolve it in guide text.
+`update` is documentation synchronization, not semantic authority. Operator should not bypass Manager by silently choosing among unresolved Planner/Researcher/Validator alternatives in guide text.
 
 A typical `update` scope is:
 
@@ -226,6 +238,8 @@ README / API docs / guides / examples
        |
        v
 consistency review
+       |
+       +--> unresolved semantic/compatibility question -> Manager: meeting
        |
        v
 PR + CI evidence
@@ -255,8 +269,9 @@ Planner critical revision
       v
 Manager decision-state check
       |
-      v
-User confirmation when required
+      +--> unresolved material disagreement -> user escalation
+      |
+      +--> user confirmation when required
       |
       v
 ACCEPTED
@@ -292,7 +307,8 @@ Manager `meeting` SHOULD be used for:
 - milestone/roadmap redesign;
 - decisions with multiple reasonable alternatives;
 - changes that may affect compatibility;
-- conflicts between Researcher and Validator recommendations.
+- conflicts between Researcher and Validator recommendations;
+- unresolved semantic/compatibility contradictions discovered by Operator during `resume` or `update`.
 
 Manager `meeting` MAY be skipped for:
 
@@ -300,7 +316,7 @@ Manager `meeting` MAY be skipped for:
 - CI/root-cause fixes;
 - formatting/mechanical maintenance;
 - straightforward refactors that preserve accepted contracts;
-- guide synchronization through Operator `update`.
+- guide synchronization through Operator `update` when no unresolved decision is exposed.
 
 ## 8. Milestone handoff rule
 
@@ -312,7 +328,7 @@ implementation complete
         -> Operator resume for required fixes
         -> milestone close
         -> Operator update
-        -> Manager/Planner preparation of the next milestone
+        -> Manager meeting / Planner preparation of the next milestone when new decisions are required
 ```
 
 This makes milestone closure mean that validation has already passed, while `update` serves as the documentation handoff to the next milestone.
