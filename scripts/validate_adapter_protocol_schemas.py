@@ -15,7 +15,7 @@ COUNTEREXAMPLE_DIR = ROOT / "fixtures" / "counterexamples"
 DIALECT = "https://json-schema.org/draft/2020-12/schema"
 TRANSPORT_KEYS = {
     "jsonrpc",
-    "id",
+    "request_id",
     "stdio_frame",
     "process_id",
     "retry_policy",
@@ -214,8 +214,8 @@ def main() -> None:
     if semantic_break["published_meaning"] == semantic_break["incompatible_redefinition"]:
         raise AssertionError("semantic break fixture must model changed normative meaning")
 
-    # Canonical protocol fixtures are transport-independent. Modeled transport-loss
-    # counterexamples live under fixtures/counterexamples and are not protocol payloads.
+    # Canonical protocol fixtures are transport-independent. Public Contract payloads may
+    # legitimately contain semantic `id` fields, so only transport-qualified keys are banned.
     for fixture in sorted(FIXTURE_DIR.glob("*.json")):
         require_transport_independent(fixture)
 
