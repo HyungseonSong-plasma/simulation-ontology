@@ -110,6 +110,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-core-plan"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "sol-core-qrc"
 version = "0.1.0"
 dependencies = [
