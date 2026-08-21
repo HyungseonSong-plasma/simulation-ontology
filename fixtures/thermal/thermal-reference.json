@@ -46,6 +46,16 @@
         "label": "Hot wall"
       }
     ],
+    "scopes": [
+      {
+        "id": "scope.main_domain",
+        "members": ["domain.main"]
+      },
+      {
+        "id": "scope.hot_wall",
+        "members": ["boundary.hot_wall"]
+      }
+    ],
     "material": [
       {
         "id": "material.copper",
@@ -125,7 +135,7 @@
     {
       "kind": "defined_on",
       "source": "thermal.energy_conservation",
-      "target": "domain.main"
+      "target": "scope.main_domain"
     },
     {
       "kind": "discretized_by",
@@ -140,7 +150,7 @@
     {
       "kind": "applied_to",
       "source": "bc.hot_wall_temperature",
-      "target": "boundary.hot_wall"
+      "target": "scope.hot_wall"
     },
     {
       "kind": "analyzed_by",
