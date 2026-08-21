@@ -1,0 +1,14 @@
+{
+  "adapter_protocol_version": "0.1",
+  "execution": "unavailable",
+  "execution_batches": [],
+  "action_reports": [
+    {"action_id":"thermal.domain","state":"unavailable","effects":[],"diagnostics":[{"code":"adapter.transient_unavailable","severity":"error","detail":"backend environment is temporarily unavailable"}]},
+    {"action_id":"thermal.material","state":"not_started","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.solve","state":"not_started","effects":[],"diagnostics":[]}
+  ],
+  "effects": [],
+  "diagnostics": [
+    {"code":"adapter.transient_unavailable","severity":"error","detail":"authoritative execute-time availability check failed"}
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "adapter_protocol_version": "0.1",
+  "execution": "completed",
+  "execution_batches": [["thermal.b"],["thermal.a"],["thermal.c"]],
+  "action_reports": [
+    {"action_id":"thermal.a","state":"completed","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.b","state":"completed","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.c","state":"completed","effects":[],"diagnostics":[]}
+  ],
+  "effects": [],
+  "diagnostics": []
+}

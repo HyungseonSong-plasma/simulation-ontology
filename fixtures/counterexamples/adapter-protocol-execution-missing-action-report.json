@@ -1,0 +1,11 @@
+{
+  "adapter_protocol_version":"0.1",
+  "execution":"partial",
+  "execution_batches":[["thermal.domain"],["thermal.material"]],
+  "action_reports":[
+    {"action_id":"thermal.domain","state":"completed","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.material","state":"failed","effects":[],"diagnostics":[{"code":"adapter.execution_failed","severity":"error","detail":"material failed"}]}
+  ],
+  "effects":[],
+  "diagnostics":[]
+}

@@ -1,0 +1,14 @@
+{
+  "adapter_protocol_version": "0.1",
+  "execution": "rejected",
+  "execution_batches": [],
+  "action_reports": [
+    {"action_id":"thermal.domain","state":"not_started","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.material","state":"not_started","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.solve.changed","state":"not_started","effects":[],"diagnostics":[]}
+  ],
+  "effects": [],
+  "diagnostics": [
+    {"code":"adapter.precondition_rejected","severity":"error","detail":"execute-time plan/current-state re-check rejected the request"}
+  ]
+}

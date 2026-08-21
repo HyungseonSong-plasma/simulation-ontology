@@ -1,6 +1,8 @@
 #![forbid(unsafe_code)]
 
+mod execution;
 mod preflight;
+pub use execution::*;
 pub use preflight::*;
 
 use serde::{Deserialize, Serialize};
