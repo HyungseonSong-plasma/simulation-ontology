@@ -433,6 +433,14 @@ fn partial_response(plan: &MappingPlanDto) -> ExecutePlanResponse {
             .any(|dependency| blocked.contains(dependency));
         if dependency_blocked {
             blocked.insert(action.id.clone());
+            let detail = if action.id == "thermal.solve" {
+                "solve was skipped because thermal.material did not complete".to_owned()
+            } else {
+                format!(
+                    "{} was skipped because a dependency did not complete",
+                    action.id
+                )
+            };
             reports.push(ActionExecutionReport {
                 action_id: action.id.clone(),
                 state: ActionExecutionState::SkippedDependency,
@@ -440,10 +448,7 @@ fn partial_response(plan: &MappingPlanDto) -> ExecutePlanResponse {
                 diagnostics: vec![Diagnostic::error(
                     DIAGNOSTIC_DEPENDENCY_SKIPPED,
                     None,
-                    format!(
-                        "{} was skipped because a dependency did not complete",
-                        action.id
-                    ),
+                    detail,
                 )],
                 provenance: None,
                 extensions: Default::default(),
