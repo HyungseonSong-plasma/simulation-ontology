@@ -1,0 +1,6 @@
+{
+  "category": "invalid_request",
+  "code": "protocol.malformed_bootstrap",
+  "detail": "bootstrap payload is malformed",
+  "side_effects": "none"
+}
