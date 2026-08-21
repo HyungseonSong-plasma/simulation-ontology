@@ -4,15 +4,13 @@ use sol_public_contract::{
     DIAGNOSTIC_UNRESOLVED_RELATION_ENDPOINT,
 };
 
-const THERMAL: &str =
-    include_str!("../../../fixtures/public-contract/0.1/thermal-simulation.json");
+const THERMAL: &str = include_str!("../../../fixtures/public-contract/0.1/thermal-simulation.json");
 const THERMAL_REPORT: &str =
     include_str!("../../../fixtures/public-contract/0.1/thermal-validation-report.json");
 const UNRESOLVED_REFERENCE: &str =
     include_str!("../../../fixtures/counterexamples/public-contract-unresolved-reference.json");
-const INVALID_SCOPE: &str = include_str!(
-    "../../../fixtures/counterexamples/public-contract-invalid-scope-membership.json"
-);
+const INVALID_SCOPE: &str =
+    include_str!("../../../fixtures/counterexamples/public-contract-invalid-scope-membership.json");
 const DUPLICATE_ID: &str =
     include_str!("../../../fixtures/counterexamples/public-contract-duplicate-id.json");
 const MALFORMED_DIAGNOSTIC: &str =
