@@ -1,5 +1,7 @@
 use serde::Deserialize;
-use sol_core_effect::{compare_semantics, RealizationEffect, RealizationQuality, SemanticComparison};
+use sol_core_effect::{
+    compare_semantics, RealizationEffect, RealizationQuality, SemanticComparison,
+};
 use sol_core_mapping::MappingSubjectRef;
 
 #[derive(Debug, Deserialize)]
