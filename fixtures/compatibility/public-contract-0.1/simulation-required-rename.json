@@ -1,0 +1,18 @@
+{
+  "public_contract_version": "0.1",
+  "ontologyVersion": "0.1",
+  "model": {
+    "id": "model.compatibility",
+    "physics": [],
+    "mathematical": [],
+    "constitutive": [],
+    "spatial": [],
+    "scopes": [],
+    "material": [],
+    "conditions": [],
+    "numerical": [],
+    "observations": []
+  },
+  "tasks": [],
+  "relations": []
+}
