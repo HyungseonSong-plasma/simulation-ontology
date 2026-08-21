@@ -315,3 +315,51 @@ Breaking change
 ```
 
 This document is a product/versioning policy. If a future change modifies canonical Core semantics rather than merely their release/compatibility governance, the semantic change SHALL be handled through the appropriate architecture/ADR process as well as this versioning policy.
+
+## 18. Post-M0.1 compatibility-gated execution plan
+
+The post-M0.1 milestone sequence SHALL reflect the independent compatibility surfaces defined above. Implementation order is therefore:
+
+| Milestone | Primary compatibility surface | Required outcome before advancing |
+|---|---|---|
+| M0.2 — Canonical Public Contract 0.1 | Public Contract | Canonical JSON DTO set, version marker, normalization/equality rules, extensibility rules, golden compatibility fixtures |
+| M0.3 — Adapter Protocol 0.1 | Adapter Protocol | Versioned method/request/response/error contracts, compatibility range declaration, pre-execution negotiation and incompatibility behavior |
+| M0.4 — MockAdapter Protocol Conformance | Adapter Protocol | Executable reference behavior and reusable old/new compatibility fixtures for protocol semantics |
+| M0.5 — JSON-RPC over stdio | Transport, not a new semantic version axis | Wire framing and subprocess behavior proven equivalent to the already-defined protocol semantics |
+| M0.6 — Adapter Conformance Tooling | Adapter Protocol ecosystem | External adapters can run the same conformance suite without linking solver dependencies into Core |
+
+After M0.6, TypeScript/Python SDK work and the external MOOSE adapter may proceed in parallel. SDK releases SHALL consume the canonical Public Contract rather than infer compatibility from internal Rust structs. The MOOSE adapter SHALL advertise an explicit supported Adapter Protocol range rather than matching the SOL Runtime version.
+
+### 18.1 Public Contract 0.1 gate
+
+Before Public Contract 0.1 is declared, the project SHALL classify which current M0.1 representations are:
+
+- canonical public DTOs;
+- internal Rust implementation details;
+- public but Experimental surfaces;
+- excluded from the public contract.
+
+At minimum, the gate SHOULD cover canonical forms for model-facing data, validation/diagnostics, MappingPlan, BackendTarget-facing data, EvaluationResult, and any payload reused by the Adapter Protocol. The gate SHALL include executable fixtures demonstrating unknown optional-field behavior, canonical normalization, and stable round-trip semantics.
+
+### 18.2 Adapter Protocol 0.1 gate
+
+Adapter Protocol 0.1 SHALL be declared only after Public Contract payload dependencies are explicit. Protocol negotiation SHALL distinguish at least compatible, incompatible, and unknown/missing compatibility information before execution. An incompatible semantic or structural change after declaration SHALL require a new explicit protocol version boundary; a Runtime release SHALL NOT silently redefine protocol 0.1.
+
+### 18.3 Transport gate
+
+JSON-RPC over stdio SHALL NOT create a new semantic compatibility axis. A transport implementation is conforming only when the same protocol request produces the same required canonical semantics as the in-process reference path, modulo transport-specific envelope metadata. Golden tests SHALL cover malformed JSON, invalid request ids/envelopes where applicable, process termination, stderr/stdout discipline, and deterministic error propagation.
+
+### 18.4 SDK and real-adapter gate
+
+TypeScript and Python SDKs may experiment before M0.6, but supported SDK APIs SHALL be frozen only against declared Public Contract versions. The first MOOSE adapter may be prototyped separately, but it SHALL enter the official reference-adapter path only after Adapter Protocol 0.1 and reusable Core conformance tooling exist.
+
+### Validator decision rule
+
+The sequence remains compatible with this policy only if:
+
+- Public Contract 0.1 is established before stable SDK APIs depend on it;
+- Adapter Protocol 0.1 is established before transport details are treated as normative semantics;
+- protocol compatibility is explicit and checked before execution;
+- MockAdapter and the conformance suite provide executable evidence for compatibility claims;
+- real-adapter implementation versions remain independent from Runtime/Public Contract/Protocol versions;
+- any real-adapter evidence that requires incompatible protocol semantics results in a documented new protocol version rather than mutation of the existing one.
