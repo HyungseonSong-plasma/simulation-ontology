@@ -1,14 +1,17 @@
 #![forbid(unsafe_code)]
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
+use sol_adapter_protocol::{
+    AdapterBootstrap, AdapterDescription, CapabilityDeclaration, TargetDeclaration,
+};
 use sol_core_identity::{CanonicalId, IdentityResolver, ResolvedGraph};
 use sol_core_model::Simulation;
 use sol_core_plan::{MappingPlan, PlanAction};
-use sol_mock_adapter::MockAdapter;
 use sol_public_contract::{validate_simulation, MappingPlanDto, PlanActionDto, SimulationDto};
 use sol_target_resolver::{
-    resolve_target, AdapterDescriptor, BackendCapability, BackendTarget, ResolveTargetError,
+    descriptors_from_description, resolve_target, AdapterDescriptor, BackendCapability,
+    BackendTarget, ResolveTargetError,
 };
 
 /// Human-readable validation output for the original M0.1 CLI path.
@@ -96,15 +99,38 @@ pub fn plan_public_contract_document(input: &str, target: &str) -> Result<String
 }
 
 fn resolve_thermal_target(plan: &MappingPlan, target: &str) -> Result<AdapterDescriptor, String> {
-    let adapter = MockAdapter::thermal();
-    let descriptor =
-        AdapterDescriptor::from_adapter("mock.thermal", BackendTarget::mock(), &adapter);
-    let descriptors = [descriptor];
+    let description = thermal_adapter_description();
+    let descriptors = descriptors_from_description(&description);
     let required = thermal_requirements();
     let target = BackendTarget::new(target);
     resolve_target(&target, plan, &required, &descriptors)
         .cloned()
         .map_err(resolve_target_error_to_string)
+}
+
+fn thermal_adapter_description() -> AdapterDescription {
+    AdapterDescription {
+        bootstrap: AdapterBootstrap {
+            adapter_id: "mock.thermal".to_owned(),
+            adapter_version: "0.1.0".to_owned(),
+            supported_adapter_protocol_versions: Some(vec!["0.1".to_owned()]),
+            supported_public_contract_versions: Some(vec!["0.1".to_owned()]),
+            extensions: BTreeMap::new(),
+        },
+        targets: vec![TargetDeclaration {
+            target: "mock".to_owned(),
+            capabilities: thermal_requirements()
+                .into_iter()
+                .map(|capability| CapabilityDeclaration {
+                    capability: capability.as_str().to_owned(),
+                    revision: None,
+                    extensions: BTreeMap::new(),
+                })
+                .collect(),
+            extensions: BTreeMap::new(),
+        }],
+        extensions: BTreeMap::new(),
+    }
 }
 
 fn verify_thermal_reference(graph: &ResolvedGraph) -> Result<(), String> {
