@@ -1,0 +1,22 @@
+{
+  "adapter_protocol_version": "0.1",
+  "target": {
+    "public_contract_version": "0.1",
+    "target": "mock",
+    "required_capabilities": [
+      "thermal.domain",
+      "thermal.material",
+      "thermal.solve",
+      "thermal.radiation"
+    ]
+  },
+  "plan": {
+    "public_contract_version": "0.1",
+    "actions": [
+      {"id": "thermal.domain", "dependencies": []},
+      {"id": "thermal.material", "dependencies": ["thermal.domain"]},
+      {"id": "thermal.solve", "dependencies": ["thermal.material"]},
+      {"id": "thermal.radiation", "dependencies": ["thermal.solve"]}
+    ]
+  }
+}

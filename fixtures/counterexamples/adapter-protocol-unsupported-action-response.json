@@ -1,0 +1,16 @@
+{
+  "adapter_protocol_version": "0.1",
+  "target_compatible": true,
+  "capabilities_satisfied": true,
+  "preflight": "rejected",
+  "diagnostics": [
+    {
+      "code": "adapter.unsupported_action",
+      "severity": "error",
+      "detail": "plan action is not supported by the adapter",
+      "sol_adapter_protocol_context": {
+        "plan_action_id": "thermal.radiation"
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "adapter_protocol_version": "0.1",
+  "target_compatible": false,
+  "capabilities_satisfied": false,
+  "preflight": "rejected",
+  "diagnostics": [
+    {
+      "code": "adapter.target_mismatch",
+      "severity": "error",
+      "detail": "requested target is not addressed by this adapter",
+      "sol_adapter_protocol_context": {
+        "target": "comsol"
+      }
+    },
+    {
+      "code": "adapter.missing_capability",
+      "severity": "error",
+      "detail": "capabilities cannot be satisfied for the unmatched target",
+      "sol_adapter_protocol_context": {
+        "capability": "thermal.solve"
+      }
+    }
+  ]
+}
