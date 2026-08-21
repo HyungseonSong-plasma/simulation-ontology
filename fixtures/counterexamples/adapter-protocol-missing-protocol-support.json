@@ -1,0 +1,7 @@
+{
+  "bootstrap": {
+    "adapter_id": "adapter.mock",
+    "adapter_version": "1.4.0",
+    "supported_public_contract_versions": ["0.1"]
+  }
+}
