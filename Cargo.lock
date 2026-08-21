@@ -78,6 +78,7 @@ dependencies = [
  "sol-core-model",
  "sol-core-plan",
  "sol-mock-adapter",
+ "sol-public-contract",
  "sol-target-resolver",
 ]
 
