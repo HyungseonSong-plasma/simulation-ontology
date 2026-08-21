@@ -33,6 +33,9 @@ pub enum Constraint {
         min: usize,
         max: Option<usize>,
     },
+    /// Requires every relation endpoint in the resolved graph to resolve to a
+    /// canonical node. This remains a Core semantic integrity check.
+    ReferenceIntegrity,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -66,6 +69,10 @@ pub enum ConstraintViolation {
         min: usize,
         max: Option<usize>,
         actual: usize,
+    },
+    DanglingRelationEndpoint {
+        relation_kind: RelationKind,
+        endpoint: CanonicalId,
     },
 }
 
@@ -195,19 +202,36 @@ pub fn evaluate(graph: &ResolvedGraph, constraint: &Constraint) -> Result<(), Co
                 })
             }
         }
+        Constraint::ReferenceIntegrity => {
+            for relation in graph.relations() {
+                if graph.resolve(&relation.source).is_none() {
+                    return Err(ConstraintViolation::DanglingRelationEndpoint {
+                        relation_kind: relation.kind,
+                        endpoint: relation.source.clone(),
+                    });
+                }
+                if graph.resolve(&relation.target).is_none() {
+                    return Err(ConstraintViolation::DanglingRelationEndpoint {
+                        relation_kind: relation.kind,
+                        endpoint: relation.target.clone(),
+                    });
+                }
+            }
+            Ok(())
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::{evaluate, Constraint, ConstraintViolation};
-    use sol_core_identity::{CanonicalId, IdentityResolver};
+    use sol_core_identity::{CanonicalId, IdentityResolver, ResolveError};
     use sol_core_model::{
         EntityKind, OntologyEntity, RelationKind, SemanticRelation, Simulation, SimulationModel,
     };
 
-    fn thermal_graph() -> sol_core_identity::ResolvedGraph {
-        let simulation = Simulation {
+    fn thermal_simulation() -> Simulation {
+        Simulation {
             ontology_version: "0.1".to_owned(),
             model: SimulationModel {
                 id: "thermal.model".to_owned(),
@@ -236,8 +260,11 @@ mod tests {
                 source: "thermal.heat_transfer".to_owned(),
                 target: "thermal.energy_conservation".to_owned(),
             }],
-        };
-        IdentityResolver::resolve(&simulation).unwrap()
+        }
+    }
+
+    fn thermal_graph() -> sol_core_identity::ResolvedGraph {
+        IdentityResolver::resolve(&thermal_simulation()).unwrap()
     }
 
     #[test]
@@ -394,5 +421,20 @@ mod tests {
             evaluate(&graph, &constraint),
             Err(ConstraintViolation::InvalidCardinalityBounds { min: 2, max: 1 })
         );
+    }
+
+    #[test]
+    fn thermal_graph_has_reference_integrity() {
+        let graph = thermal_graph();
+        assert_eq!(evaluate(&graph, &Constraint::ReferenceIntegrity), Ok(()));
+    }
+
+    #[test]
+    fn unresolved_relation_endpoint_is_rejected_before_qrc_evaluation() {
+        let mut simulation = thermal_simulation();
+        simulation.relations[0].target = "thermal.missing".to_owned();
+
+        let error = IdentityResolver::resolve(&simulation).unwrap_err();
+        assert!(matches!(error, ResolveError::UnresolvedReference { .. }));
     }
 }
