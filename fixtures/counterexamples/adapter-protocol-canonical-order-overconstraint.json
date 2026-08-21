@@ -1,0 +1,8 @@
+{
+  "public_operations": ["describe_adapter", "validate_plan", "execute_plan"],
+  "duplicates_public_contract_payload": false,
+  "backend_native_semantic_payload": false,
+  "opaque_provenance_affects_semantic_identity": false,
+  "requires_canonical_total_execution_order": true,
+  "one_method_per_responsibility": false
+}
