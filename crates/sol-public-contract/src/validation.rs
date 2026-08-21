@@ -14,8 +14,7 @@ pub const DIAGNOSTIC_EMPTY_SCOPE: &str = "model.empty_scope";
 pub const DIAGNOSTIC_DUPLICATE_SCOPE_MEMBER: &str = "model.duplicate_scope_member";
 pub const DIAGNOSTIC_UNRESOLVED_SCOPE_MEMBER: &str = "model.unresolved_scope_member";
 pub const DIAGNOSTIC_NON_SPATIAL_SCOPE_MEMBER: &str = "model.non_spatial_scope_member";
-pub const DIAGNOSTIC_UNRESOLVED_RELATION_ENDPOINT: &str =
-    "model.unresolved_relation_endpoint";
+pub const DIAGNOSTIC_UNRESOLVED_RELATION_ENDPOINT: &str = "model.unresolved_relation_endpoint";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -180,21 +179,17 @@ impl ValidationReport {
 pub enum ValidationReportError {
     Contract(ContractDocumentError),
     InvalidDto(String),
-    MalformedDiagnostic {
-        index: usize,
-        reason: String,
-    },
-    InconsistentValidity {
-        declared: bool,
-        derived: bool,
-    },
+    MalformedDiagnostic { index: usize, reason: String },
+    InconsistentValidity { declared: bool, derived: bool },
 }
 
 impl Display for ValidationReportError {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Contract(error) => write!(formatter, "{error}"),
-            Self::InvalidDto(detail) => write!(formatter, "invalid validation report DTO: {detail}"),
+            Self::InvalidDto(detail) => {
+                write!(formatter, "invalid validation report DTO: {detail}")
+            }
             Self::MalformedDiagnostic { index, reason } => {
                 write!(formatter, "malformed diagnostic at index {index}: {reason}")
             }
@@ -270,18 +265,8 @@ pub fn validate_simulation(simulation: &SimulationDto) -> ValidationReport {
     }
 
     for relation in &simulation.relations {
-        validate_relation_endpoint(
-            relation.source.as_str(),
-            "source",
-            &nodes,
-            &mut diagnostics,
-        );
-        validate_relation_endpoint(
-            relation.target.as_str(),
-            "target",
-            &nodes,
-            &mut diagnostics,
-        );
+        validate_relation_endpoint(relation.source.as_str(), "source", &nodes, &mut diagnostics);
+        validate_relation_endpoint(relation.target.as_str(), "target", &nodes, &mut diagnostics);
     }
 
     ValidationReport::new(diagnostics)
@@ -309,13 +294,16 @@ fn register_id(
         return;
     }
 
-    if nodes.insert(raw_id.to_owned(), kind).is_some() {
+    if nodes.contains_key(raw_id) {
         diagnostics.push(Diagnostic::error(
             DIAGNOSTIC_DUPLICATE_ID,
             Some(raw_id.to_owned()),
             format!("duplicate canonical id: {raw_id}"),
         ));
+        return;
     }
+
+    nodes.insert(raw_id.to_owned(), kind);
 }
 
 fn validate_scope(
