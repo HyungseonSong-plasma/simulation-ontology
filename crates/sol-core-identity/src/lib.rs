@@ -190,10 +190,16 @@ impl Display for ResolveError {
             Self::DuplicateCanonicalId(id) => write!(formatter, "duplicate canonical id: {id}"),
             Self::EmptyScope(id) => write!(formatter, "spatial scope has no members: {id}"),
             Self::DuplicateScopeMember { scope, member } => {
-                write!(formatter, "duplicate spatial scope member {member} in {scope}")
+                write!(
+                    formatter,
+                    "duplicate spatial scope member {member} in {scope}"
+                )
             }
             Self::UnresolvedScopeMember { scope, member } => {
-                write!(formatter, "unresolved spatial scope member {member} in {scope}")
+                write!(
+                    formatter,
+                    "unresolved spatial scope member {member} in {scope}"
+                )
             }
             Self::NonSpatialScopeMember {
                 scope,
