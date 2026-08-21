@@ -1,0 +1,12 @@
+{
+  "public_contract_version": "0.1",
+  "valid": false,
+  "diagnostics": [
+    {
+      "code": "model.duplicate_id",
+      "severity": "error",
+      "subject": "model.compatibility",
+      "detail": "duplicate canonical id"
+    }
+  ]
+}
