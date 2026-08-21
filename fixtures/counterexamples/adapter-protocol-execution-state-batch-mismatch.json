@@ -1,0 +1,12 @@
+{
+  "adapter_protocol_version":"0.1",
+  "execution":"rejected",
+  "execution_batches":[["thermal.domain"]],
+  "action_reports":[
+    {"action_id":"thermal.domain","state":"not_started","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.material","state":"not_started","effects":[],"diagnostics":[]},
+    {"action_id":"thermal.solve","state":"not_started","effects":[],"diagnostics":[]}
+  ],
+  "effects":[],
+  "diagnostics":[{"code":"adapter.execution_rejected","severity":"error","detail":"execution rejected"}]
+}
