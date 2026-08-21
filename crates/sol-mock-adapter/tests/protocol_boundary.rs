@@ -8,13 +8,16 @@ fn crate_root() -> PathBuf {
 #[test]
 fn protocol_facing_source_is_separate_from_legacy_helper_surface() {
     let root = crate_root();
-    let protocol = root.join("src/protocol.rs");
-    assert!(
-        protocol.exists(),
-        "M0.4 protocol-facing source boundary must exist"
-    );
+    let protocol_paths = [root.join("src/protocol.rs"), root.join("src/protocol_state.rs")];
+    for path in &protocol_paths {
+        assert!(path.exists(), "M0.4 protocol-facing source boundary must exist");
+    }
 
-    let source = fs::read_to_string(protocol).unwrap();
+    let source = protocol_paths
+        .iter()
+        .map(|path| fs::read_to_string(path).unwrap())
+        .collect::<Vec<_>>()
+        .join("\n");
     for forbidden in [
         "EvaluationStatus",
         "sol_core_evaluation",
