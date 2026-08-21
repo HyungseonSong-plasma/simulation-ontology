@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use sol_core_identity::{CanonicalId, ResolvedGraph, ResolvedNodeKind};
-use sol_core_model::EntityKind;
+use sol_core_model::{EntityKind, RelationKind};
 
 /// A solver-independent constraint evaluated against the resolved semantic graph.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -10,6 +10,12 @@ pub enum Constraint {
     EntityType {
         entity: CanonicalId,
         expected: EntityKind,
+    },
+    /// Requires a specific semantic relation between two canonical nodes.
+    Relation {
+        source: CanonicalId,
+        kind: RelationKind,
+        target: CanonicalId,
     },
 }
 
@@ -22,6 +28,11 @@ pub enum ConstraintViolation {
         entity: CanonicalId,
         expected: EntityKind,
         actual: ResolvedNodeKind,
+    },
+    MissingRelation {
+        source: CanonicalId,
+        kind: RelationKind,
+        target: CanonicalId,
     },
 }
 
@@ -45,6 +56,36 @@ pub fn evaluate(graph: &ResolvedGraph, constraint: &Constraint) -> Result<(), Co
                 })
             }
         }
+        Constraint::Relation {
+            source,
+            kind,
+            target,
+        } => {
+            if graph.resolve(source).is_none() {
+                return Err(ConstraintViolation::MissingEntity {
+                    entity: source.clone(),
+                });
+            }
+            if graph.resolve(target).is_none() {
+                return Err(ConstraintViolation::MissingEntity {
+                    entity: target.clone(),
+                });
+            }
+
+            let relation_exists = graph.relations().iter().any(|relation| {
+                relation.source == *source && relation.kind == *kind && relation.target == *target
+            });
+
+            if relation_exists {
+                Ok(())
+            } else {
+                Err(ConstraintViolation::MissingRelation {
+                    source: source.clone(),
+                    kind: *kind,
+                    target: target.clone(),
+                })
+            }
+        }
     }
 }
 
@@ -52,7 +93,9 @@ pub fn evaluate(graph: &ResolvedGraph, constraint: &Constraint) -> Result<(), Co
 mod tests {
     use super::{evaluate, Constraint, ConstraintViolation};
     use sol_core_identity::{CanonicalId, IdentityResolver};
-    use sol_core_model::{EntityKind, OntologyEntity, Simulation, SimulationModel};
+    use sol_core_model::{
+        EntityKind, OntologyEntity, RelationKind, SemanticRelation, Simulation, SimulationModel,
+    };
 
     fn thermal_graph() -> sol_core_identity::ResolvedGraph {
         let simulation = Simulation {
@@ -79,7 +122,11 @@ mod tests {
                 observations: vec![],
             },
             tasks: vec![],
-            relations: vec![],
+            relations: vec![SemanticRelation {
+                kind: RelationKind::RepresentedBy,
+                source: "thermal.heat_transfer".to_owned(),
+                target: "thermal.energy_conservation".to_owned(),
+            }],
         };
         IdentityResolver::resolve(&simulation).unwrap()
     }
@@ -123,6 +170,37 @@ mod tests {
         assert_eq!(
             evaluate(&graph, &constraint),
             Err(ConstraintViolation::MissingEntity { entity })
+        );
+    }
+
+    #[test]
+    fn thermal_represented_by_relation_satisfies_relation_constraint() {
+        let graph = thermal_graph();
+        let constraint = Constraint::Relation {
+            source: "thermal.heat_transfer".parse().unwrap(),
+            kind: RelationKind::RepresentedBy,
+            target: "thermal.energy_conservation".parse().unwrap(),
+        };
+        assert_eq!(evaluate(&graph, &constraint), Ok(()));
+    }
+
+    #[test]
+    fn wrong_relation_kind_is_rejected() {
+        let graph = thermal_graph();
+        let source: CanonicalId = "thermal.heat_transfer".parse().unwrap();
+        let target: CanonicalId = "thermal.energy_conservation".parse().unwrap();
+        let constraint = Constraint::Relation {
+            source: source.clone(),
+            kind: RelationKind::ClosedBy,
+            target: target.clone(),
+        };
+        assert_eq!(
+            evaluate(&graph, &constraint),
+            Err(ConstraintViolation::MissingRelation {
+                source,
+                kind: RelationKind::ClosedBy,
+                target,
+            })
         );
     }
 }
