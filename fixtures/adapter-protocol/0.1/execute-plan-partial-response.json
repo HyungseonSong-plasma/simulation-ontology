@@ -1,0 +1,30 @@
+{
+  "adapter_protocol_version": "0.1",
+  "execution": "partial",
+  "execution_batches": [["thermal.domain"],["thermal.material"]],
+  "action_reports": [
+    {
+      "action_id":"thermal.domain",
+      "state":"completed",
+      "effects":[{"subject":{"subject_kind":"entity","id":"domain.main"},"quality":"exact"}],
+      "diagnostics":[]
+    },
+    {
+      "action_id":"thermal.material",
+      "state":"failed",
+      "effects":[{"subject":{"subject_kind":"entity","id":"material.copper"},"quality":"degraded","detail":"partial backend realization before failure"}],
+      "diagnostics":[{"code":"adapter.execution_failed","severity":"error","detail":"material realization failed after partial work"}]
+    },
+    {
+      "action_id":"thermal.solve",
+      "state":"skipped_dependency",
+      "effects":[],
+      "diagnostics":[{"code":"adapter.dependency_skipped","severity":"error","detail":"solve was skipped because thermal.material did not complete"}]
+    }
+  ],
+  "effects":[
+    {"subject":{"subject_kind":"entity","id":"domain.main"},"quality":"exact"},
+    {"subject":{"subject_kind":"entity","id":"material.copper"},"quality":"degraded","detail":"partial backend realization before failure"}
+  ],
+  "diagnostics":[]
+}
