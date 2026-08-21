@@ -44,10 +44,7 @@ pub struct AdapterDescriptor {
 }
 
 impl AdapterDescriptor {
-    pub fn from_description(
-        description: &AdapterDescription,
-        target: &TargetDeclaration,
-    ) -> Self {
+    pub fn from_description(description: &AdapterDescription, target: &TargetDeclaration) -> Self {
         Self {
             id: description.bootstrap.adapter_id.clone(),
             target: BackendTarget::new(target.target.clone()),
@@ -114,9 +111,7 @@ pub fn resolve_public_target<'a>(
                 .collect();
             required.is_subset(&available)
         })
-        .min_by(|(left, _), (right, _)| {
-            left.bootstrap.adapter_id.cmp(&right.bootstrap.adapter_id)
-        })
+        .min_by(|(left, _), (right, _)| left.bootstrap.adapter_id.cmp(&right.bootstrap.adapter_id))
         .ok_or(ResolveTargetError::NoCompatibleAdapter)
 }
 
@@ -228,10 +223,7 @@ mod tests {
         let target = BackendTargetDto {
             public_contract_version: "0.1".to_owned(),
             target: "mock".to_owned(),
-            required_capabilities: vec![
-                "thermal.domain".to_owned(),
-                "thermal.solve".to_owned(),
-            ],
+            required_capabilities: vec!["thermal.domain".to_owned(), "thermal.solve".to_owned()],
             extensions: BTreeMap::new(),
         };
 
