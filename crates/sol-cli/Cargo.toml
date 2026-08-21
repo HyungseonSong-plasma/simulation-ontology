@@ -8,4 +8,8 @@ rust-version.workspace = true
 description = "Command-line client for the Simulation Ontology semantic Core"
 
 [dependencies]
+sol-core-identity = { path = "../sol-core-identity" }
 sol-core-model = { path = "../sol-core-model" }
+sol-core-plan = { path = "../sol-core-plan" }
+sol-mock-adapter = { path = "../sol-mock-adapter" }
+sol-target-resolver = { path = "../sol-target-resolver" }
