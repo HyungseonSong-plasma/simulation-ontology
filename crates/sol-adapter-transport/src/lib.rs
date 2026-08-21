@@ -1,12 +1,19 @@
 #![forbid(unsafe_code)]
 
-//! Transport-owned mapping for the published Adapter Protocol 0.1 operations.
+//! Transport-owned JSON-RPC 2.0/stdin-stdout mapping for the published
+//! Adapter Protocol 0.1 operations.
 //!
 //! This crate owns wire method names and the protocol-result/transport-error
 //! channel boundary. Adapter Protocol DTO meaning remains in
-//! `sol-adapter-protocol`. JSON-RPC envelopes, request IDs, framing, process
-//! lifecycle, and replay behavior are intentionally deferred to later M0.5
-//! phases.
+//! `sol-adapter-protocol`. It also owns deterministic JSON-RPC envelopes,
+//! request correlation, and line-delimited stdio framing. Process lifecycle,
+//! process error evidence, and replay behavior remain in later M0.5 phases.
+
+mod framing;
+mod json_rpc;
+
+pub use framing::*;
+pub use json_rpc::*;
 
 use sol_adapter_protocol::ProtocolOperation;
 
