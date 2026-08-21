@@ -169,34 +169,47 @@ This separation allows Core CI to remain deterministic and solver-installation i
 
 Development is CI-first and counterexample-driven. The canonical logical agents are development/reasoning roles, not runtime SOL agents:
 
-| Logical agent | Responsibility | Primary output |
+| Logical agent | Responsibility | Primary output / work mode |
 |---|---|---|
+| **Manager** | orchestrate decision-heavy discussions, track decision state, prevent premature convergence, coordinate user confirmation and handoff | `meeting` |
 | **Planner** | objectives, sequencing, dependencies, alternatives, milestone/phase shape | plans, options, decision criteria, execution order |
 | **Researcher** | ontology/architecture decisions, semantic boundaries, trade-offs | semantic decisions, ADRs, invariants |
 | **Validator** | challenge decisions for connectivity, extensibility, simplicity, consistency, compatibility, and counterexamples | verdicts, counterexamples, acceptance gates |
-| **Operator** | execute approved work in GitHub, maintain code/tests/docs/issues/PRs, and verify CI evidence | commits, PRs, fixtures, CI evidence, synchronized guides |
+| **Operator** | execute accepted work in GitHub and synchronize guides with accepted state | `resume`, `update` |
 
-The normal execution flow is:
+For architecture, Public Contract, Adapter Protocol, roadmap, or other decision-heavy work, the normal flow is:
 
 ```text
-Planner
+Manager: meeting
+   -> Planner
    -> Researcher
    -> ADR when semantic architecture is fixed or changed
-   -> Validator counterexample / acceptance gate
-   -> Operator
+   -> Validator
+   -> Planner critical revision
+   -> Manager checks unresolved/rejected alternatives and decision state
+   -> user confirmation when required
+   -> ACCEPTED
+   -> Operator: resume
    -> fixture/test -> implementation -> CI -> issue evidence
 ```
 
-Operator has two named work modes:
+The named work modes are:
 
-- `resume`: continue implementation from the current repository/issue/PR/CI state until a real merge, decision, permission, or architecture gate is reached;
-- `update`: synchronize user/developer-facing guides with accepted current behavior, including the root README and future API, SDK, adapter, CLI, schema, examples, and onboarding documentation.
+- `meeting` — Manager coordinates Planner, Researcher, Validator, and user confirmation until a decision is accepted, rejected, deferred, or revised;
+- `resume` — Operator continues implementation from the current repository/issue/PR/CI state until a real merge, decision, permission, or architecture gate is reached;
+- `update` — Operator synchronizes user/developer-facing guides with accepted current behavior, including the root README and future API, SDK, adapter, CLI, schema, examples, and onboarding documentation.
 
-`update` is documentation synchronization, not semantic authority. If guide maintenance exposes an unresolved architecture contradiction, Operator must surface it to Planner/Researcher instead of inventing a new contract in documentation.
+`meeting` does not give Manager semantic authority: Researcher owns semantic investigation, Validator independently challenges the proposal, Planner critically incorporates feedback, and compatibility-sensitive acceptance normally requires user confirmation.
+
+`update` is documentation synchronization, not semantic authority. If guide maintenance exposes an unresolved architecture contradiction, Operator must surface it to Manager/Planner/Researcher instead of inventing a new contract in documentation.
+
+Manager is normally used for architecture/public-contract/protocol/roadmap decisions or other work with multiple reasonable alternatives. Already accepted implementation tasks, CI fixes, mechanical maintenance, and routine guide synchronization do not need a meeting.
 
 For implementation work, a failed CI gate blocks the next task. The operating loop is `push -> wait/check CI -> inspect failure -> minimal fix -> re-check -> continue only after success`.
 
-See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md) for the detailed role and `resume` / `update` conventions.
+For compatibility-sensitive milestone transitions, the preferred handoff is `implementation complete -> Validator exit audit -> Operator resume for required fixes -> milestone close -> Operator update -> Manager/Planner preparation of the next milestone`.
+
+See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md) for the detailed role, decision-state, and work-mode conventions.
 
 ## Repository and project baselines
 
@@ -209,6 +222,7 @@ See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-
 - Implementation notes: [`docs/implementation/`](docs/implementation/)
 - M0.1 completed tracker: [Issue #2](../../issues/2)
 - M0.2 active tracker: [Issue #28](../../issues/28)
+- M0.3 planned tracker: [Issue #38](../../issues/38)
 
 ## Planned public distributions
 

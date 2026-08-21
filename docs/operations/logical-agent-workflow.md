@@ -2,7 +2,7 @@
 
 **Status:** Project operating convention  
 **Date:** 2026-08-21  
-**Scope:** Planning, semantic decision-making, validation, implementation, and documentation synchronization
+**Scope:** Meeting orchestration, planning, semantic decision-making, validation, implementation, and documentation synchronization
 
 ## Purpose
 
@@ -10,12 +10,67 @@ This document defines the logical agents used to operate the SOL project. These 
 
 The canonical agent names are:
 
+- `Manager`
 - `Planner`
 - `Researcher`
 - `Validator`
 - `Operator`
 
-## 1. Planner
+The role boundary is intentional: Manager orchestrates discussion, Planner structures work, Researcher owns semantic investigation, Validator challenges decisions, and Operator executes accepted work.
+
+## 1. Manager
+
+Manager owns discussion orchestration and decision-state management. Manager does not own semantic truth, implementation state, or validation authority.
+
+Manager has one named work mode: `meeting`.
+
+### 1.1 `meeting`
+
+`meeting` means coordinate a structured decision process across Planner, Researcher, Validator, and the user until the proposal is either accepted, rejected, deferred, or returned for revision.
+
+Responsibilities:
+
+- establish the agenda and decision question;
+- ask Planner to frame objectives, alternatives, sequencing, and constraints;
+- ask Researcher to resolve semantic/architecture questions and identify ADR candidates;
+- ask Validator to challenge the proposal using connectivity, extensibility, simplicity, consistency, compatibility, and counterexamples;
+- return Validator findings to Planner for critical revision rather than automatic acceptance;
+- track unresolved questions and rejected alternatives;
+- prevent premature convergence when architecture/public-contract/protocol consequences remain unclear;
+- request user confirmation before important architecture/public-contract/protocol decisions become accepted;
+- hand accepted decisions to Operator for implementation or documentation synchronization.
+
+Manager SHOULD make the decision state explicit using the following vocabulary where useful:
+
+```text
+PROPOSED
+   -> CHALLENGED
+   -> REVISED
+   -> VALIDATED
+   -> USER_APPROVED
+   -> ACCEPTED
+   -> HANDOFF_TO_OPERATOR
+```
+
+Other terminal states may include:
+
+```text
+REJECTED
+DEFERRED
+```
+
+Manager must not convert a proposal into semantic truth merely because the discussion appears converged. For architecture, Public Contract, Adapter Protocol, or other compatibility-sensitive decisions, user confirmation is part of acceptance unless the user has already explicitly delegated that authority.
+
+A successful meeting should leave four artifacts clear:
+
+1. the accepted decision;
+2. rejected/deferred alternatives and the reason;
+3. invariants, counterexamples, or acceptance gates;
+4. the execution handoff: ADR, issue, fixture/test, implementation, or documentation update.
+
+Manager is optional for purely mechanical work that is already fully specified.
+
+## 2. Planner
 
 Planner prepares the decision space before architecture or implementation work begins.
 
@@ -26,7 +81,8 @@ Responsibilities:
 - identify which questions require Researcher decisions;
 - identify which changes require ADR treatment;
 - shape milestones, phases, and acceptance criteria before execution;
-- keep roadmap sequencing consistent with product/versioning policy.
+- keep roadmap sequencing consistent with product/versioning policy;
+- critically evaluate Validator recommendations instead of accepting them automatically.
 
 Planner does not own implementation state and does not silently establish new semantic truth.
 
@@ -38,7 +94,7 @@ Primary outputs:
 - decision criteria;
 - dependency/order recommendations.
 
-## 2. Researcher
+## 3. Researcher
 
 Researcher owns semantic and architecture investigation.
 
@@ -59,7 +115,7 @@ Primary outputs:
 - ADRs;
 - clarified invariants and non-goals.
 
-## 3. Validator
+## 4. Validator
 
 Validator challenges proposed decisions and implementation boundaries before they are treated as stable.
 
@@ -83,6 +139,8 @@ Responsibilities:
 - issue an explicit verdict such as `APPROVE`, `APPROVE WITH GATES`, or `REJECT/REVISE`;
 - define acceptance gates that Operator can execute.
 
+Validator findings inform Planner revision; they are not automatically the final project decision.
+
 Primary outputs:
 
 - validator verdicts;
@@ -91,9 +149,9 @@ Primary outputs:
 - acceptance gates;
 - missing-evidence findings.
 
-## 4. Operator
+## 5. Operator
 
-Operator owns execution against the approved plan and repository state.
+Operator owns execution against the accepted plan and repository state.
 
 Responsibilities:
 
@@ -106,7 +164,7 @@ Responsibilities:
 
 Operator has two named work modes: `resume` and `update`.
 
-### 4.1 `resume`
+### 5.1 `resume`
 
 `resume` means continue implementation/execution from the current repository state until a real gate is reached.
 
@@ -130,7 +188,7 @@ push / PR update
    -> success: record evidence -> next task
 ```
 
-### 4.2 `update`
+### 5.2 `update`
 
 `update` means synchronize user-facing and developer-facing guide documentation with the accepted current project state.
 
@@ -156,7 +214,7 @@ Expected behavior:
 6. Distinguish implemented capability from planned capability clearly.
 7. Run applicable documentation/build/CI checks and record evidence in the PR.
 
-`update` is not authority to invent new semantics. If documentation exposes an unresolved semantic contradiction, Operator should surface it to Planner/Researcher rather than silently resolve it in guide text.
+`update` is not authority to invent new semantics. If documentation exposes an unresolved semantic contradiction, Operator should surface it to Manager/Planner/Researcher rather than silently resolve it in guide text.
 
 A typical `update` scope is:
 
@@ -173,58 +231,115 @@ consistency review
 PR + CI evidence
 ```
 
-## 5. Normal agent flow
+## 6. Normal agent flow
 
-The normal project flow is:
+For architecture, Public Contract, Adapter Protocol, roadmap, or other decision-heavy work, the normal flow is:
 
 ```text
+Manager: meeting
+      |
+      v
 Planner
-   |
-   v
+      |
+      v
 Researcher
-   |
-   +--> ADR when semantic architecture is fixed/changed
-   |
-   v
+      |
+      +--> ADR when semantic architecture is fixed/changed
+      |
+      v
 Validator
-   |
-   v
-counterexample / acceptance gate
-   |
-   v
+      |
+      v
+Planner critical revision
+      |
+      v
+Manager decision-state check
+      |
+      v
+User confirmation when required
+      |
+      v
+ACCEPTED
+      |
+      v
 Operator: resume
-   |
-   v
+      |
+      v
 fixture/test -> implementation -> CI -> issue evidence
+```
 
+Documentation synchronization then uses:
+
+```text
+accepted repository state
+      |
+      v
 Operator: update
-   |
-   v
+      |
+      v
 README / API docs / guides synchronized to accepted state
 ```
 
-Planner and Researcher may be skipped when a task is purely mechanical and already fully specified. Validator should be used whenever semantics, compatibility, architecture boundaries, or public contracts can be affected.
+Manager, Planner, and Researcher may be skipped when a task is purely mechanical and already fully specified. Validator should be used whenever semantics, compatibility, architecture boundaries, or public contracts can be affected.
 
-## 6. Documentation hierarchy rule
+## 7. When `meeting` is required
+
+Manager `meeting` SHOULD be used for:
+
+- architecture decisions;
+- Public Contract changes;
+- Adapter Protocol changes;
+- milestone/roadmap redesign;
+- decisions with multiple reasonable alternatives;
+- changes that may affect compatibility;
+- conflicts between Researcher and Validator recommendations.
+
+Manager `meeting` MAY be skipped for:
+
+- implementation of an already accepted issue;
+- CI/root-cause fixes;
+- formatting/mechanical maintenance;
+- straightforward refactors that preserve accepted contracts;
+- guide synchronization through Operator `update`.
+
+## 8. Milestone handoff rule
+
+For compatibility-sensitive milestones, the preferred handoff is:
+
+```text
+implementation complete
+        -> Validator exit audit
+        -> Operator resume for required fixes
+        -> milestone close
+        -> Operator update
+        -> Manager/Planner preparation of the next milestone
+```
+
+This makes milestone closure mean that validation has already passed, while `update` serves as the documentation handoff to the next milestone.
+
+## 9. Documentation hierarchy rule
 
 Documentation has different authority levels.
 
 - ADRs define accepted semantic architecture decisions.
 - Public-contract/protocol/schema documents define normative external contracts when adopted.
 - Product/versioning plans define roadmap and compatibility governance.
+- `docs/operations/` defines project operating conventions.
 - README/API guides/examples explain how to understand and use the accepted system.
 
 Guide documentation must follow normative sources; it must not silently override them.
 
-## 7. Naming migration
+## 10. Naming migration
 
 Previous informal names are superseded as follows:
 
 ```text
-Consult                         -> Planner
-Research Lab                    -> Researcher
-Validation Lab / Validator      -> Validator
+Consult                          -> Planner
+Research Lab                     -> Researcher
+Validation Lab / Validator       -> Validator
 Operating / Implementation Agent -> Operator
 ```
+
+`Manager` is a new orchestration role introduced to own `meeting`; it does not replace a previous agent.
 
 New project documentation should use the canonical names above.
