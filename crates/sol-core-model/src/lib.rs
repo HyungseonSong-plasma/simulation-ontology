@@ -24,9 +24,6 @@ pub fn violates_backend_boundary(manifest_line: &str) -> bool {
 }
 
 /// Top-level semantic categories defined by Core Simulation Ontology v0.1.
-///
-/// Phase 1 keeps these categories explicit while deferring canonical identity,
-/// reference resolution, and cross-category constraints to later phases.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EntityKind {
@@ -43,15 +40,23 @@ pub enum EntityKind {
 }
 
 /// A solver-independent semantic entity.
-///
-/// `id` is a document-level reference key in Phase 1. Canonical identity and
-/// namespace semantics are introduced by the Phase 2 resolver.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OntologyEntity {
     pub id: String,
     pub kind: EntityKind,
     pub semantic_type: String,
     pub label: String,
+}
+
+/// Solver-independent spatial applicability set.
+///
+/// M0.1 supports explicit membership only. Member references are resolved and
+/// validated by the canonical identity layer and must identify SpatialModel
+/// entities.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SpatialScope {
+    pub id: String,
+    pub members: Vec<String>,
 }
 
 /// The model-definition side of a simulation.
@@ -62,6 +67,8 @@ pub struct SimulationModel {
     pub mathematical: Vec<OntologyEntity>,
     pub constitutive: Vec<OntologyEntity>,
     pub spatial: Vec<OntologyEntity>,
+    #[serde(default)]
+    pub scopes: Vec<SpatialScope>,
     pub material: Vec<OntologyEntity>,
     pub conditions: Vec<OntologyEntity>,
     pub numerical: Vec<OntologyEntity>,

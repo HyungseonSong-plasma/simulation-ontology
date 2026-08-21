@@ -14,7 +14,8 @@ fn thermal_graph_resolves_deterministically() {
     let second = IdentityResolver::resolve(&simulation).expect("thermal graph must resolve again");
 
     assert_eq!(first, second);
-    assert_eq!(first.nodes().len(), 15);
+    assert_eq!(first.nodes().len(), 17);
+    assert_eq!(first.scopes().len(), 2);
     assert_eq!(first.relations().len(), 9);
 
     let model_id: CanonicalId = "model.thermal_reference".parse().unwrap();
@@ -27,6 +28,12 @@ fn thermal_graph_resolves_deterministically() {
     assert_eq!(
         first.resolve(&temperature_id).map(|node| node.kind),
         Some(ResolvedNodeKind::Entity(EntityKind::MathematicalModel))
+    );
+
+    let scope_id: CanonicalId = "scope.hot_wall".parse().unwrap();
+    assert_eq!(
+        first.resolve(&scope_id).map(|node| node.kind),
+        Some(ResolvedNodeKind::SpatialScope)
     );
 }
 

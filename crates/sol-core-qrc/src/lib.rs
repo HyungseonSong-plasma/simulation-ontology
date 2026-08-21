@@ -249,6 +249,7 @@ mod tests {
                 }],
                 constitutive: vec![],
                 spatial: vec![],
+                scopes: vec![],
                 material: vec![],
                 conditions: vec![],
                 numerical: vec![],

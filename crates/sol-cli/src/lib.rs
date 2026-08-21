@@ -60,7 +60,8 @@ pub fn plan_document(input: &str, target: &str) -> Result<String, String> {
 fn verify_thermal_reference(graph: &ResolvedGraph) -> Result<(), String> {
     for raw_id in [
         "thermal.energy_conservation",
-        "domain.main",
+        "scope.main_domain",
+        "scope.hot_wall",
         "material.copper",
         "solver.default",
     ] {
@@ -109,7 +110,7 @@ mod tests {
     fn thermal_validation_output_is_canonical() {
         assert_eq!(
             validate_document(THERMAL).unwrap(),
-            "VALIDATION PASS\nontology_version=0.1\nmodel=model.thermal_reference\ncanonical_nodes=15\ncanonical_relations=9"
+            "VALIDATION PASS\nontology_version=0.1\nmodel=model.thermal_reference\ncanonical_nodes=17\ncanonical_relations=9"
         );
     }
 
