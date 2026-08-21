@@ -165,30 +165,38 @@ Real adapter repository
 
 This separation allows Core CI to remain deterministic and solver-installation independent while still making external adapters testable against the same published contract.
 
-## Development method and logical roles
+## Development method and logical agents
 
-Development is CI-first and counterexample-driven. The project currently uses the following logical operating roles; these are development/reasoning roles, not runtime SOL agents:
+Development is CI-first and counterexample-driven. The canonical logical agents are development/reasoning roles, not runtime SOL agents:
 
-| Logical role | Responsibility | Primary output |
+| Logical agent | Responsibility | Primary output |
 |---|---|---|
-| **Research Lab** | ontology/architecture decisions, semantic boundaries, trade-offs | decision proposal, ADR when architecture semantics change |
-| **Validation Lab / Validator** | challenge decisions for connectivity, extensibility, simplicity, compatibility; construct positive/negative counterexamples | validator verdict, counterexamples, acceptance gates |
-| **Operating / Implementation Agent** | execute the approved plan in GitHub, implement tests/code/docs, maintain issues/PRs, run CI loop | commits, PRs, executable fixtures, CI evidence, issue status |
-| **Consult** | support decisions with alternatives and trade-off analysis without owning implementation state | options, review questions, decision criteria |
+| **Planner** | objectives, sequencing, dependencies, alternatives, milestone/phase shape | plans, options, decision criteria, execution order |
+| **Researcher** | ontology/architecture decisions, semantic boundaries, trade-offs | semantic decisions, ADRs, invariants |
+| **Validator** | challenge decisions for connectivity, extensibility, simplicity, consistency, compatibility, and counterexamples | verdicts, counterexamples, acceptance gates |
+| **Operator** | execute approved work in GitHub, maintain code/tests/docs/issues/PRs, and verify CI evidence | commits, PRs, fixtures, CI evidence, synchronized guides |
 
 The normal execution flow is:
 
 ```text
-Research decision
-      -> ADR when required
-      -> Validator counterexample / acceptance gate
-      -> GitHub fixture or test
-      -> implementation
-      -> CI
-      -> evidence recorded in the Phase issue
+Planner
+   -> Researcher
+   -> ADR when semantic architecture is fixed or changed
+   -> Validator counterexample / acceptance gate
+   -> Operator
+   -> fixture/test -> implementation -> CI -> issue evidence
 ```
 
+Operator has two named work modes:
+
+- `resume`: continue implementation from the current repository/issue/PR/CI state until a real merge, decision, permission, or architecture gate is reached;
+- `update`: synchronize user/developer-facing guides with accepted current behavior, including the root README and future API, SDK, adapter, CLI, schema, examples, and onboarding documentation.
+
+`update` is documentation synchronization, not semantic authority. If guide maintenance exposes an unresolved architecture contradiction, Operator must surface it to Planner/Researcher instead of inventing a new contract in documentation.
+
 For implementation work, a failed CI gate blocks the next task. The operating loop is `push -> wait/check CI -> inspect failure -> minimal fix -> re-check -> continue only after success`.
+
+See [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md) for the detailed role and `resume` / `update` conventions.
 
 ## Repository and project baselines
 
@@ -196,6 +204,7 @@ For implementation work, a failed CI gate blocks the next task. The operating lo
 - Product boundary and adapter roadmap: [`docs/plans/product-boundary-and-adapter-roadmap.md`](docs/plans/product-boundary-and-adapter-roadmap.md)
 - Versioning and compatibility policy: [`docs/plans/versioning-and-compatibility-policy.md`](docs/plans/versioning-and-compatibility-policy.md)
 - Post-M0.1 validator review: [`docs/plans/post-m0.1-roadmap-validator-review.md`](docs/plans/post-m0.1-roadmap-validator-review.md)
+- Logical agent workflow: [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md)
 - Spatial Scope ADR: [`docs/adr/ADR-001-first-class-spatial-scope.md`](docs/adr/ADR-001-first-class-spatial-scope.md)
 - Implementation notes: [`docs/implementation/`](docs/implementation/)
 - M0.1 completed tracker: [Issue #2](../../issues/2)
