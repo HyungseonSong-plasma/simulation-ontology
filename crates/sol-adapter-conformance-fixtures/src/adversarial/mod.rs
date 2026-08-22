@@ -16,7 +16,7 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub struct PublishedAdversarialFixtureSuite {
-    fixture_dir: PathBuf,
+    pub(super) fixture_dir: PathBuf,
     harness: ExternalAdapterHarness,
 }
 
@@ -123,13 +123,12 @@ impl PublishedAdversarialFixtureSuite {
                 "execute-plan-independent-request.json",
                 "execute-plan-alternate-order-response.json",
             ),
-            PublishedAdversarialScenario::ExecutionParallelIndependent => self
-                .run_execute_fixture(
-                    scenario,
-                    command,
-                    "execute-plan-independent-request.json",
-                    "execute-plan-parallel-response.json",
-                ),
+            PublishedAdversarialScenario::ExecutionParallelIndependent => self.run_execute_fixture(
+                scenario,
+                command,
+                "execute-plan-independent-request.json",
+                "execute-plan-parallel-response.json",
+            ),
             PublishedAdversarialScenario::PriorAlreadyRealized => self.run_execute_fixture(
                 scenario,
                 command,
@@ -142,13 +141,12 @@ impl PublishedAdversarialFixtureSuite {
                 "execute-plan-thermal-request.json",
                 "execute-plan-partial-prior-rejection-response.json",
             ),
-            PublishedAdversarialScenario::PriorUnresolvedPrerequisite => self
-                .run_execute_fixture(
-                    scenario,
-                    command,
-                    "execute-plan-thermal-request.json",
-                    "execute-plan-unresolved-prerequisite-response.json",
-                ),
+            PublishedAdversarialScenario::PriorUnresolvedPrerequisite => self.run_execute_fixture(
+                scenario,
+                command,
+                "execute-plan-thermal-request.json",
+                "execute-plan-unresolved-prerequisite-response.json",
+            ),
             PublishedAdversarialScenario::ExecuteResponseLoss
             | PublishedAdversarialScenario::DependencyScheduleViolation
             | PublishedAdversarialScenario::AggregateEffectMismatch
@@ -178,8 +176,8 @@ impl PublishedAdversarialFixtureSuite {
         E: Display,
     {
         let path = self.fixture_dir.join(name);
-        let input = fs::read_to_string(&path)
-            .map_err(|error| common::fixture_failure(&path, error))?;
+        let input =
+            fs::read_to_string(&path).map_err(|error| common::fixture_failure(&path, error))?;
         parse(&input).map_err(|error| common::fixture_failure(&path, error))
     }
 }
