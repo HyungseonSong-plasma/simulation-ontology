@@ -132,20 +132,23 @@ cargo test -p sol-adapter-authoring-skeleton --locked
 
 The important boundary is the subprocess invocation: the conformance harness observes the adapter through the published transport, not by linking its implementation into the runner.
 
-The exact conformance CLI and serialized report format remain provisional. Phase 0 intentionally did not stabilize command spelling, exit codes, or a machine-readable report schema. External-project packaging/workflow is the Phase 5 milestone gate; this guide therefore does not invent a CLI contract in advance.
+For the standalone external-project-style positive/adversarial workflow, see [`adapter-conformance-external-project.md`](adapter-conformance-external-project.md) and `examples/external-project-conformance/`.
+
+The exact conformance CLI and serialized report format remain provisional. Phase 0 intentionally did not stabilize command spelling, exit codes, or a machine-readable report schema. The Phase 5 reference workflow therefore marks its JSON CI observation as provisional rather than promoting it into a normative interface.
 
 ## 9. CI pattern
 
-Until the Phase 5 external-project workflow is published, an adapter project should treat the current library-level runner as the executable source of conformance semantics. A CI job should:
+The Phase 5 reference workflow demonstrates this CI pattern from a standalone Cargo workspace:
 
 1. build the adapter executable;
 2. obtain the matching published Protocol/Public Contract fixtures;
 3. launch the adapter through the conformance harness;
-4. require the expected positive and adversarial cases to establish conformance;
+4. run the positive and adversarial reference cases;
 5. preserve harness/transport failures separately from adapter non-conformance;
-6. run backend-native physics/numerics validation as a separate job owned by the adapter project.
+6. derive deterministic machine-readable CI evidence without treating the example JSON layout as a stable public report contract;
+7. run backend-native physics/numerics validation as a separate job owned by the adapter project.
 
-The reference repository CI runs formatting, build, tests, Clippy, architecture counterexamples, and both JSON Schema publication gates in addition to the skeleton conformance test.
+Rust Core CI additionally runs formatting, workspace build/tests, Clippy, architecture counterexamples, both JSON Schema publication gates, and the standalone external-project conformance workflow.
 
 ## 10. What conformance establishes
 
