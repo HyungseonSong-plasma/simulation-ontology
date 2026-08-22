@@ -1,4 +1,4 @@
-use sol_adapter_protocol::ValidatePlanRequest;
+use sol_adapter_protocol::{ExecutePlanRequest, ValidatePlanRequest};
 use sol_adapter_transport::{
     decode_request, AdapterTransportMethod, JsonRpcResponse, RequestDisposition, TransportRequest,
 };
@@ -19,6 +19,12 @@ enum ProbeMode {
     BrokenPipe,
     StderrBytes,
     ProtocolFailure,
+    DescribeResponseLoss,
+    ValidateResponseLoss,
+    ExecuteResponseLoss,
+    NoReplayObserver,
+    ExecuteFailureNone,
+    ExecuteFailureAmbiguous,
 }
 
 impl ProbeMode {
@@ -34,6 +40,12 @@ impl ProbeMode {
             "broken-pipe" => Some(Self::BrokenPipe),
             "stderr-bytes" => Some(Self::StderrBytes),
             "protocol-failure" => Some(Self::ProtocolFailure),
+            "describe-response-loss" => Some(Self::DescribeResponseLoss),
+            "validate-response-loss" => Some(Self::ValidateResponseLoss),
+            "execute-response-loss" => Some(Self::ExecuteResponseLoss),
+            "no-replay-observer" => Some(Self::NoReplayObserver),
+            "execute-failure-none" => Some(Self::ExecuteFailureNone),
+            "execute-failure-ambiguous" => Some(Self::ExecuteFailureAmbiguous),
             _ => None,
         }
     }
@@ -64,6 +76,9 @@ fn run(mode: ProbeMode) -> Result<(), String> {
     if bootstrap.method() != AdapterTransportMethod::DescribeAdapter {
         return Err("first request was not describe_adapter".to_owned());
     }
+    if mode == ProbeMode::DescribeResponseLoss {
+        return Ok(());
+    }
     let description = MockAdapter::thermal()
         .describe_adapter_operation()
         .map_err(|failure| failure.detail)?;
@@ -93,6 +108,18 @@ fn run(mode: ProbeMode) -> Result<(), String> {
                 .map_err(|error| error.to_string())?;
             return Ok(());
         }
+        ProbeMode::NoReplayObserver => {
+            let mut unexpected = String::new();
+            if input
+                .read_line(&mut unexpected)
+                .map_err(|error| error.to_string())?
+                == 0
+            {
+                return Ok(());
+            }
+            eprintln!("unexpected replay after reconnect: {unexpected}");
+            process::exit(31);
+        }
         _ => {}
     }
 
@@ -119,7 +146,30 @@ fn run(mode: ProbeMode) -> Result<(), String> {
             process::exit(23);
         }
         ProbeMode::ProtocolFailure => write_protocol_failure(&mut output, &request),
-        ProbeMode::BrokenPipe | ProbeMode::StderrBytes => {
+        ProbeMode::ValidateResponseLoss => {
+            require_method(&request, AdapterTransportMethod::ValidatePlan)?;
+            eprintln!("validate_plan request received before response loss");
+            Ok(())
+        }
+        ProbeMode::ExecuteResponseLoss => {
+            require_method(&request, AdapterTransportMethod::ExecutePlan)?;
+            eprintln!("execute_plan request received before response loss");
+            Ok(())
+        }
+        ProbeMode::ExecuteFailureNone => write_execute_protocol_failure(
+            &mut output,
+            &request,
+            MockProtocolFailureState::ExecuteOperationalBeforeSideEffect,
+        ),
+        ProbeMode::ExecuteFailureAmbiguous => write_execute_protocol_failure(
+            &mut output,
+            &request,
+            MockProtocolFailureState::ExecuteOperationalAmbiguous,
+        ),
+        ProbeMode::BrokenPipe
+        | ProbeMode::StderrBytes
+        | ProbeMode::DescribeResponseLoss
+        | ProbeMode::NoReplayObserver => {
             unreachable!("early-return probe mode reached response dispatch")
         }
     }
@@ -168,6 +218,43 @@ fn write_protocol_failure(
     let response = JsonRpcResponse::protocol_failure(request.id(), request.method(), &failure)
         .map_err(|error| error.to_string())?;
     write_frame(output, &response.to_stdio_frame())
+}
+
+fn write_execute_protocol_failure(
+    output: &mut impl Write,
+    request: &TransportRequest,
+    state: MockProtocolFailureState,
+) -> Result<(), String> {
+    require_method(request, AdapterTransportMethod::ExecutePlan)?;
+    let params = request
+        .params()
+        .expect("execute_plan transport request always has params");
+    let typed_request = ExecutePlanRequest::from_json(
+        &serde_json::to_string(params).expect("JSON Value always serializes"),
+    )
+    .map_err(|error| error.to_string())?;
+    let failure = MockAdapter::thermal()
+        .with_protocol_failure_state(state)
+        .execute_plan_operation(&typed_request)
+        .expect_err("injected execute operation must produce ProtocolFailure");
+    let response = JsonRpcResponse::protocol_failure(request.id(), request.method(), &failure)
+        .map_err(|error| error.to_string())?;
+    write_frame(output, &response.to_stdio_frame())
+}
+
+fn require_method(
+    request: &TransportRequest,
+    expected: AdapterTransportMethod,
+) -> Result<(), String> {
+    if request.method() == expected {
+        Ok(())
+    } else {
+        Err(format!(
+            "probe expected {} but received {}",
+            expected.wire_name(),
+            request.method().wire_name()
+        ))
+    }
 }
 
 fn write_frame(output: &mut impl Write, bytes: &[u8]) -> Result<(), String> {
