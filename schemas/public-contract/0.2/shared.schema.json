@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.2 realization shared definitions",
+  "$defs": {
+    "publicContractVersion": { "type": "string", "const": "0.2" },
+    "canonicalReference": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+$"
+    },
+    "stableSymbol": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
+    "entityKind": {
+      "type": "string",
+      "enum": [
+        "physics_model",
+        "mathematical_model",
+        "constitutive_model",
+        "spatial_model",
+        "material_model",
+        "condition_model",
+        "numerical_model",
+        "observation_model",
+        "analysis",
+        "solver_configuration"
+      ]
+    },
+    "relationKind": {
+      "type": "string",
+      "enum": [
+        "represented_by",
+        "closed_by",
+        "parameterized_by",
+        "defined_on",
+        "discretized_by",
+        "applied_to",
+        "analyzed_by",
+        "solved_by",
+        "produces",
+        "observed_by"
+      ]
+    },
+    "planAction": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableSymbol" },
+        "dependencies": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/stableSymbol" }
+        }
+      }
+    },
+    "quantity": {
+      "type": "object",
+      "required": ["value", "unit"],
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "$ref": "#/$defs/canonicalReference" }
+      }
+    },
+    "realizationParameter": {
+      "type": "object",
+      "required": ["semantic_parameter", "quantity"],
+      "properties": {
+        "semantic_parameter": { "$ref": "#/$defs/canonicalReference" },
+        "quantity": { "$ref": "#/$defs/quantity" }
+      }
+    },
+    "realizationEntity": {
+      "type": "object",
+      "required": ["id", "kind", "semantic_type"],
+      "properties": {
+        "id": { "$ref": "#/$defs/canonicalReference" },
+        "kind": { "$ref": "#/$defs/entityKind" },
+        "semantic_type": { "$ref": "#/$defs/stableSymbol" },
+        "parameters": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/realizationParameter" }
+        }
+      }
+    },
+    "spatialScope": {
+      "type": "object",
+      "required": ["id", "members"],
+      "properties": {
+        "id": { "$ref": "#/$defs/canonicalReference" },
+        "members": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/canonicalReference" }
+        }
+      }
+    },
+    "semanticRelation": {
+      "type": "object",
+      "required": ["kind", "source", "target"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/relationKind" },
+        "source": { "$ref": "#/$defs/canonicalReference" },
+        "target": { "$ref": "#/$defs/canonicalReference" }
+      }
+    },
+    "mappingSubject": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["subject_kind", "id"],
+          "properties": {
+            "subject_kind": { "const": "entity" },
+            "id": { "$ref": "#/$defs/canonicalReference" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["subject_kind", "source", "relation_kind", "target"],
+          "properties": {
+            "subject_kind": { "const": "relation" },
+            "source": { "$ref": "#/$defs/canonicalReference" },
+            "relation_kind": { "$ref": "#/$defs/relationKind" },
+            "target": { "$ref": "#/$defs/canonicalReference" }
+          }
+        }
+      ]
+    },
+    "actionRealizationBinding": {
+      "type": "object",
+      "required": ["action_id"],
+      "properties": {
+        "action_id": { "$ref": "#/$defs/stableSymbol" },
+        "subjects": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/mappingSubject" }
+        },
+        "scopes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/canonicalReference" }
+        }
+      },
+      "anyOf": [
+        { "required": ["subjects"], "properties": { "subjects": { "minItems": 1 } } },
+        { "required": ["scopes"], "properties": { "scopes": { "minItems": 1 } } }
+      ]
+    }
+  }
+}
