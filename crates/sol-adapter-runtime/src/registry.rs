@@ -125,7 +125,12 @@ mod tests {
             .unwrap();
         assert_eq!(registry.len(), 1);
         assert_eq!(
-            registry.get(&id).unwrap().registration().command().program(),
+            registry
+                .get(&id)
+                .unwrap()
+                .registration()
+                .command()
+                .program(),
             std::path::Path::new("/opt/adapter")
         );
         assert!(registry.get(&id).unwrap().is_enabled());
@@ -153,7 +158,12 @@ mod tests {
             Err(AdapterRegistryError::DuplicateRegistration(id.clone()))
         );
         assert_eq!(
-            registry.get(&id).unwrap().registration().command().program(),
+            registry
+                .get(&id)
+                .unwrap()
+                .registration()
+                .command()
+                .program(),
             std::path::Path::new("/opt/original")
         );
     }
