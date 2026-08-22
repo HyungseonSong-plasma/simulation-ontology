@@ -59,11 +59,8 @@ impl RunningAdapter {
         let registration = entry.registration().clone();
         let command = transport_command(registration.command());
         let session = AdapterProcessSession::spawn(command)?;
-        let instance = AdapterInstance::new(
-            instance_id,
-            registration.id().clone(),
-            session.process_id(),
-        );
+        let instance =
+            AdapterInstance::new(instance_id, registration.id().clone(), session.process_id());
 
         Ok(Self {
             registration,
