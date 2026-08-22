@@ -71,6 +71,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-adapter-authoring-skeleton"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
+ "sol-adapter-conformance",
+ "sol-adapter-conformance-fixtures",
+ "sol-adapter-conformance-harness",
+ "sol-adapter-protocol",
+ "sol-adapter-transport",
+ "sol-public-contract",
+]
+
+[[package]]
 name = "sol-adapter-conformance"
 version = "0.1.0"
 dependencies = [

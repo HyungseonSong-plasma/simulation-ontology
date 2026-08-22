@@ -1,0 +1,18 @@
+[package]
+name = "sol-adapter-authoring-skeleton"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+serde_json = "1.0.128"
+sol-adapter-protocol = { path = "../../../crates/sol-adapter-protocol" }
+sol-adapter-transport = { path = "../../../crates/sol-adapter-transport" }
+sol-public-contract = { path = "../../../crates/sol-public-contract" }
+
+[dev-dependencies]
+sol-adapter-conformance = { path = "../../../crates/sol-adapter-conformance" }
+sol-adapter-conformance-fixtures = { path = "../../../crates/sol-adapter-conformance-fixtures" }
+sol-adapter-conformance-harness = { path = "../../../crates/sol-adapter-conformance-harness" }
