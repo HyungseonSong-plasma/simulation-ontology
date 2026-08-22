@@ -231,7 +231,7 @@ Normally create/assign the corrective work to the current or next appropriate mi
 
 ## 15. Current roadmap projection
 
-Current repository projection after M0.5 closure:
+Current repository projection after M0.6 acceptance:
 
 ```text
 M0.1 — Semantic Core Bootstrap            historical / complete
@@ -239,7 +239,7 @@ M0.2 — Canonical Public Contract 0.1      historical / complete
 M0.3 — Adapter Protocol 0.1               historical / complete
 M0.4 — MockAdapter Protocol Conformance   historical / complete
 M0.5 — JSON-RPC / stdio Transport         historical / complete
-M0.6 — Adapter Conformance Tooling        active / Phase 0 #82 next
+M0.6 — Adapter Conformance Tooling        accepted complete; Milestone #6 UI close pending
 ```
 
 Canonical issue groupings are:
@@ -252,6 +252,8 @@ M0.4: parent #65, progress units #66–#71
 M0.5: parent #74, progress units #75–#80
 M0.6: parent #81, progress units #82–#87
 ```
+
+For M0.6, Phase #82–#87 and parent #81 are closed completed, exact-head CI and Validator exit acceptance are complete, and the final merge is verified on `main`. GitHub Milestone #6 reports `0` open and `6` closed Phase issues; the available GitHub connector does not expose a milestone-state write action, so its final UI **Close milestone** action remains administrative.
 
 The parent issues remain outside the GitHub Milestone membership under the convention above.
 
