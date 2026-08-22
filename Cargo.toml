@@ -11,6 +11,7 @@ members = [
     "crates/sol-mock-adapter",
     "crates/sol-public-contract",
     "crates/sol-adapter-conformance",
+    "crates/sol-adapter-conformance-harness",
     "crates/sol-adapter-protocol",
     "crates/sol-adapter-transport",
     "crates/sol-target-resolver",

@@ -78,6 +78,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-adapter-conformance-harness"
+version = "0.1.0"
+dependencies = [
+ "sol-adapter-conformance",
+ "sol-adapter-protocol",
+ "sol-adapter-transport",
+]
+
+[[package]]
 name = "sol-adapter-protocol"
 version = "0.1.0"
 dependencies = [
@@ -166,6 +175,7 @@ name = "sol-mock-adapter"
 version = "0.1.0"
 dependencies = [
  "serde_json",
+ "sol-adapter-conformance-harness",
  "sol-adapter-protocol",
  "sol-adapter-transport",
  "sol-core-effect",
