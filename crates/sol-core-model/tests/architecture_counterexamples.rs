@@ -266,8 +266,9 @@ fn adapter_runtime_registration_instance_conflation_is_rejected() {
         "../../../fixtures/counterexamples/adapter-runtime-registration-instance-conflation.json"
     );
 
-    assert!(adapter_runtime_boundary_violations(fixture)
-        .contains(&"registration_instance_conflation"));
+    assert!(
+        adapter_runtime_boundary_violations(fixture).contains(&"registration_instance_conflation")
+    );
 }
 
 #[test]
