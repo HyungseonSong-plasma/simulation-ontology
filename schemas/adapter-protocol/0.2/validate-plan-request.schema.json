@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Adapter Protocol 0.2 ValidatePlanRequest",
+  "type": "object",
+  "required": ["adapter_protocol_version", "target", "plan", "realization_spec"],
+  "properties": {
+    "adapter_protocol_version": { "$ref": "shared.schema.json#/$defs/adapterProtocolVersion" },
+    "target": { "$ref": "../../public-contract/0.2/backend-target.schema.json" },
+    "plan": { "$ref": "../../public-contract/0.2/mapping-plan.schema.json" },
+    "realization_spec": { "$ref": "../../public-contract/0.2/realization-spec.schema.json" }
+  }
+}
