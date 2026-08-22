@@ -78,6 +78,48 @@ fn adapter_protocol_boundary_violations(fixture: &str) -> Vec<&'static str> {
     violations
 }
 
+fn adapter_runtime_boundary_violations(fixture: &str) -> Vec<&'static str> {
+    let value: Value = serde_json::from_str(fixture).expect("valid runtime-boundary fixture JSON");
+    let mut violations = Vec::new();
+
+    for (field, violation) in [
+        (
+            "backend_target_is_registration",
+            "backend_target_registration_conflation",
+        ),
+        (
+            "registration_is_instance",
+            "registration_instance_conflation",
+        ),
+        (
+            "registration_declares_protocol_compatibility",
+            "static_protocol_compatibility_authority",
+        ),
+        (
+            "registration_declares_public_contract_compatibility",
+            "static_public_contract_compatibility_authority",
+        ),
+        (
+            "registration_declares_capabilities",
+            "static_capability_authority",
+        ),
+        (
+            "runtime_identity_affects_canonical_identity",
+            "runtime_identity_semantic_leakage",
+        ),
+        (
+            "backend_native_identity_affects_canonical_identity",
+            "backend_native_identity_semantic_leakage",
+        ),
+    ] {
+        if value[field].as_bool().expect("boolean boundary field") {
+            violations.push(violation);
+        }
+    }
+
+    violations
+}
+
 #[test]
 fn semantic_core_manifest_contains_no_backend_native_dependency() {
     let manifest = include_str!("../Cargo.toml");
@@ -199,4 +241,69 @@ fn one_method_per_responsibility_counterexample_is_rejected() {
     let violations = adapter_protocol_boundary_violations(fixture);
     assert!(violations.contains(&"operation_surface"));
     assert!(violations.contains(&"one_method_per_responsibility"));
+}
+
+#[test]
+fn adapter_runtime_boundary_golden_fixture_is_accepted() {
+    let fixture = include_str!("../../../fixtures/golden/adapter-runtime-boundary.json");
+
+    assert!(adapter_runtime_boundary_violations(fixture).is_empty());
+}
+
+#[test]
+fn adapter_runtime_registration_target_conflation_is_rejected() {
+    let fixture = include_str!(
+        "../../../fixtures/counterexamples/adapter-runtime-registration-target-conflation.json"
+    );
+
+    assert!(adapter_runtime_boundary_violations(fixture)
+        .contains(&"backend_target_registration_conflation"));
+}
+
+#[test]
+fn adapter_runtime_registration_instance_conflation_is_rejected() {
+    let fixture = include_str!(
+        "../../../fixtures/counterexamples/adapter-runtime-registration-instance-conflation.json"
+    );
+
+    assert!(adapter_runtime_boundary_violations(fixture)
+        .contains(&"registration_instance_conflation"));
+}
+
+#[test]
+fn adapter_runtime_static_interoperability_authority_is_rejected() {
+    let fixture = include_str!(
+        "../../../fixtures/counterexamples/adapter-runtime-static-interoperability-authority.json"
+    );
+
+    let violations = adapter_runtime_boundary_violations(fixture);
+    assert!(violations.contains(&"static_protocol_compatibility_authority"));
+    assert!(violations.contains(&"static_public_contract_compatibility_authority"));
+    assert!(violations.contains(&"static_capability_authority"));
+}
+
+#[test]
+fn adapter_runtime_operational_semantic_identity_is_rejected() {
+    let fixture = include_str!(
+        "../../../fixtures/counterexamples/adapter-runtime-operational-semantic-identity.json"
+    );
+
+    let violations = adapter_runtime_boundary_violations(fixture);
+    assert!(violations.contains(&"runtime_identity_semantic_leakage"));
+    assert!(violations.contains(&"backend_native_identity_semantic_leakage"));
+}
+
+#[test]
+fn adapter_runtime_manifest_has_no_backend_native_runtime_dependency() {
+    let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let manifest_path = workspace_root.join("crates/sol-adapter-runtime/Cargo.toml");
+    let manifest = fs::read_to_string(&manifest_path).expect("read sol-adapter-runtime manifest");
+    let violations: Vec<_> = dependency_lines(&manifest)
+        .filter(|line| violates_backend_boundary(line))
+        .collect();
+
+    assert!(
+        violations.is_empty(),
+        "adapter runtime must not depend on backend-native solver crates: {violations:?}"
+    );
 }
