@@ -83,7 +83,9 @@ fn process_and_session_state_remain_transport_only() {
     assert!(MOCK_CARGO.contains("sol-adapter-transport"));
     assert!(!TRANSPORT_CARGO.contains("sol-mock-adapter"));
     assert!(!TRANSPORT_SOURCE.contains(".id()"));
-    for forbidden_dependency in ["tokio", "reqwest", "tonic", "zmq", "moose", "comsol", "ansys"] {
+    for forbidden_dependency in [
+        "tokio", "reqwest", "tonic", "zmq", "moose", "comsol", "ansys",
+    ] {
         assert!(!TRANSPORT_CARGO.contains(forbidden_dependency));
         assert!(!MOCK_CARGO.contains(forbidden_dependency));
     }
