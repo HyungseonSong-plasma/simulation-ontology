@@ -76,11 +76,8 @@ fn v02_is_additive_and_v01_default_is_unchanged() {
     assert_eq!(PUBLIC_CONTRACT_VERSION, "0.1");
     assert_eq!(PUBLIC_CONTRACT_VERSION_0_2, "0.2");
 
-    let target = BackendTargetDtoV02::new(
-        "moose",
-        vec!["thermal.steady_conduction".to_owned()],
-    )
-    .unwrap();
+    let target =
+        BackendTargetDtoV02::new("moose", vec!["thermal.steady_conduction".to_owned()]).unwrap();
     assert_eq!(target.public_contract_version, "0.2");
 
     let v01_target = r#"{
@@ -95,7 +92,10 @@ fn v02_is_additive_and_v01_default_is_unchanged() {
 #[test]
 fn plan_keeps_dag_semantics_without_hidden_realization_meaning() {
     let plan = MappingPlanDtoV02::from_json(PLAN).unwrap();
-    assert_eq!(plan.topological_order().unwrap(), vec!["thermal.domain", "thermal.solve"]);
+    assert_eq!(
+        plan.topological_order().unwrap(),
+        vec!["thermal.domain", "thermal.solve"]
+    );
 
     let hidden = r#"
     {
@@ -131,18 +131,20 @@ fn quantity_unit_must_be_a_canonical_reference() {
     let invalid = SPEC.replace("unit.meter", "m");
     assert!(matches!(
         RealizationSpecDtoV02::from_json(&invalid),
-        Err(RealizationSpecError::InvalidIdentifier { field: "quantity unit", .. })
+        Err(RealizationSpecError::InvalidIdentifier {
+            field: "quantity unit",
+            ..
+        })
     ));
 }
 
 #[test]
 fn scope_members_must_resolve_to_spatial_entities() {
-    let invalid = SPEC.replace(
-        "{\"id\": \"scope.main_domain\", \"members\": [\"domain.main\"]}",
-        "{\"id\": \"scope.main_domain\", \"members\": [\"thermal.energy_conservation\"]}",
-    );
+    let mut invalid: serde_json::Value = serde_json::from_str(SPEC).unwrap();
+    invalid["scopes"][0]["members"] =
+        serde_json::json!(["thermal.energy_conservation"]);
     assert!(matches!(
-        RealizationSpecDtoV02::from_json(&invalid),
+        RealizationSpecDtoV02::from_json(&serde_json::to_string(&invalid).unwrap()),
         Err(RealizationSpecError::NonSpatialScopeMember { .. })
     ));
 }
@@ -150,11 +152,14 @@ fn scope_members_must_resolve_to_spatial_entities() {
 #[test]
 fn action_binding_must_cover_plan_exactly() {
     let plan = MappingPlanDtoV02::from_json(PLAN).unwrap();
-    let missing = SPEC.replace(
-        ",\n    {\n      \"action_id\": \"thermal.domain\",\n      \"subjects\": [\n        {\"subject_kind\": \"entity\", \"id\": \"domain.main\"}\n      ],\n      \"scopes\": [\"scope.main_domain\"]\n    }",
-        "",
-    );
-    let spec = RealizationSpecDtoV02::from_json(&missing).unwrap();
+    let mut missing: serde_json::Value = serde_json::from_str(SPEC).unwrap();
+    missing["action_bindings"]
+        .as_array_mut()
+        .unwrap()
+        .retain(|binding| binding["action_id"] != "thermal.domain");
+
+    let spec =
+        RealizationSpecDtoV02::from_json(&serde_json::to_string(&missing).unwrap()).unwrap();
     assert!(matches!(
         spec.validate_against_plan(&plan),
         Err(RealizationSpecError::MissingActionBinding(action)) if action == "thermal.domain"
@@ -163,12 +168,10 @@ fn action_binding_must_cover_plan_exactly() {
 
 #[test]
 fn backend_native_identity_is_rejected_recursively() {
-    let invalid = SPEC.replace(
-        "\"ontology_version\": \"0.1\",",
-        "\"ontology_version\": \"0.1\", \"evidence\": {\"backend_native_id\": \"mesh/1\"},",
-    );
+    let mut invalid: serde_json::Value = serde_json::from_str(SPEC).unwrap();
+    invalid["evidence"] = serde_json::json!({"backend_native_id": "mesh/1"});
     assert!(matches!(
-        RealizationSpecDtoV02::from_json(&invalid),
+        RealizationSpecDtoV02::from_json(&serde_json::to_string(&invalid).unwrap()),
         Err(RealizationSpecError::BackendNativeLeakage(field)) if field == "backend_native_id"
     ));
 }
