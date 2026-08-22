@@ -63,7 +63,10 @@ fn valid_negative_cases(
 ) -> Vec<(PublishedAdversarialScenario, ExternalAdapterCommand)> {
     use PublishedAdversarialScenario as Scenario;
     vec![
-        (Scenario::CompatibilityMissing, profile(adapter, "failure-compatibility")),
+        (
+            Scenario::CompatibilityMissing,
+            profile(adapter, "failure-compatibility"),
+        ),
         (Scenario::TargetMismatch, profile(adapter, "exact")),
         (Scenario::MissingCapability, profile(adapter, "exact")),
         (Scenario::UnsupportedAction, profile(adapter, "exact")),
@@ -75,7 +78,10 @@ fn valid_negative_cases(
             Scenario::PreflightTransientUnavailable,
             profile(adapter, "preflight-transient-unavailable"),
         ),
-        (Scenario::ExecutionPartial, profile(adapter, "execution-partial")),
+        (
+            Scenario::ExecutionPartial,
+            profile(adapter, "execution-partial"),
+        ),
         (
             Scenario::ExecutionUnsupported,
             profile(adapter, "execution-unsupported"),
