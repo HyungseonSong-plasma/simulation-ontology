@@ -156,7 +156,7 @@ impl PublishedAdversarialFixtureSuite {
         }
     }
 
-    pub(super) fn launch_case(
+    fn launch_case(
         &self,
         command: ExternalAdapterCommand,
     ) -> Result<CaseLaunch, HarnessFailure> {
