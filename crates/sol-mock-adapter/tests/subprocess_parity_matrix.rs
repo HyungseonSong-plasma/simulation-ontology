@@ -68,8 +68,16 @@ fn subprocess_execute(
     let mut session = AdapterProcessSession::spawn(profile_command(profile)).unwrap();
     let result = session.execute_plan(request).unwrap();
     let exit = session.shutdown().unwrap();
-    assert!(exit.success, "profile {} exited abnormally", profile.wire_name());
-    assert!(exit.stderr.is_empty(), "profile {} wrote stderr", profile.wire_name());
+    assert!(
+        exit.success,
+        "profile {} exited abnormally",
+        profile.wire_name()
+    );
+    assert!(
+        exit.stderr.is_empty(),
+        "profile {} wrote stderr",
+        profile.wire_name()
+    );
     match result {
         AdapterOperationResult::Success(response) => Ok(response),
         AdapterOperationResult::ProtocolFailure(failure) => Err(failure),
