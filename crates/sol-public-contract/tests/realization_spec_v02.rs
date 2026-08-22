@@ -141,8 +141,7 @@ fn quantity_unit_must_be_a_canonical_reference() {
 #[test]
 fn scope_members_must_resolve_to_spatial_entities() {
     let mut invalid: serde_json::Value = serde_json::from_str(SPEC).unwrap();
-    invalid["scopes"][0]["members"] =
-        serde_json::json!(["thermal.energy_conservation"]);
+    invalid["scopes"][0]["members"] = serde_json::json!(["thermal.energy_conservation"]);
     assert!(matches!(
         RealizationSpecDtoV02::from_json(&serde_json::to_string(&invalid).unwrap()),
         Err(RealizationSpecError::NonSpatialScopeMember { .. })
@@ -158,8 +157,7 @@ fn action_binding_must_cover_plan_exactly() {
         .unwrap()
         .retain(|binding| binding["action_id"] != "thermal.domain");
 
-    let spec =
-        RealizationSpecDtoV02::from_json(&serde_json::to_string(&missing).unwrap()).unwrap();
+    let spec = RealizationSpecDtoV02::from_json(&serde_json::to_string(&missing).unwrap()).unwrap();
     assert!(matches!(
         spec.validate_against_plan(&plan),
         Err(RealizationSpecError::MissingActionBinding(action)) if action == "thermal.domain"
