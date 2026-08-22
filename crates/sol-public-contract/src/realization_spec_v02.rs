@@ -205,7 +205,9 @@ impl ActionRealizationBindingDtoV02 {
         require_stable_symbol("action binding id", &self.action_id)?;
         reject_backend_native_extensions(&self.extensions)?;
         if self.subjects.is_empty() && self.scopes.is_empty() {
-            return Err(RealizationSpecError::EmptyActionBinding(self.action_id.clone()));
+            return Err(RealizationSpecError::EmptyActionBinding(
+                self.action_id.clone(),
+            ));
         }
         for subject in &self.subjects {
             validate_subject_shape(subject)?;
@@ -263,7 +265,11 @@ impl RealizationSpecDtoV02 {
         let mut plan = plan.clone();
         plan.normalize()?;
 
-        let plan_ids: BTreeSet<_> = plan.actions.iter().map(|action| action.id.as_str()).collect();
+        let plan_ids: BTreeSet<_> = plan
+            .actions
+            .iter()
+            .map(|action| action.id.as_str())
+            .collect();
         let binding_ids: BTreeSet<_> = spec
             .action_bindings
             .iter()
@@ -272,7 +278,9 @@ impl RealizationSpecDtoV02 {
 
         for action in &plan.actions {
             if !binding_ids.contains(action.id.as_str()) {
-                return Err(RealizationSpecError::MissingActionBinding(action.id.clone()));
+                return Err(RealizationSpecError::MissingActionBinding(
+                    action.id.clone(),
+                ));
             }
         }
         for binding in &spec.action_bindings {
@@ -325,9 +333,7 @@ impl RealizationSpecDtoV02 {
                             member: member.clone(),
                         })
                     }
-                    None => {
-                        return Err(RealizationSpecError::UnresolvedReference(member.clone()))
-                    }
+                    None => return Err(RealizationSpecError::UnresolvedReference(member.clone())),
                 }
             }
             scope.members.sort();
@@ -340,7 +346,11 @@ impl RealizationSpecDtoV02 {
             }
         }
 
-        let entity_ids: BTreeSet<_> = self.entities.iter().map(|entity| entity.id.clone()).collect();
+        let entity_ids: BTreeSet<_> = self
+            .entities
+            .iter()
+            .map(|entity| entity.id.clone())
+            .collect();
         let scope_ids: BTreeSet<_> = self.scopes.iter().map(|scope| scope.id.clone()).collect();
         if entity_ids.contains(&self.source_model) || scope_ids.contains(&self.source_model) {
             return Err(RealizationSpecError::DuplicateReference(
@@ -477,7 +487,9 @@ impl Display for RealizationSpecError {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Contract(error) => write!(formatter, "{error}"),
-            Self::InvalidDto(detail) => write!(formatter, "invalid Public Contract 0.2 DTO: {detail}"),
+            Self::InvalidDto(detail) => {
+                write!(formatter, "invalid Public Contract 0.2 DTO: {detail}")
+            }
             Self::EmptyField(field) => write!(formatter, "{field} must not be empty"),
             Self::InvalidIdentifier { field, value } => {
                 write!(formatter, "invalid {field} identifier: {value}")
@@ -507,7 +519,9 @@ impl Display for RealizationSpecError {
             Self::UnresolvedReference(reference) => {
                 write!(formatter, "unresolved realization reference: {reference}")
             }
-            Self::UnresolvedScope(scope) => write!(formatter, "unresolved realization scope: {scope}"),
+            Self::UnresolvedScope(scope) => {
+                write!(formatter, "unresolved realization scope: {scope}")
+            }
             Self::UnresolvedRelationSubject {
                 source,
                 relation_kind,
@@ -516,18 +530,20 @@ impl Display for RealizationSpecError {
                 formatter,
                 "unresolved realization relation subject: {source} {relation_kind:?} {target}"
             ),
-            Self::EmptyActionBinding(action) => {
-                write!(formatter, "action binding {action} contains no subjects or scopes")
-            }
+            Self::EmptyActionBinding(action) => write!(
+                formatter,
+                "action binding {action} contains no subjects or scopes"
+            ),
             Self::DuplicateActionBinding(action) => {
                 write!(formatter, "duplicate action realization binding: {action}")
             }
             Self::MissingActionBinding(action) => {
                 write!(formatter, "missing action realization binding: {action}")
             }
-            Self::UnknownActionBinding(action) => {
-                write!(formatter, "realization binding references unknown action: {action}")
-            }
+            Self::UnknownActionBinding(action) => write!(
+                formatter,
+                "realization binding references unknown action: {action}"
+            ),
             Self::BackendNativeLeakage(field) => write!(
                 formatter,
                 "backend-native object/identity field is not canonical realization data: {field}"
@@ -727,7 +743,9 @@ fn reject_hidden_realization_extensions(
     ];
     for key in extensions.keys() {
         if FORBIDDEN.contains(&key.as_str()) {
-            return Err(RealizationSpecError::HiddenRealizationExtension(key.clone()));
+            return Err(RealizationSpecError::HiddenRealizationExtension(
+                key.clone(),
+            ));
         }
     }
     Ok(())
