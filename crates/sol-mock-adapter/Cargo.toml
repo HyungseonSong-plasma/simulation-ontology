@@ -18,4 +18,6 @@ sol-core-mapping = { path = "../sol-core-mapping" }
 sol-core-plan = { path = "../sol-core-plan" }
 
 [dev-dependencies]
+sol-adapter-conformance = { path = "../sol-adapter-conformance" }
+sol-adapter-conformance-fixtures = { path = "../sol-adapter-conformance-fixtures" }
 sol-adapter-conformance-harness = { path = "../sol-adapter-conformance-harness" }
