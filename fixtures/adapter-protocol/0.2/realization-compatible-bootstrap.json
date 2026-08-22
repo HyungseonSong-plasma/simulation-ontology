@@ -1,0 +1,8 @@
+{
+  "bootstrap": {
+    "adapter_id": "sol.adapter.moose",
+    "adapter_version": "0.1.0",
+    "supported_adapter_protocol_versions": ["0.1", "0.2"],
+    "supported_public_contract_versions": ["0.1", "0.2"]
+  }
+}
