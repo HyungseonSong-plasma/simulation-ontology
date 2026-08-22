@@ -143,6 +143,37 @@
         { "required": ["subjects"], "properties": { "subjects": { "minItems": 1 } } },
         { "required": ["scopes"], "properties": { "scopes": { "minItems": 1 } } }
       ]
+    },
+    "realizationQuality": {
+      "type": "string",
+      "enum": ["exact", "compatible", "degraded", "unsupported", "unknown"]
+    },
+    "realizationEffect": {
+      "type": "object",
+      "required": ["subject", "quality"],
+      "properties": {
+        "subject": { "$ref": "#/$defs/mappingSubject" },
+        "quality": { "$ref": "#/$defs/realizationQuality" },
+        "detail": { "type": "string" }
+      }
+    },
+    "diagnosticSeverity": {
+      "type": "string",
+      "enum": ["error", "warning", "info"]
+    },
+    "diagnostic": {
+      "type": "object",
+      "required": ["code", "severity", "detail"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9_-]+(?:\\.[a-z0-9_-]+)*$"
+        },
+        "severity": { "$ref": "#/$defs/diagnosticSeverity" },
+        "subject": { "$ref": "#/$defs/canonicalReference" },
+        "detail": { "type": "string", "minLength": 1 }
+      }
     }
   }
 }
