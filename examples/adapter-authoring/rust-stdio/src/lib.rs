@@ -6,6 +6,7 @@
 //! fixture baseline. Real adapters replace this sample backend mapping while keeping the
 //! published Adapter Protocol/Public Contract DTO semantics unchanged.
 
+use sol_adapter_protocol::protocol_diagnostic;
 use sol_adapter_protocol::{
     ActionExecutionReport, ActionExecutionState, AdapterBootstrap, AdapterDescription,
     AdapterProtocolDiagnosticContext, CapabilityDeclaration, ExecutePlanRequest,
@@ -15,7 +16,6 @@ use sol_adapter_protocol::{
     DIAGNOSTIC_EXECUTION_REJECTED, DIAGNOSTIC_MISSING_CAPABILITY, DIAGNOSTIC_TARGET_MISMATCH,
     DIAGNOSTIC_UNSUPPORTED_ACTION,
 };
-use sol_adapter_protocol::protocol_diagnostic;
 use sol_public_contract::{
     Diagnostic, MappingSubjectDto, RealizationEffectDto, RealizationQualityDto,
     PUBLIC_CONTRACT_VERSION,
@@ -34,7 +34,9 @@ impl ReferenceAdapter {
             bootstrap: AdapterBootstrap {
                 adapter_id: "adapter.authoring_reference".to_owned(),
                 adapter_version: env!("CARGO_PKG_VERSION").to_owned(),
-                supported_adapter_protocol_versions: Some(vec![ADAPTER_PROTOCOL_VERSION.to_owned()]),
+                supported_adapter_protocol_versions: Some(
+                    vec![ADAPTER_PROTOCOL_VERSION.to_owned()],
+                ),
                 supported_public_contract_versions: Some(vec![PUBLIC_CONTRACT_VERSION.to_owned()]),
                 extensions: Default::default(),
             },
@@ -62,22 +64,32 @@ impl ReferenceAdapter {
             extensions: Default::default(),
         };
 
-        let canonical = description
-            .to_canonical_json()
-            .map_err(|error| operation_failure(ProtocolOperation::DescribeAdapter, error, SideEffectEvidence::None))?;
-        AdapterDescription::from_json(&canonical)
-            .map_err(|error| operation_failure(ProtocolOperation::DescribeAdapter, error, SideEffectEvidence::None))
+        let canonical = description.to_canonical_json().map_err(|error| {
+            operation_failure(
+                ProtocolOperation::DescribeAdapter,
+                error,
+                SideEffectEvidence::None,
+            )
+        })?;
+        AdapterDescription::from_json(&canonical).map_err(|error| {
+            operation_failure(
+                ProtocolOperation::DescribeAdapter,
+                error,
+                SideEffectEvidence::None,
+            )
+        })
     }
 
     pub fn validate_plan(
         &self,
         request: &ValidatePlanRequest,
     ) -> Result<ValidatePlanResponse, ProtocolFailure> {
-        let canonical = request
-            .to_canonical_json()
-            .map_err(|error| ProtocolFailure::invalid_request(error.to_string()).expect("non-blank request error"))?;
-        let request = ValidatePlanRequest::from_json(&canonical)
-            .map_err(|error| ProtocolFailure::invalid_request(error.to_string()).expect("non-blank request error"))?;
+        let canonical = request.to_canonical_json().map_err(|error| {
+            ProtocolFailure::invalid_request(error.to_string()).expect("non-blank request error")
+        })?;
+        let request = ValidatePlanRequest::from_json(&canonical).map_err(|error| {
+            ProtocolFailure::invalid_request(error.to_string()).expect("non-blank request error")
+        })?;
 
         if request.target.target != SAMPLE_TARGET {
             return negative_preflight(
@@ -156,11 +168,12 @@ impl ReferenceAdapter {
         &self,
         request: &ExecutePlanRequest,
     ) -> Result<ExecutePlanResponse, ProtocolFailure> {
-        let canonical = request
-            .to_canonical_json()
-            .map_err(|error| ProtocolFailure::invalid_request(error.to_string()).expect("non-blank request error"))?;
-        let request = ExecutePlanRequest::from_json(&canonical)
-            .map_err(|error| ProtocolFailure::invalid_request(error.to_string()).expect("non-blank request error"))?;
+        let canonical = request.to_canonical_json().map_err(|error| {
+            ProtocolFailure::invalid_request(error.to_string()).expect("non-blank request error")
+        })?;
+        let request = ExecutePlanRequest::from_json(&canonical).map_err(|error| {
+            ProtocolFailure::invalid_request(error.to_string()).expect("non-blank request error")
+        })?;
 
         if request.target.target != SAMPLE_TARGET
             || request
@@ -233,14 +246,26 @@ fn negative_preflight(
     let diagnostics = diagnostics
         .into_iter()
         .collect::<Result<Vec<_>, _>>()
-        .map_err(|error| operation_failure(ProtocolOperation::ValidatePlan, error, SideEffectEvidence::None))?;
+        .map_err(|error| {
+            operation_failure(
+                ProtocolOperation::ValidatePlan,
+                error,
+                SideEffectEvidence::None,
+            )
+        })?;
     ValidatePlanResponse::new(
         target_compatible,
         capabilities_satisfied,
         PreflightOutcome::Rejected,
         diagnostics,
     )
-    .map_err(|error| operation_failure(ProtocolOperation::ValidatePlan, error, SideEffectEvidence::None))
+    .map_err(|error| {
+        operation_failure(
+            ProtocolOperation::ValidatePlan,
+            error,
+            SideEffectEvidence::None,
+        )
+    })
 }
 
 fn rejected_execution(request: &ExecutePlanRequest) -> ExecutePlanResponse {
