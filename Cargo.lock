@@ -71,6 +71,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-adapter-conformance"
+version = "0.1.0"
+dependencies = [
+ "sol-adapter-protocol",
+]
+
+[[package]]
 name = "sol-adapter-protocol"
 version = "0.1.0"
 dependencies = [
