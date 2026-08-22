@@ -85,7 +85,12 @@ fn missing_unknown_and_duplicate_action_bindings_are_rejected() {
     ));
 
     let mut unknown = positive_spec_value();
-    unknown["action_bindings"][0]["action_id"] = serde_json::json!("thermal.unknown");
+    let mut unknown_binding = unknown["action_bindings"][0].clone();
+    unknown_binding["action_id"] = serde_json::json!("thermal.unknown");
+    unknown["action_bindings"]
+        .as_array_mut()
+        .unwrap()
+        .push(unknown_binding);
     let unknown = parse_spec(&unknown).unwrap();
     assert!(matches!(
         unknown.validate_against_plan(&plan),
