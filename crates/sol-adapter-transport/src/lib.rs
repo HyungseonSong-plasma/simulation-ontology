@@ -14,10 +14,12 @@
 mod framing;
 mod json_rpc;
 mod process;
+mod recovery;
 
 pub use framing::*;
 pub use json_rpc::*;
 pub use process::*;
+pub use recovery::*;
 
 use sol_adapter_protocol::ProtocolOperation;
 
