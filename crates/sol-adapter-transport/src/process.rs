@@ -115,7 +115,10 @@ impl Display for AdapterSessionError {
             Self::Response(error) => Display::fmt(error, formatter),
             Self::Correlation(error) => Display::fmt(error, formatter),
             Self::JsonRpcError { code, message, .. } => {
-                write!(formatter, "adapter returned JSON-RPC error {code}: {message}")
+                write!(
+                    formatter,
+                    "adapter returned JSON-RPC error {code}: {message}"
+                )
             }
             Self::ProtocolPayload(detail) => {
                 write!(formatter, "invalid Adapter Protocol payload: {detail}")
@@ -346,17 +349,13 @@ impl AdapterProcessSession {
 
         let frame = match self.stdout_events.recv_timeout(self.response_timeout) {
             Ok(StdoutEvent::Frame(Ok(frame))) => frame,
-            Ok(StdoutEvent::Frame(Err(error))) => {
-                return Err(AdapterSessionError::Framing(error))
-            }
+            Ok(StdoutEvent::Frame(Err(error))) => return Err(AdapterSessionError::Framing(error)),
             Ok(StdoutEvent::ReadError(detail)) => {
                 return Err(AdapterSessionError::StdoutRead(detail))
             }
             Ok(StdoutEvent::Eof) => return Err(AdapterSessionError::StdoutClosed),
             Err(RecvTimeoutError::Timeout) => return Err(AdapterSessionError::ResponseTimeout),
-            Err(RecvTimeoutError::Disconnected) => {
-                return Err(AdapterSessionError::StdoutClosed)
-            }
+            Err(RecvTimeoutError::Disconnected) => return Err(AdapterSessionError::StdoutClosed),
         };
 
         let response =
