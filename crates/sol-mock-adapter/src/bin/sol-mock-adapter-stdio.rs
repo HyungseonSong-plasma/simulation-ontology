@@ -3,7 +3,8 @@ use sol_adapter_transport::{
     decode_request, AdapterTransportMethod, JsonRpcResponse, RequestDisposition, StdioFrameDecoder,
     TransportRequest,
 };
-use sol_mock_adapter::MockAdapter;
+use sol_mock_adapter::{MockAdapter, MockAdapterProfile};
+use std::env;
 use std::io::{self, Read, Write};
 use std::process;
 
@@ -15,7 +16,7 @@ fn main() {
 }
 
 fn run() -> Result<(), String> {
-    let adapter = MockAdapter::thermal();
+    let adapter = configured_adapter()?;
     let stdin = io::stdin();
     let stdout = io::stdout();
     let mut input = stdin.lock();
@@ -40,6 +41,27 @@ fn run() -> Result<(), String> {
             }
         }
     }
+}
+
+
+fn configured_adapter() -> Result<MockAdapter, String> {
+    let mut arguments = env::args().skip(1);
+    let profile = match arguments.next() {
+        None => MockAdapterProfile::Exact,
+        Some(argument) => {
+            let profile = argument
+                .strip_prefix("--profile=")
+                .ok_or_else(|| format!("unsupported adapter argument: {argument}"))?;
+            MockAdapterProfile::parse(profile)
+                .ok_or_else(|| format!("unknown mock adapter profile: {profile}"))?
+        }
+    };
+
+    if let Some(argument) = arguments.next() {
+        return Err(format!("unexpected extra adapter argument: {argument}"));
+    }
+
+    Ok(profile.adapter())
 }
 
 fn handle_frame(adapter: &MockAdapter, frame: &str) -> Result<Option<Vec<u8>>, String> {
