@@ -6,14 +6,17 @@
 //! This crate owns wire method names and the protocol-result/transport-error
 //! channel boundary. Adapter Protocol DTO meaning remains in
 //! `sol-adapter-protocol`. It also owns deterministic JSON-RPC envelopes,
-//! request correlation, and line-delimited stdio framing. Process lifecycle,
-//! process error evidence, and replay behavior remain in later M0.5 phases.
+//! request correlation, line-delimited stdio framing, and local subprocess
+//! session lifecycle. Detailed process-error evidence and replay behavior
+//! remain in later M0.5 phases.
 
 mod framing;
 mod json_rpc;
+mod process;
 
 pub use framing::*;
 pub use json_rpc::*;
+pub use process::*;
 
 use sol_adapter_protocol::ProtocolOperation;
 
