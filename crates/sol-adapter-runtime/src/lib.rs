@@ -7,8 +7,10 @@
 //! `sol-target-resolver`; Protocol compatibility and capability evidence remains
 //! a later live-bootstrap concern derived from `describe_adapter`.
 
+mod lifecycle;
 mod registry;
 
+pub use lifecycle::*;
 pub use registry::*;
 
 use std::ffi::{OsStr, OsString};
