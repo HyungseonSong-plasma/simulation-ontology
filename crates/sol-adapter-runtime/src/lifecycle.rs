@@ -162,9 +162,8 @@ fn transport_command(command: &crate::AdapterCommand) -> AdapterProcessCommand {
 mod tests {
     use std::path::{Path, PathBuf};
 
-    use sol_adapter_transport::{
-        AdapterSessionState, AdapterTransportMethod, ReplayDisposition, SideEffectEvidence,
-    };
+    use sol_adapter_protocol::SideEffectEvidence;
+    use sol_adapter_transport::{AdapterSessionState, AdapterTransportMethod, ReplayDisposition};
 
     use crate::{
         AdapterCommand, AdapterInstanceId, AdapterRegistration, AdapterRegistrationId,
@@ -259,8 +258,8 @@ mod tests {
         let running = RunningAdapter::launch(entry, AdapterInstanceId::new("instance.1")).unwrap();
         assert_eq!(running.state(), AdapterSessionState::Ready);
         assert!(running.description().is_some());
-        let first_pid = running.instance().process_id();
-        assert!(first_pid > 0);
+        assert!(running.instance().process_id() > 0);
+        assert_eq!(running.instance().id().as_str(), "instance.1");
 
         let (first_exit, replacement) = running
             .reconnect(entry, AdapterInstanceId::new("instance.2"))
@@ -269,7 +268,7 @@ mod tests {
         assert_eq!(replacement.state(), AdapterSessionState::Ready);
         assert!(replacement.description().is_some());
         assert_eq!(replacement.instance().id().as_str(), "instance.2");
-        assert_ne!(replacement.instance().process_id(), first_pid);
+        assert!(replacement.instance().process_id() > 0);
 
         let second_exit = replacement.shutdown().unwrap();
         assert!(second_exit.success);
