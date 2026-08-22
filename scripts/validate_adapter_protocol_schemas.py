@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the published Adapter Protocol 0.1 schema/fixture boundary."""
+"""Validate published SOL Adapter Protocol schema/fixture boundaries."""
 
 from __future__ import annotations
 
@@ -11,6 +11,8 @@ from jsonschema import Draft202012Validator, RefResolver
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_DIR = ROOT / "schemas" / "adapter-protocol" / "0.1"
 FIXTURE_DIR = ROOT / "fixtures" / "adapter-protocol" / "0.1"
+SCHEMA_DIR_V02 = ROOT / "schemas" / "adapter-protocol" / "0.2"
+FIXTURE_DIR_V02 = ROOT / "fixtures" / "adapter-protocol" / "0.2"
 COUNTEREXAMPLE_DIR = ROOT / "fixtures" / "counterexamples"
 DIALECT = "https://json-schema.org/draft/2020-12/schema"
 TRANSPORT_KEYS = {
@@ -39,8 +41,27 @@ def make_validator(schema_name: str) -> Draft202012Validator:
     return Draft202012Validator(schema, resolver=resolver)
 
 
+def make_validator_at(schema_dir: Path, schema_name: str) -> Draft202012Validator:
+    schema_path = schema_dir / schema_name
+    schema = load_json(schema_path)
+    if schema.get("$schema") != DIALECT:
+        raise AssertionError(f"{schema_name}: expected Draft 2020-12 dialect")
+    Draft202012Validator.check_schema(schema)
+    resolver = RefResolver(base_uri=schema_path.resolve().as_uri(), referrer=schema)
+    return Draft202012Validator(schema, resolver=resolver)
+
+
 def require_valid(schema_name: str, fixture: Path, payload=None) -> None:
     validator = make_validator(schema_name)
+    value = load_json(fixture) if payload is None else payload
+    errors = sorted(validator.iter_errors(value), key=lambda error: list(error.path))
+    if errors:
+        details = "\n".join(f"  - {error.json_path}: {error.message}" for error in errors)
+        raise AssertionError(f"{fixture.relative_to(ROOT)} should satisfy {schema_name}:\n{details}")
+
+
+def require_valid_at(schema_dir: Path, schema_name: str, fixture: Path, payload=None) -> None:
+    validator = make_validator_at(schema_dir, schema_name)
     value = load_json(fixture) if payload is None else payload
     errors = sorted(validator.iter_errors(value), key=lambda error: list(error.path))
     if errors:
@@ -55,6 +76,13 @@ def require_invalid(schema_name: str, fixture: Path) -> None:
         raise AssertionError(
             f"{fixture.relative_to(ROOT)} should be structurally rejected by {schema_name}"
         )
+
+
+def require_invalid_payload_at(schema_dir: Path, schema_name: str, payload, reason: str) -> None:
+    validator = make_validator_at(schema_dir, schema_name)
+    errors = list(validator.iter_errors(payload))
+    if not errors:
+        raise AssertionError(f"{schema_name} should structurally reject {reason}")
 
 
 def walk_keys(value):
@@ -240,11 +268,69 @@ def main() -> None:
         if reference not in reusable_schema_sources:
             raise AssertionError(f"missing Public Contract schema reuse reference: {reference}")
 
+    # M0.8 adds an explicit request-only Adapter Protocol 0.2 realization delta. The full
+    # Protocol 0.1 publication gate above is intentionally preserved unchanged in meaning.
+    schema_files_v02 = sorted(SCHEMA_DIR_V02.glob("*.schema.json"))
+    expected_schemas_v02 = {
+        "shared.schema.json",
+        "validate-plan-request.schema.json",
+        "execute-plan-request.schema.json",
+    }
+    actual_schemas_v02 = {path.name for path in schema_files_v02}
+    if actual_schemas_v02 != expected_schemas_v02:
+        raise AssertionError(
+            "Adapter Protocol 0.2 schema set mismatch: "
+            f"expected={sorted(expected_schemas_v02)}, actual={sorted(actual_schemas_v02)}"
+        )
+    for schema_path in schema_files_v02:
+        schema = load_json(schema_path)
+        if schema.get("$schema") != DIALECT:
+            raise AssertionError(f"{schema_path.name}: expected Draft 2020-12 dialect")
+        Draft202012Validator.check_schema(schema)
+        require_transport_independent(schema_path)
+
+    thermal_v02 = FIXTURE_DIR_V02 / "thermal-realization-request.json"
+    require_transport_independent(thermal_v02)
+    for schema_name in ["validate-plan-request.schema.json", "execute-plan-request.schema.json"]:
+        require_valid_at(SCHEMA_DIR_V02, schema_name, thermal_v02)
+
+    missing_realization = load_json(thermal_v02)
+    del missing_realization["realization_spec"]
+    require_invalid_payload_at(
+        SCHEMA_DIR_V02,
+        "validate-plan-request.schema.json",
+        missing_realization,
+        "missing realization_spec",
+    )
+
+    mixed_public = load_json(thermal_v02)
+    mixed_public["target"]["public_contract_version"] = "0.1"
+    require_invalid_payload_at(
+        SCHEMA_DIR_V02,
+        "execute-plan-request.schema.json",
+        mixed_public,
+        "mixed Public Contract 0.1/0.2 payload",
+    )
+
+    reusable_schema_sources_v02 = "\n".join(
+        (SCHEMA_DIR_V02 / name).read_text(encoding="utf-8")
+        for name in ["validate-plan-request.schema.json", "execute-plan-request.schema.json"]
+    )
+    required_refs_v02 = [
+        "../../public-contract/0.2/backend-target.schema.json",
+        "../../public-contract/0.2/mapping-plan.schema.json",
+        "../../public-contract/0.2/realization-spec.schema.json",
+    ]
+    for reference in required_refs_v02:
+        if reference not in reusable_schema_sources_v02:
+            raise AssertionError(f"missing Public Contract 0.2 schema reuse reference: {reference}")
+
     print(
-        "Adapter Protocol 0.1 publication schema gate passed: "
-        f"{len(expected_schemas)} schemas, {len(positive)} positive fixtures, "
-        f"{len(structurally_invalid)} structural negatives, "
-        f"{len(schema_valid_semantic_counterexamples) + 1} semantic-boundary fixtures"
+        "Adapter Protocol schema validation passed: "
+        f"0.1={len(expected_schemas)} schemas/{len(positive)} positive fixtures/"
+        f"{len(structurally_invalid)} structural negatives/"
+        f"{len(schema_valid_semantic_counterexamples) + 1} semantic-boundary fixtures; "
+        "0.2 realization requests=3 schemas/1 thermal fixture/2 structural-negative checks"
     )
 
 
