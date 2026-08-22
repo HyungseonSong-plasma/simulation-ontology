@@ -5,7 +5,9 @@ use super::common::{
 use super::{PublishedAdversarialFixtureSuite, PublishedAdversarialScenario};
 use sol_adapter_conformance::{ConformanceCaseRecord, HarnessFailure};
 use sol_adapter_conformance_harness::{AdapterProtocolObservation, ExternalAdapterCommand};
-use sol_adapter_protocol::{ExecutePlanRequest, ExecutePlanResponse, ProtocolFailure, ProtocolOperation};
+use sol_adapter_protocol::{
+    ExecutePlanRequest, ExecutePlanResponse, ProtocolFailure, ProtocolOperation,
+};
 
 const EXECUTE_REQUEST: &str = "execute-plan-thermal-request.json";
 
@@ -45,9 +47,9 @@ impl PublishedAdversarialFixtureSuite {
     ) -> Result<ConformanceCaseRecord, HarnessFailure> {
         let request = self.load_fixture(request_fixture, ExecutePlanRequest::from_json)?;
         let mut expected = self.load_fixture(response_fixture, ExecutePlanResponse::from_json)?;
-        expected
-            .validate_against(&request)
-            .map_err(|error| super::common::fixture_failure(self.fixture_dir.join(response_fixture), error))?;
+        expected.validate_against(&request).map_err(|error| {
+            super::common::fixture_failure(self.fixture_dir.join(response_fixture), error)
+        })?;
 
         let mut session = match self.launch_case(command)? {
             CaseLaunch::Ready(session) => session,
