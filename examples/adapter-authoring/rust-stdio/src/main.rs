@@ -67,7 +67,8 @@ fn dispatch(
             Err(failure) => failure_response(request, &failure),
         },
         AdapterTransportMethod::ValidatePlan => {
-            let result = parse_validate_request(request).and_then(|request| adapter.validate_plan(&request));
+            let result =
+                parse_validate_request(request).and_then(|request| adapter.validate_plan(&request));
             match result {
                 Ok(response) => success_response(
                     request,
@@ -79,7 +80,8 @@ fn dispatch(
             }
         }
         AdapterTransportMethod::ExecutePlan => {
-            let result = parse_execute_request(request).and_then(|request| adapter.execute_plan(&request));
+            let result =
+                parse_execute_request(request).and_then(|request| adapter.execute_plan(&request));
             match result {
                 Ok(response) => success_response(
                     request,
