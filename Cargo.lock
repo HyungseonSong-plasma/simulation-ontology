@@ -18,7 +18,7 @@ checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 name = "proc-macro2"
 version = "1.0.86"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e719e8df665df0d1c8fbfd238015744736151d4445ec0836b8e628aae103b77"
+checksum = "5e719e8df665df238015744736151d4445ec0836b8e628aae103b77"
 dependencies = [
  "unicode-ident",
 ]
@@ -94,9 +94,11 @@ dependencies = [
 name = "sol-adapter-conformance-fixtures"
 version = "0.1.0"
 dependencies = [
+ "serde_json",
  "sol-adapter-conformance",
  "sol-adapter-conformance-harness",
  "sol-adapter-protocol",
+ "sol-public-contract",
 ]
 
 [[package]]
