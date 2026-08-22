@@ -59,6 +59,7 @@ M0.3 — Adapter Protocol 0.1
 M0.4 — MockAdapter Protocol Conformance
 M0.5 — JSON-RPC / stdio Transport
 M0.6 — Adapter Conformance Tooling
+M0.7 — Adapter Runtime & Registry
 ```
 
 Do not use `v0.x` for roadmap milestones because `M0.x` is not a release/version axis.
@@ -203,6 +204,8 @@ Operator then executes the accepted Phase through the existing CI-first/bounded-
 
 A planned successor milestone does not become implementation-eligible merely because its GitHub Milestone already exists. Accepted dependency order remains authoritative.
 
+If repository tooling cannot create or mutate the intended GitHub Milestone container, Operator uses the accepted parent tracker and Phase issues as the authoritative execution projection while reporting the administrative milestone action as pending. Tooling limitations do not change milestone semantics.
+
 ## 12. Operator `update`
 
 Operator `update` occurs after milestone closure when used as the milestone handoff documentation synchronization step.
@@ -231,7 +234,7 @@ Normally create/assign the corrective work to the current or next appropriate mi
 
 ## 15. Current roadmap projection
 
-Current repository projection after M0.6 acceptance:
+Current repository projection after M0.7 planning acceptance:
 
 ```text
 M0.1 — Semantic Core Bootstrap            historical / complete
@@ -240,22 +243,26 @@ M0.3 — Adapter Protocol 0.1               historical / complete
 M0.4 — MockAdapter Protocol Conformance   historical / complete
 M0.5 — JSON-RPC / stdio Transport         historical / complete
 M0.6 — Adapter Conformance Tooling        accepted complete; Milestone #6 UI close pending
+M0.7 — Adapter Runtime & Registry         accepted; implementation-ready after planning PR merge; Milestone creation pending tooling
 ```
 
 Canonical issue groupings are:
 
 ```text
-M0.1: parent #2,  progress units #6–#16
-M0.2: parent #28, progress units #29–#35
-M0.3: parent #38, progress units #39–#44
-M0.4: parent #65, progress units #66–#71
-M0.5: parent #74, progress units #75–#80
-M0.6: parent #81, progress units #82–#87
+M0.1: parent #2,   progress units #6–#16
+M0.2: parent #28,  progress units #29–#35
+M0.3: parent #38,  progress units #39–#44
+M0.4: parent #65,  progress units #66–#71
+M0.5: parent #74,  progress units #75–#80
+M0.6: parent #81,  progress units #82–#87
+M0.7: parent #111, progress units #112–#117
 ```
 
 For M0.6, Phase #82–#87 and parent #81 are closed completed, exact-head CI and Validator exit acceptance are complete, and the final merge is verified on `main`. GitHub Milestone #6 reports `0` open and `6` closed Phase issues; the available GitHub connector does not expose a milestone-state write action, so its final UI **Close milestone** action remains administrative.
 
-The parent issues remain outside the GitHub Milestone membership under the convention above.
+For M0.7, the roadmap objective, ADR, parent tracker #111, and Phase decomposition #112–#117 are accepted. The intended GitHub Milestone title is `M0.7 — Adapter Runtime & Registry`. The available connector does not expose milestone creation, so creation and Phase assignment remain an administrative repository action until suitable tooling is available. Parent #111 remains outside milestone membership by convention.
+
+The parent issues remain outside GitHub Milestone membership under the convention above.
 
 ## 16. Change control
 

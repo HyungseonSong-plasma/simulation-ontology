@@ -1,8 +1,8 @@
 # SOL Product Boundary and Adapter Roadmap
 
-**Status:** Accepted roadmap, synchronized after M0.6 completion  
+**Status:** Accepted roadmap, synchronized for M0.7 planning after M0.6 completion  
 **Date:** 2026-08-22  
-**Scope:** Core product boundary, adapter ownership, protocol/transport sequencing, MockAdapter role, and reference-adapter roadmap
+**Scope:** Core product boundary, adapter ownership, protocol/transport sequencing, MockAdapter role, runtime/registry sequencing, and reference-adapter roadmap
 
 ## Purpose
 
@@ -18,7 +18,8 @@ The `simulation-ontology` repository owns:
 - versioned language-neutral Adapter Protocol;
 - MockAdapter reference conformance behavior;
 - reusable adapter conformance tooling;
-- adapter authoring guidance and skeletons.
+- adapter authoring guidance and skeletons;
+- solver-neutral Adapter Runtime / Registry behavior.
 
 The Core repository SHALL NOT acquire solver-specific runtime dependencies solely to support a real backend adapter.
 
@@ -28,20 +29,22 @@ Real solver adapters are separate repositories/projects, conceptually:
 
 ```text
 simulation-ontology          # SOL platform
-sol-adapter-moose            # first official real adapter
+sol-adapter-moose            # first SOL reference real adapter
 sol-adapter-zapdos           # later domain/reference adapter
 sol-adapter-crane            # later domain/reference adapter
 ```
 
 This preserves independent release cycles, prevents backend dependencies from contaminating Core, allows backend-native implementation languages, and makes compatibility a contract property rather than repository coupling.
 
+Reference-adapter status within the SOL ecosystem does not imply endorsement, ownership, or official component status from the targeted solver/framework organization.
+
 ## Support tiers
 
 ### Tier A — SOL platform
 
-Core runtime, Public Contract, Adapter Protocol, CLI/SDK surfaces, MockAdapter, conformance tooling, and authoring documentation.
+Core runtime, Public Contract, Adapter Protocol, CLI/SDK surfaces, MockAdapter, conformance tooling, Adapter Runtime / Registry, and authoring documentation.
 
-### Tier B — official reference adapters
+### Tier B — SOL reference adapters
 
 Separate repositories maintained as reference implementations of the SOL adapter ecosystem.
 
@@ -165,6 +168,28 @@ GitHub Milestone #6 has `0` open and `6` closed canonical Phase issues. Its fina
 
 The completion record is `docs/implementation/m0.6-completion-handoff.md`.
 
+## Adapter Runtime / Registry boundary
+
+M0.7 adds the Core product/runtime layer that turns registered external adapter commands into inspectable, selectable live adapter instances without making runtime state part of canonical ontology semantics.
+
+The accepted distinction is:
+
+```text
+BackendTarget         canonical solver-independent target semantics
+AdapterRegistration   Core-local invocation/configuration state
+AdapterInstance       live process/session state
+```
+
+`AdapterRegistration` and `AdapterInstance` are not canonical ontology entities or Public Contract semantic identities.
+
+M0.7 begins with explicit local registration. It does not stabilize auto-discovery, package/manifest format, marketplace, signing, download/install, auto-update, or a stable GUI plugin contract.
+
+After launch/bootstrap, compatibility and capability evidence comes from the published `describe_adapter` result. Static registration metadata is a locator/configuration mechanism and cannot override contradictory live Protocol evidence.
+
+The runtime composes the existing M0.5 process transport and preserves the existing no-replay/side-effect boundaries. M0.7 does not redefine Adapter Protocol 0.1 or Public Contract 0.1.
+
+The normative architecture is `docs/adr/ADR-003-adapter-runtime-registration-boundary.md`; the accepted milestone plan is `docs/plans/m0.7-adapter-runtime-registry-plan.md`.
+
 ## Milestone sequence
 
 ```text
@@ -185,12 +210,16 @@ M0.5  JSON-RPC / stdio Transport               COMPLETE
   v
 M0.6  Adapter Conformance Tooling              COMPLETE
   |
-  +-------------------------+
-  |                         |
-  v                         v
-SDK track               Real-adapter track
-TypeScript / Python     sol-adapter-moose
-                        separate repository
+  +-------------------------------+
+  |                               |
+  v                               v
+Core runtime track             Real-adapter track
+M0.7 Adapter Runtime           MOOSE adapter
+& Registry                     separate repository/team
+  |
+  v
+future stable SDK / GUI
+integration surface
 ```
 
 The sequencing invariants are:
@@ -198,9 +227,12 @@ The sequencing invariants are:
 1. canonical Public Contract before stable SDK ergonomics;
 2. Adapter Protocol semantics before transport;
 3. MockAdapter reference conformance before transport integration;
-4. reusable external-adapter conformance tooling before official real-adapter development.
+4. reusable external-adapter conformance tooling before official/reference real-adapter development;
+5. solver-neutral runtime/registration evidence before stabilizing broad SDK/GUI adapter-selection surfaces.
 
-The M0.6 prerequisite is now satisfied. Concrete SDK and real-adapter scope, milestone decomposition, release/support commitments, and compatibility decisions require the normal Manager/Planner decision flow before implementation begins.
+The M0.6 prerequisite is satisfied. The 2026-08-22 Manager decision makes M0.7 the next Core milestone while the independent MOOSE adapter track may proceed in parallel.
+
+Stable TypeScript/Python SDK or GUI plugin surfaces remain future decisions and should consume the proven M0.7 runtime boundary rather than freeze incidental pre-M0.7 internals.
 
 Experimental SDK or real-adapter spikes may occur for research, but they cannot redefine or silently mutate the published Public Contract or Adapter Protocol baseline.
 
@@ -213,13 +245,16 @@ Canonical progress units are Phase issues, while parent tracker issues remain no
 Current repository groupings are:
 
 ```text
-M0.1: parent #2,  Phase #6–#16   historical complete
-M0.2: parent #28, Phase #29–#35  historical complete
-M0.3: parent #38, Phase #39–#44  historical complete
-M0.4: parent #65, Phase #66–#71  complete
-M0.5: parent #74, Phase #75–#80  complete
-M0.6: parent #81, Phase #82–#87  accepted complete; Milestone #6 UI close pending administrative action
+M0.1: parent #2,   Phase #6–#16    historical complete
+M0.2: parent #28,  Phase #29–#35   historical complete
+M0.3: parent #38,  Phase #39–#44   historical complete
+M0.4: parent #65,  Phase #66–#71   complete
+M0.5: parent #74,  Phase #75–#80   complete
+M0.6: parent #81,  Phase #82–#87   accepted complete; Milestone #6 UI close pending administrative action
+M0.7: parent #111, Phase #112–#117 accepted / implementation-ready after planning PR merge; GitHub Milestone creation/assignment pending administrative tooling
 ```
+
+For M0.7 the intended GitHub Milestone title is `M0.7 — Adapter Runtime & Registry`. Parent #111 remains outside milestone membership; Phase issues #112–#117 are the canonical progress units.
 
 See `docs/operations/github-milestone-convention.md` for naming, membership, progress, due-date, closure, backfill, and Operator `resume`/`update` rules.
 
@@ -227,9 +262,13 @@ See `docs/operations/github-milestone-convention.md` for naming, membership, pro
 
 ### First — MOOSE
 
-The first official real adapter SHALL target MOOSE in a separate repository after reusable Core-side conformance foundations are available. M0.6 has now satisfied that Core-side prerequisite. The adapter should validate the complete SOL -> MappingPlan -> Adapter -> backend-artifact path and act as the first real-system feedback source for later contract hardening.
+The first SOL reference real adapter targets MOOSE in a separate repository/project. M0.6 satisfied the Core-side conformance prerequisite, so that real-adapter track may proceed independently and in parallel with M0.7.
+
+The MOOSE adapter should validate the complete SOL -> MappingPlan -> Adapter -> backend-artifact path and act as the first real-system feedback source for later contract hardening.
 
 The real MOOSE adapter must consume the accepted Protocol/Public Contract boundary rather than introduce MOOSE-native objects into canonical SOL semantics. Solver-native correctness, integration regression tests, and physical/numerical V&V remain responsibilities of the adapter project.
+
+Reference-adapter status is an SOL ecosystem designation and does not imply that the adapter is an official component of MOOSE Framework or Idaho National Laboratory.
 
 ### Next — Zapdos / CRANE
 
@@ -237,7 +276,7 @@ Later reference adapters should stress plasma, chemistry, species/reaction, coup
 
 ### Proprietary ecosystems
 
-COMSOL and Ansys remain valid external adapter targets. Official support is not required while repeatable licensed CI environments are unavailable.
+COMSOL and Ansys remain valid external adapter targets. SOL-maintained support is not required while repeatable licensed CI environments are unavailable.
 
 ## Release independence
 
@@ -253,4 +292,4 @@ Compatibility is established through explicit contract/version/capability eviden
 
 ## Change control
 
-This document is a product/roadmap decision, not a semantic ADR. Changes to Core semantics, Public Contract invariants, or Adapter Protocol invariants require the normal Manager -> Researcher -> Validator flow and an ADR when architecture is fixed or changed. GitHub Milestone operating-convention changes that alter roadmap/acceptance semantics require Manager `meeting` before adoption.
+This document is a product/roadmap decision, not a semantic ADR. Changes to Core semantics, Public Contract invariants, Adapter Protocol invariants, or the runtime/registration architecture fixed by ADR-003 require the normal Manager -> Researcher -> Validator flow and an ADR when architecture is fixed or changed. GitHub Milestone operating-convention changes that alter roadmap/acceptance semantics require Manager `meeting` before adoption.
