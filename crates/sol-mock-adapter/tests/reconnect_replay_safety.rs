@@ -2,9 +2,9 @@ use sol_adapter_protocol::{
     ExecutePlanRequest, SideEffectEvidence, ValidatePlanRequest, FAILURE_OPERATIONAL,
 };
 use sol_adapter_transport::{
-    protocol_failure_authorizes_automatic_replay, response_loss_recovery,
-    AdapterOperationResult, AdapterProcessCommand, AdapterProcessSession, AdapterSessionErrorKind,
-    AdapterSessionState, AdapterTransportMethod, ReconnectDisposition, ReplayDisposition,
+    protocol_failure_authorizes_automatic_replay, response_loss_recovery, AdapterOperationResult,
+    AdapterProcessCommand, AdapterProcessSession, AdapterSessionErrorKind, AdapterSessionState,
+    AdapterTransportMethod, ReconnectDisposition, ReplayDisposition,
 };
 
 const VALIDATE_REQUEST: &str =
@@ -80,8 +80,7 @@ fn lost_description_requires_a_fresh_bootstrapped_session() {
     };
     assert_eq!(error.kind(), AdapterSessionErrorKind::StdoutEof);
 
-    let replacement =
-        AdapterProcessSession::spawn(probe_command("no-replay-observer")).unwrap();
+    let replacement = AdapterProcessSession::spawn(probe_command("no-replay-observer")).unwrap();
     assert_eq!(replacement.state(), AdapterSessionState::Ready);
     let exit = replacement.shutdown().unwrap();
     assert!(exit.success);
@@ -90,8 +89,7 @@ fn lost_description_requires_a_fresh_bootstrapped_session() {
 
 #[test]
 fn equivalent_validation_is_reissued_only_by_an_explicit_caller_action() {
-    let mut lost =
-        AdapterProcessSession::spawn(probe_command("validate-response-loss")).unwrap();
+    let mut lost = AdapterProcessSession::spawn(probe_command("validate-response-loss")).unwrap();
     let error = lost.validate_plan(&validate_request()).unwrap_err();
     assert_eq!(error.kind(), AdapterSessionErrorKind::StdoutEof);
     let exit = lost.shutdown().unwrap();
@@ -108,8 +106,7 @@ fn equivalent_validation_is_reissued_only_by_an_explicit_caller_action() {
 
 #[test]
 fn lost_execute_response_is_ambiguous_and_never_replayed_on_reconnect() {
-    let mut lost =
-        AdapterProcessSession::spawn(probe_command("execute-response-loss")).unwrap();
+    let mut lost = AdapterProcessSession::spawn(probe_command("execute-response-loss")).unwrap();
     let error = lost.execute_plan(&execute_request()).unwrap_err();
     assert_eq!(error.kind(), AdapterSessionErrorKind::StdoutEof);
     let exit = lost.shutdown().unwrap();
@@ -128,8 +125,7 @@ fn lost_execute_response_is_ambiguous_and_never_replayed_on_reconnect() {
         ReplayDisposition::TransportMustNotReplayExecution
     );
 
-    let replacement =
-        AdapterProcessSession::spawn(probe_command("no-replay-observer")).unwrap();
+    let replacement = AdapterProcessSession::spawn(probe_command("no-replay-observer")).unwrap();
     let exit = replacement.shutdown().unwrap();
     assert!(exit.success);
     assert!(exit.stderr.is_empty());
