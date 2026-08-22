@@ -6,9 +6,7 @@ use sol_adapter_conformance_fixtures::{
 };
 use sol_adapter_conformance_harness::ExternalAdapterCommand;
 use sol_adapter_protocol::SideEffectEvidence;
-use sol_adapter_transport::{
-    response_loss_recovery, AdapterTransportMethod, ReplayDisposition,
-};
+use sol_adapter_transport::{response_loss_recovery, AdapterTransportMethod, ReplayDisposition};
 use sol_mock_adapter::MockAdapterProfile;
 use std::collections::BTreeSet;
 use std::path::PathBuf;
@@ -23,10 +21,8 @@ fn published_fixture_dir() -> PathBuf {
 }
 
 fn profile_command(profile: MockAdapterProfile) -> ExternalAdapterCommand {
-    ExternalAdapterCommand::new(env!("CARGO_BIN_EXE_sol-mock-adapter-stdio")).arg(format!(
-        "--profile={}",
-        profile.wire_name()
-    ))
+    ExternalAdapterCommand::new(env!("CARGO_BIN_EXE_sol-mock-adapter-stdio"))
+        .arg(format!("--profile={}", profile.wire_name()))
 }
 
 fn transport_probe(mode: &str) -> ExternalAdapterCommand {
@@ -37,15 +33,17 @@ fn semantic_adversary(mode: &str) -> ExternalAdapterCommand {
     ExternalAdapterCommand::new(env!("CARGO_BIN_EXE_sol-conformance-adversary")).arg(mode)
 }
 
-fn valid_negative_reference_cases(
-) -> Vec<(PublishedAdversarialScenario, ExternalAdapterCommand)> {
+fn valid_negative_reference_cases() -> Vec<(PublishedAdversarialScenario, ExternalAdapterCommand)> {
     use PublishedAdversarialScenario as Scenario;
     vec![
         (
             Scenario::CompatibilityMissing,
             profile_command(MockAdapterProfile::FailureCompatibility),
         ),
-        (Scenario::TargetMismatch, profile_command(MockAdapterProfile::Exact)),
+        (
+            Scenario::TargetMismatch,
+            profile_command(MockAdapterProfile::Exact),
+        ),
         (
             Scenario::MissingCapability,
             profile_command(MockAdapterProfile::Exact),
@@ -135,7 +133,10 @@ fn published_adversarial_valid_negative_matrix_is_conformant() {
         .collect::<Vec<_>>();
     let mut sorted = ids.clone();
     sorted.sort();
-    assert_eq!(ids, sorted, "Phase 0 report ordering must remain deterministic");
+    assert_eq!(
+        ids, sorted,
+        "Phase 0 report ordering must remain deterministic"
+    );
 }
 
 #[test]
