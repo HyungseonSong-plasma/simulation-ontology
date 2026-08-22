@@ -13,10 +13,7 @@ fn external_project_observation_is_deterministic_and_machine_readable() {
         first["stability"],
         "provisional_not_a_public_cli_or_report_contract"
     );
-    assert_eq!(
-        first["backend_validation"],
-        "not_assessed_by_conformance"
-    );
+    assert_eq!(first["backend_validation"], "not_assessed_by_conformance");
 
     let observations = first["observations"]
         .as_array()
@@ -57,7 +54,13 @@ fn external_project_observation_is_deterministic_and_machine_readable() {
 #[test]
 fn standalone_consumer_does_not_link_reference_adapter_or_solver_implementation() {
     let manifest = MANIFEST.to_ascii_lowercase();
-    for forbidden in ["sol-mock-adapter", "sol-adapter-authoring-skeleton", "moose", "comsol", "ansys"] {
+    for forbidden in [
+        "sol-mock-adapter",
+        "sol-adapter-authoring-skeleton",
+        "moose",
+        "comsol",
+        "ansys",
+    ] {
         assert!(
             !manifest.contains(forbidden),
             "standalone conformance consumer must not link {forbidden}"
