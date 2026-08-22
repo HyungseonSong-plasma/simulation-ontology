@@ -248,7 +248,7 @@ impl CompatibilitySupport {
         Self {
             adapter_protocol_versions: Some(vec![ADAPTER_PROTOCOL_VERSION_0_2.to_owned()]),
             public_contract_versions: Some(vec![
-                sol_public_contract::PUBLIC_CONTRACT_VERSION_0_2.to_owned(),
+                sol_public_contract::PUBLIC_CONTRACT_VERSION_0_2.to_owned()
             ]),
         }
     }
