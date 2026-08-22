@@ -12,19 +12,20 @@ const FIXTURE_RUNNER_CARGO: &str =
     include_str!("../../sol-adapter-conformance-fixtures/Cargo.toml");
 
 fn published_fixture_dir() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../fixtures/adapter-protocol/0.1")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/adapter-protocol/0.1")
 }
 
 fn exact_external_command() -> ExternalAdapterCommand {
-    ExternalAdapterCommand::new(env!("CARGO_BIN_EXE_sol-mock-adapter-stdio"))
-        .arg(format!("--profile={}", MockAdapterProfile::Exact.wire_name()))
+    ExternalAdapterCommand::new(env!("CARGO_BIN_EXE_sol-mock-adapter-stdio")).arg(format!(
+        "--profile={}",
+        MockAdapterProfile::Exact.wire_name()
+    ))
 }
 
 #[test]
 fn published_positive_fixture_suite_is_conformant_through_external_command() {
-    let report = PublishedPositiveFixtureSuite::new(published_fixture_dir())
-        .run(exact_external_command());
+    let report =
+        PublishedPositiveFixtureSuite::new(published_fixture_dir()).run(exact_external_command());
 
     assert_eq!(report.determination(), ConformanceDetermination::Conformant);
     assert_eq!(
