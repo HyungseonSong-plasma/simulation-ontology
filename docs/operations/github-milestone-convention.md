@@ -1,7 +1,7 @@
 # GitHub Milestone Convention
 
 **Status:** Project operating convention  
-**Date:** 2026-08-21  
+**Date:** 2026-08-22  
 **Scope:** GitHub Milestone naming, creation, membership, progress interpretation, closure, and Operator integration
 
 ## Purpose
@@ -231,15 +231,15 @@ Normally create/assign the corrective work to the current or next appropriate mi
 
 ## 15. Current roadmap projection
 
-Current repository projection after M0.4 closure:
+Current repository projection after M0.5 closure:
 
 ```text
 M0.1 — Semantic Core Bootstrap            historical / complete
 M0.2 — Canonical Public Contract 0.1      historical / complete
 M0.3 — Adapter Protocol 0.1               historical / complete
 M0.4 — MockAdapter Protocol Conformance   historical / complete
-M0.5 — JSON-RPC / stdio Transport         active / Phase 0 next
-M0.6 — Adapter Conformance Tooling        planned, depends on M0.5
+M0.5 — JSON-RPC / stdio Transport         historical / complete
+M0.6 — Adapter Conformance Tooling        active / Phase 0 #82 next
 ```
 
 Canonical issue groupings are:
