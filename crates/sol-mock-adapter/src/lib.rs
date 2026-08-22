@@ -2,8 +2,10 @@
 
 mod protocol;
 mod protocol_state;
+mod stdio_profile;
 pub use protocol::*;
 pub use protocol_state::*;
+pub use stdio_profile::*;
 
 use std::collections::BTreeSet;
 
