@@ -65,7 +65,7 @@ fn external_mock_command_bootstraps_checks_both_versions_and_runs_operations() {
     );
     assert_eq!(
         session.description().bootstrap.adapter_id,
-        "org.simulationontology.mock.thermal"
+        "adapter.mock"
     );
 
     assert!(matches!(
