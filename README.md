@@ -30,7 +30,7 @@ The platform is intended to enable solver-independent model exchange, semantic v
 
 ## Current status
 
-The first five foundation milestones are complete and M0.6 Phase 0 is the next eligible implementation phase:
+The first six foundation milestones have completed their implementation and acceptance gates:
 
 ```text
 M0.1  Semantic Core Bootstrap                  COMPLETE
@@ -38,7 +38,7 @@ M0.2  Canonical Public Contract 0.1            COMPLETE
 M0.3  Adapter Protocol 0.1                     COMPLETE
 M0.4  MockAdapter Protocol Conformance         COMPLETE
 M0.5  JSON-RPC / stdio Transport               COMPLETE
-M0.6  Adapter Conformance Tooling              READY (Phase 0 #82 next)
+M0.6  Adapter Conformance Tooling              COMPLETE
 ```
 
 M0.3 closed after exact-head CI, a Validator exit audit with verdict **APPROVE**, and PR #63 publication merge. Adapter Protocol 0.1 is now a published, versioned, transport-independent v0.x interoperability baseline.
@@ -47,7 +47,9 @@ M0.4 closed after Phase 0–5 implementation, exact-head Rust Core CI #542, a Va
 
 M0.5 closed after Phase 0–5 implementation, exact-head Rust Core CI #617, a Validator exit verdict of **APPROVE**, PR #101 merge, `main` verification, parent/Phase closure, and user-confirmed GitHub Milestone #5 closure. The completed local JSON-RPC/stdio boundary now carries the unchanged Protocol 0.1 describe, validate, execute, and ProtocolFailure semantics through a typed subprocess session with deterministic error, reconnect, response-loss, and no-replay behavior.
 
-M0.6 Phase 0 (#82) is the next eligible implementation phase. It defines the reusable conformance runner boundary and result model before external-adapter invocation tooling is productized.
+M0.6 completed Phase 0–5 implementation, exact-head Rust Core CI #730, a Validator exit verdict of **APPROVE**, PR #108 merge as `a014216b957b3a2128fd1f516f2490f38caf8fac`, `main` verification, Phase #82–#87 closure, and parent #81 closure. Reusable conformance tooling now exercises external adapter commands through the published process transport, executes positive and adversarial Protocol/Public Contract fixtures, distinguishes adapter non-conformance from harness/transport failure, provides a solver-independent authoring skeleton, and proves a standalone external-project-style workflow with deterministic provisional machine-readable CI evidence.
+
+GitHub Milestone #6 contains `0` open and `6` closed canonical Phase issues. Its final UI **Close milestone** action remains administrative because the GitHub connector available to Operator does not expose milestone-state writes; this does not alter the accepted Validator, CI, Phase, parent, or `main` evidence.
 
 The repository currently contains:
 
@@ -61,8 +63,12 @@ The repository currently contains:
 - independently versioned Adapter Protocol 0.1 bootstrap, compatibility, preflight, execution, failure, idempotency, and provenance semantics;
 - canonical Adapter Protocol 0.1 Draft 2020-12 schemas and executable counterexamples;
 - MockAdapter executable in-process Adapter Protocol 0.1 reference behavior and positive/adversarial conformance matrix;
-- deterministic local JSON-RPC/stdio method mapping, framing, request correlation, process session, and typed error/recovery boundaries; and
-- canonical in-process/subprocess parity across all MockAdapter reference states and key transport counterexamples.
+- deterministic local JSON-RPC/stdio method mapping, framing, request correlation, process session, and typed error/recovery boundaries;
+- canonical in-process/subprocess parity across all MockAdapter reference states and key transport counterexamples;
+- reusable conformance result/harness libraries for external adapter commands;
+- versioned positive and 23-case adversarial conformance fixture execution;
+- a solver-independent Rust/stdin-stdout adapter-authoring skeleton and guide; and
+- a standalone external-project conformance consumer that proves fixture reuse, semantic counterexample detection, response-loss separation, and deterministic provisional CI evidence.
 
 ## Public Contract 0.1
 
@@ -149,6 +155,36 @@ Reconnect creates a new bootstrapped process session. Lost description may be re
 
 The M0.5 completion record is [`docs/implementation/m0.5-completion-handoff.md`](docs/implementation/m0.5-completion-handoff.md).
 
+## Adapter conformance tooling
+
+M0.6 adds reusable tooling around the published Protocol/Public Contract boundary without introducing a new semantic contract.
+
+Conformance reports distinguish:
+
+```text
+Conformant
+NonConformant
+NotEstablished   # harness / fixture / transport evidence prevents a conformance determination
+```
+
+`NotEstablished` is not adapter non-conformance and none of these determinations is a SOL lifecycle state or backend physical-validation result.
+
+The reusable fixture runner covers positive behavior and adversarial cases for compatibility, targets/capabilities, preflight negatives, execution outcomes, ProtocolFailure behavior, scheduling, prior execution, transport loss, aggregate effects, and provenance identity. Parsable request-relative semantic violations become `NonConformant`; execute response loss remains transport/harness evidence and does not authorize replay.
+
+Authoring and external-project entry points:
+
+- [`docs/guides/adapter-authoring-0.1.md`](docs/guides/adapter-authoring-0.1.md)
+- [`docs/guides/adapter-conformance-external-project.md`](docs/guides/adapter-conformance-external-project.md)
+- [`examples/adapter-authoring/rust-stdio/`](examples/adapter-authoring/rust-stdio/)
+- [`examples/external-project-conformance/`](examples/external-project-conformance/)
+
+The example JSON observation, environment-variable names, profile controls, command spelling, and exit behavior remain explicitly provisional; M0.6 did not stabilize a public conformance CLI/report contract.
+
+The M0.6 final audit and completion records are:
+
+- [`docs/implementation/m0.6-adapter-conformance-exit-candidate.md`](docs/implementation/m0.6-adapter-conformance-exit-candidate.md)
+- [`docs/implementation/m0.6-completion-handoff.md`](docs/implementation/m0.6-completion-handoff.md)
+
 ## Roadmap
 
 ```text
@@ -167,7 +203,7 @@ M0.4  MockAdapter Protocol Conformance         complete
 M0.5  JSON-RPC / stdio Transport               complete
   |
   v
-M0.6  Adapter Conformance Tooling              ready — Phase 0 #82 next
+M0.6  Adapter Conformance Tooling              complete
   |
   +-------------------------+
   |                         |
@@ -179,6 +215,8 @@ TypeScript / Python     sol-adapter-moose
 
 The ordering is deliberate: canonical semantics precede SDK ergonomics; Adapter Protocol precedes transport; MockAdapter proves reference behavior before transport; reusable conformance tooling precedes the first official real MOOSE adapter.
 
+Concrete successor scope, milestone decomposition, and compatibility commitments for the SDK and real-adapter tracks require the normal Manager/Planner decision flow before implementation.
+
 ## MockAdapter responsibility
 
 MockAdapter is the Core repository's reference conformance implementation, not evidence of solver-native physical correctness. M0.4 completed its promotion from deterministic reference helpers into an executable in-process implementation of the published Adapter Protocol 0.1 contract.
@@ -189,6 +227,7 @@ Core repository
   -> protocol/schema conformance
   -> deterministic reference behavior
   -> MockAdapter Protocol conformance
+  -> reusable external-adapter conformance tooling
 
 Real adapter repository
   -> backend-native realization correctness
@@ -242,7 +281,7 @@ Manager meeting
 
 `resume` continues accepted implementation through the current GitHub Milestone, parent tracker, Phase issue, PR, CI/fix loop, bounded merge, main verification, and the next eligible Phase until a real gate appears. A planned successor GitHub Milestone does not bypass accepted predecessor dependencies.
 
-`update` synchronizes user/developer-facing documentation with accepted repository state. A milestone-handoff `update` runs after milestone closure and its PR is not counted back into the closed milestone.
+`update` synchronizes user/developer-facing documentation with accepted repository state. A milestone-handoff `update` normally runs after milestone closure and its PR is not counted back into the closed milestone.
 
 Operator may auto-merge already accepted Phase implementation only when exact-head required CI is green, evidence is complete, the PR is mergeable, and no unresolved semantic/architecture/Public Contract/Adapter Protocol/compatibility decision exists. Milestone exit audits, blocking reviews, conflicts, permission failures, non-green CI, and unresolved semantic choices remain real gates.
 
@@ -269,6 +308,8 @@ See:
 - M0.4 completion handoff: [`docs/implementation/m0.4-completion-handoff.md`](docs/implementation/m0.4-completion-handoff.md)
 - M0.5 exit audit: [`docs/implementation/m0.5-json-rpc-stdio-transport-exit-audit.md`](docs/implementation/m0.5-json-rpc-stdio-transport-exit-audit.md)
 - M0.5 completion handoff: [`docs/implementation/m0.5-completion-handoff.md`](docs/implementation/m0.5-completion-handoff.md)
+- M0.6 exit audit: [`docs/implementation/m0.6-adapter-conformance-exit-candidate.md`](docs/implementation/m0.6-adapter-conformance-exit-candidate.md)
+- M0.6 completion handoff: [`docs/implementation/m0.6-completion-handoff.md`](docs/implementation/m0.6-completion-handoff.md)
 - M0.1 tracker: [Issue #2](../../issues/2)
 - M0.2 tracker: [Issue #28](../../issues/28)
 - M0.3 tracker: [Issue #38](../../issues/38)
