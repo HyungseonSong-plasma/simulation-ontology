@@ -45,8 +45,16 @@ fn subprocess_validate(
     let mut session = AdapterProcessSession::spawn(profile_command(profile)).unwrap();
     let result = session.validate_plan(request).unwrap();
     let exit = session.shutdown().unwrap();
-    assert!(exit.success, "profile {} exited abnormally", profile.wire_name());
-    assert!(exit.stderr.is_empty(), "profile {} wrote stderr", profile.wire_name());
+    assert!(
+        exit.success,
+        "profile {} exited abnormally",
+        profile.wire_name()
+    );
+    assert!(
+        exit.stderr.is_empty(),
+        "profile {} wrote stderr",
+        profile.wire_name()
+    );
     match result {
         AdapterOperationResult::Success(response) => Ok(response),
         AdapterOperationResult::ProtocolFailure(failure) => Err(failure),
@@ -104,11 +112,7 @@ fn describe_success_and_compatibility_failure_match_in_process_semantics() {
         .to_canonical_json()
         .unwrap();
     let session = AdapterProcessSession::spawn(profile_command(MockAdapterProfile::Exact)).unwrap();
-    let actual = session
-        .description()
-        .unwrap()
-        .to_canonical_json()
-        .unwrap();
+    let actual = session.description().unwrap().to_canonical_json().unwrap();
     assert_eq!(actual, expected);
     let exit = session.shutdown().unwrap();
     assert!(exit.success);
@@ -213,8 +217,7 @@ fn execute_matrix_is_canonically_equal_across_in_process_and_subprocess_paths() 
     let expected = MockAdapterProfile::ExecutionAuthoritativeRejected
         .adapter()
         .execute_plan_operation(&changed);
-    let actual =
-        subprocess_execute(MockAdapterProfile::ExecutionAuthoritativeRejected, &changed);
+    let actual = subprocess_execute(MockAdapterProfile::ExecutionAuthoritativeRejected, &changed);
     assert_eq!(canonical_execute(&actual), canonical_execute(&expected));
 
     let independent = execute_request(EXECUTE_INDEPENDENT_REQUEST);
@@ -249,8 +252,7 @@ fn malformed_envelope_abnormal_exit_and_ambiguous_execute_loss_stay_transport_ev
     assert_eq!(exit.stderr, b"opaque abnormal-exit diagnostic\n".to_vec());
 
     let request = execute_request(EXECUTE_REQUEST);
-    let mut lost =
-        AdapterProcessSession::spawn(probe_command("execute-response-loss")).unwrap();
+    let mut lost = AdapterProcessSession::spawn(probe_command("execute-response-loss")).unwrap();
     let error = lost.execute_plan(&request).unwrap_err();
     assert_eq!(error.kind(), AdapterSessionErrorKind::StdoutEof);
     let exit = lost.shutdown().unwrap();
