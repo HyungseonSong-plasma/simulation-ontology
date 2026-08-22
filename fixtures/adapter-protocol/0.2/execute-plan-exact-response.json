@@ -1,0 +1,65 @@
+{
+  "adapter_protocol_version": "0.2",
+  "execution": "completed",
+  "execution_batches": [
+    ["thermal.domain"],
+    ["thermal.material"],
+    ["thermal.solve"]
+  ],
+  "action_reports": [
+    {
+      "action_id": "thermal.domain",
+      "state": "completed",
+      "effects": [
+        {
+          "subject": { "subject_kind": "entity", "id": "domain.main" },
+          "quality": "exact"
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "action_id": "thermal.material",
+      "state": "completed",
+      "effects": [
+        {
+          "subject": { "subject_kind": "entity", "id": "property.thermal_conductivity" },
+          "quality": "exact"
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "action_id": "thermal.solve",
+      "state": "completed",
+      "effects": [
+        {
+          "subject": { "subject_kind": "entity", "id": "thermal.temperature_field" },
+          "quality": "exact"
+        }
+      ],
+      "diagnostics": []
+    }
+  ],
+  "effects": [
+    {
+      "subject": { "subject_kind": "entity", "id": "domain.main" },
+      "quality": "exact"
+    },
+    {
+      "subject": { "subject_kind": "entity", "id": "property.thermal_conductivity" },
+      "quality": "exact"
+    },
+    {
+      "subject": { "subject_kind": "entity", "id": "thermal.temperature_field" },
+      "quality": "exact"
+    }
+  ],
+  "diagnostics": [],
+  "provenance": {
+    "producer": "sol.adapter.moose",
+    "opaque_references": [
+      { "namespace": "moose.workspace", "reference": "workspace-thermal-001" }
+    ]
+  }
+}
