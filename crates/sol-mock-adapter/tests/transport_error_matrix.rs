@@ -12,9 +12,8 @@ use std::time::Duration;
 
 const VALIDATE_REQUEST: &str =
     include_str!("../../../fixtures/adapter-protocol/0.1/validate-plan-accepted-request.json");
-const ERROR_PROFILE: &str = include_str!(
-    "../../../docs/implementation/m0.5-transport-and-process-error-propagation.md"
-);
+const ERROR_PROFILE: &str =
+    include_str!("../../../docs/implementation/m0.5-transport-and-process-error-propagation.md");
 
 fn probe_command(mode: &str) -> AdapterProcessCommand {
     AdapterProcessCommand::new(env!("CARGO_BIN_EXE_sol-transport-error-probe")).arg(mode)
@@ -58,11 +57,8 @@ fn non_protocol_stdout_is_never_treated_as_a_protocol_result() {
     ));
     assert!(human.shutdown().unwrap().success);
 
-    let mut invalid_utf8 =
-        AdapterProcessSession::spawn(probe_command("invalid-utf8")).unwrap();
-    let error = invalid_utf8
-        .validate_plan(&validate_request())
-        .unwrap_err();
+    let mut invalid_utf8 = AdapterProcessSession::spawn(probe_command("invalid-utf8")).unwrap();
+    let error = invalid_utf8.validate_plan(&validate_request()).unwrap_err();
     assert_eq!(error.kind(), AdapterSessionErrorKind::Framing);
     assert_eq!(
         error,
@@ -122,13 +118,15 @@ fn stderr_is_preserved_as_opaque_bytes_only_at_the_process_boundary() {
     let session = AdapterProcessSession::spawn(probe_command("stderr-bytes")).unwrap();
     let exit = session.shutdown().unwrap();
     assert!(exit.success);
-    assert_eq!(exit.stderr, vec![b'o', b'p', b'a', b'q', b'u', b'e', b':', 0xff, b'\n']);
+    assert_eq!(
+        exit.stderr,
+        vec![b'o', b'p', b'a', b'q', b'u', b'e', b':', 0xff, b'\n']
+    );
 }
 
 #[test]
 fn a_valid_operation_protocol_failure_remains_a_protocol_result() {
-    let mut session =
-        AdapterProcessSession::spawn(probe_command("protocol-failure")).unwrap();
+    let mut session = AdapterProcessSession::spawn(probe_command("protocol-failure")).unwrap();
     let result = session.validate_plan(&validate_request()).unwrap();
     let AdapterOperationResult::ProtocolFailure(failure) = result else {
         panic!("injected logical failure did not remain ProtocolFailure");
@@ -199,11 +197,7 @@ fn documented_error_matrix_rejects_semantic_conflation_and_silent_retry() {
     }
 }
 
-fn raw_exchange(
-    input: &mut impl Write,
-    output: &mut impl BufRead,
-    request: &str,
-) -> Value {
+fn raw_exchange(input: &mut impl Write, output: &mut impl BufRead, request: &str) -> Value {
     input.write_all(request.as_bytes()).unwrap();
     input.flush().unwrap();
     let mut response = String::new();
