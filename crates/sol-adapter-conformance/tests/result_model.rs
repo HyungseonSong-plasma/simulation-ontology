@@ -1,8 +1,7 @@
 use sol_adapter_conformance::{
-    BackendValidationScope, ConformanceCaseId, ConformanceCaseRecord,
-    ConformanceCaseResult, ConformanceDetermination, ConformanceEvidence,
-    ConformanceModelError, ConformanceReport, ConformanceScope, ConformanceViolation,
-    HarnessFailure, HarnessFailureKind, PublishedContract,
+    BackendValidationScope, ConformanceCaseId, ConformanceCaseRecord, ConformanceCaseResult,
+    ConformanceDetermination, ConformanceEvidence, ConformanceModelError, ConformanceReport,
+    ConformanceScope, ConformanceViolation, HarnessFailure, HarnessFailureKind, PublishedContract,
 };
 use sol_adapter_protocol::ProtocolOperation;
 
@@ -74,10 +73,7 @@ fn all_observed_expectations_establish_conformance_only() {
     ])
     .unwrap();
 
-    assert_eq!(
-        report.determination(),
-        ConformanceDetermination::Conformant
-    );
+    assert_eq!(report.determination(), ConformanceDetermination::Conformant);
     assert_eq!(
         report.backend_validation_scope(),
         BackendValidationScope::NotAssessedByConformance
@@ -153,15 +149,11 @@ fn blank_model_text_and_empty_reports_are_rejected() {
     );
     assert_eq!(
         ConformanceViolation::new(""),
-        Err(ConformanceModelError::EmptyField(
-            "conformance violation"
-        ))
+        Err(ConformanceModelError::EmptyField("conformance violation"))
     );
     assert_eq!(
         HarnessFailure::new(HarnessFailureKind::ResultDecoding, "\t"),
-        Err(ConformanceModelError::EmptyField(
-            "harness failure detail"
-        ))
+        Err(ConformanceModelError::EmptyField("harness failure detail"))
     );
     assert_eq!(
         ConformanceReport::new(Vec::new()),
@@ -175,7 +167,8 @@ fn phase_zero_preserves_dependency_and_public_interface_boundaries() {
     let manifest = std::fs::read_to_string(manifest_dir.join("Cargo.toml")).unwrap();
     let source = std::fs::read_to_string(manifest_dir.join("src/lib.rs")).unwrap();
     let boundary = std::fs::read_to_string(
-        manifest_dir.join("../../docs/implementation/m0.6-conformance-runner-boundary-and-result-model.md"),
+        manifest_dir
+            .join("../../docs/implementation/m0.6-conformance-runner-boundary-and-result-model.md"),
     )
     .unwrap();
 
@@ -210,4 +203,3 @@ fn phase_zero_preserves_dependency_and_public_interface_boundaries() {
         assert!(boundary.contains(counterexample));
     }
 }
-

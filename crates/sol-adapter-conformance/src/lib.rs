@@ -171,9 +171,7 @@ pub struct ConformanceReport {
 }
 
 impl ConformanceReport {
-    pub fn new(
-        mut cases: Vec<ConformanceCaseRecord>,
-    ) -> Result<Self, ConformanceModelError> {
+    pub fn new(mut cases: Vec<ConformanceCaseRecord>) -> Result<Self, ConformanceModelError> {
         if cases.is_empty() {
             return Err(ConformanceModelError::EmptyReport);
         }
@@ -195,13 +193,17 @@ impl ConformanceReport {
     }
 
     pub fn determination(&self) -> ConformanceDetermination {
-        if self.cases.iter().any(|case| {
-            matches!(&case.result, ConformanceCaseResult::NonConformant(_))
-        }) {
+        if self
+            .cases
+            .iter()
+            .any(|case| matches!(&case.result, ConformanceCaseResult::NonConformant(_)))
+        {
             ConformanceDetermination::NonConformant
-        } else if self.cases.iter().any(|case| {
-            matches!(&case.result, ConformanceCaseResult::HarnessFailure(_))
-        }) {
+        } else if self
+            .cases
+            .iter()
+            .any(|case| matches!(&case.result, ConformanceCaseResult::HarnessFailure(_)))
+        {
             ConformanceDetermination::NotEstablished
         } else {
             ConformanceDetermination::Conformant
@@ -238,10 +240,7 @@ impl Display for ConformanceModelError {
 
 impl Error for ConformanceModelError {}
 
-fn require_non_blank(
-    field: &'static str,
-    value: &str,
-) -> Result<(), ConformanceModelError> {
+fn require_non_blank(field: &'static str, value: &str) -> Result<(), ConformanceModelError> {
     if value.trim().is_empty() {
         Err(ConformanceModelError::EmptyField(field))
     } else {
