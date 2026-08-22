@@ -11,7 +11,7 @@ use sol_adapter_protocol::{
 use std::error::Error;
 use std::ffi::{OsStr, OsString};
 use std::fmt::{Display, Formatter};
-use std::io::{Read, Write};
+use std::io::{self, Read, Write};
 use std::path::PathBuf;
 use std::process::{Child, ChildStdin, Command, ExitStatus, Stdio};
 use std::sync::mpsc::{self, Receiver, RecvTimeoutError};
@@ -66,7 +66,36 @@ pub enum AdapterOperationResult<T> {
 pub struct AdapterProcessExit {
     pub success: bool,
     pub code: Option<i32>,
-    pub stderr: String,
+    pub stderr: Vec<u8>,
+}
+
+impl AdapterProcessExit {
+    pub const fn is_abnormal(&self) -> bool {
+        !self.success
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AdapterSessionErrorKind {
+    Spawn,
+    SessionNotReady,
+    RequestIdentity,
+    RequestEnvelope,
+    StdinWrite,
+    StdinBrokenPipe,
+    ResponseTimeout,
+    StdoutEof,
+    StdoutRead,
+    StderrRead,
+    Framing,
+    ResponseEnvelope,
+    Correlation,
+    RemoteJsonRpc,
+    ProtocolPayload,
+    BootstrapProtocolFailure,
+    Shutdown,
+    ShutdownTimeout,
+    ReaderThreadPanicked,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -76,6 +105,7 @@ pub enum AdapterSessionError {
     RequestId(RequestIdError),
     Request(RequestBuildError),
     Write(String),
+    BrokenPipe(String),
     ResponseTimeout,
     StdoutClosed,
     StdoutRead(String),
@@ -95,6 +125,34 @@ pub enum AdapterSessionError {
     ReaderThreadPanicked(&'static str),
 }
 
+impl AdapterSessionError {
+    pub const fn kind(&self) -> AdapterSessionErrorKind {
+        match self {
+            Self::Spawn(_) => AdapterSessionErrorKind::Spawn,
+            Self::NotReady => AdapterSessionErrorKind::SessionNotReady,
+            Self::RequestId(_) => AdapterSessionErrorKind::RequestIdentity,
+            Self::Request(_) => AdapterSessionErrorKind::RequestEnvelope,
+            Self::Write(_) => AdapterSessionErrorKind::StdinWrite,
+            Self::BrokenPipe(_) => AdapterSessionErrorKind::StdinBrokenPipe,
+            Self::ResponseTimeout => AdapterSessionErrorKind::ResponseTimeout,
+            Self::StdoutClosed => AdapterSessionErrorKind::StdoutEof,
+            Self::StdoutRead(_) => AdapterSessionErrorKind::StdoutRead,
+            Self::StderrRead(_) => AdapterSessionErrorKind::StderrRead,
+            Self::Framing(_) => AdapterSessionErrorKind::Framing,
+            Self::Response(_) => AdapterSessionErrorKind::ResponseEnvelope,
+            Self::Correlation(_) => AdapterSessionErrorKind::Correlation,
+            Self::JsonRpcError { .. } => AdapterSessionErrorKind::RemoteJsonRpc,
+            Self::ProtocolPayload(_) => AdapterSessionErrorKind::ProtocolPayload,
+            Self::BootstrapProtocolFailure(_) => {
+                AdapterSessionErrorKind::BootstrapProtocolFailure
+            }
+            Self::Shutdown(_) => AdapterSessionErrorKind::Shutdown,
+            Self::ShutdownTimeout => AdapterSessionErrorKind::ShutdownTimeout,
+            Self::ReaderThreadPanicked(_) => AdapterSessionErrorKind::ReaderThreadPanicked,
+        }
+    }
+}
+
 impl Display for AdapterSessionError {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -103,6 +161,9 @@ impl Display for AdapterSessionError {
             Self::RequestId(error) => Display::fmt(error, formatter),
             Self::Request(error) => Display::fmt(error, formatter),
             Self::Write(detail) => write!(formatter, "could not write adapter request: {detail}"),
+            Self::BrokenPipe(detail) => {
+                write!(formatter, "adapter stdin closed while writing a request: {detail}")
+            }
             Self::ResponseTimeout => write!(formatter, "adapter response timed out"),
             Self::StdoutClosed => write!(formatter, "adapter stdout closed before a response"),
             Self::StdoutRead(detail) => {
@@ -342,10 +403,10 @@ impl AdapterProcessSession {
         let stdin = self.stdin.as_mut().ok_or(AdapterSessionError::NotReady)?;
         stdin
             .write_all(&request.to_stdio_frame())
-            .map_err(|error| AdapterSessionError::Write(error.to_string()))?;
+            .map_err(request_write_error)?;
         stdin
             .flush()
-            .map_err(|error| AdapterSessionError::Write(error.to_string()))?;
+            .map_err(request_write_error)?;
 
         let frame = match self.stdout_events.recv_timeout(self.response_timeout) {
             Ok(StdoutEvent::Frame(Ok(frame))) => frame,
@@ -400,15 +461,14 @@ impl AdapterProcessSession {
         Ok(())
     }
 
-    fn join_stderr_thread(&mut self) -> Result<String, AdapterSessionError> {
+    fn join_stderr_thread(&mut self) -> Result<Vec<u8>, AdapterSessionError> {
         let Some(thread) = self.stderr_thread.take() else {
-            return Ok(String::new());
+            return Ok(Vec::new());
         };
-        let bytes = thread
+        thread
             .join()
             .map_err(|_| AdapterSessionError::ReaderThreadPanicked("stderr"))?
-            .map_err(AdapterSessionError::StderrRead)?;
-        Ok(String::from_utf8_lossy(&bytes).into_owned())
+            .map_err(AdapterSessionError::StderrRead)
     }
 
     fn terminate_now(&mut self) {
@@ -465,6 +525,14 @@ fn spawn_stdout_reader(
 fn protocol_json_value(canonical: String) -> Result<Value, AdapterSessionError> {
     serde_json::from_str(&canonical)
         .map_err(|error| AdapterSessionError::ProtocolPayload(error.to_string()))
+}
+
+fn request_write_error(error: io::Error) -> AdapterSessionError {
+    if error.kind() == io::ErrorKind::BrokenPipe {
+        AdapterSessionError::BrokenPipe(error.to_string())
+    } else {
+        AdapterSessionError::Write(error.to_string())
+    }
 }
 
 fn canonical_protocol_value(value: Value) -> String {
