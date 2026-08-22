@@ -33,9 +33,10 @@ fn skeleton_matches_the_published_positive_fixture_baseline_through_stdio() {
 
 #[test]
 fn skeleton_has_no_mock_adapter_or_solver_runtime_dependency() {
+    let manifest = MANIFEST.to_ascii_lowercase();
     for forbidden in ["sol-mock-adapter", "moose", "comsol", "ansys"] {
         assert!(
-            !MANIFEST.to_ascii_lowercase().contains(forbidden),
+            !manifest.contains(forbidden),
             "authoring skeleton must not depend on {forbidden}"
         );
     }
@@ -43,16 +44,14 @@ fn skeleton_has_no_mock_adapter_or_solver_runtime_dependency() {
 
 #[test]
 fn guide_preserves_the_non_normative_and_physical_correctness_boundaries() {
+    let guide = GUIDE.to_ascii_lowercase();
     for required in [
-        "reference scaffolding, not a new normative Protocol surface",
+        "reference scaffolding, not a new normative protocol surface",
         "does not prove backend physical or numerical correctness",
         "no automatic retry or replay authority",
         "backend-native identifiers belong only in opaque provenance",
-        "exact conformance CLI and serialized report format remain provisional",
+        "exact conformance cli and serialized report format remain provisional",
     ] {
-        assert!(
-            GUIDE.contains(required),
-            "guide is missing boundary: {required}"
-        );
+        assert!(guide.contains(required), "guide is missing boundary: {required}");
     }
 }
