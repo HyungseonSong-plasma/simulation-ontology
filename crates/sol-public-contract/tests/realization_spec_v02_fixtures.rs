@@ -55,7 +55,8 @@ fn same_plan_different_realization_values_remain_distinguishable() {
     let plan_b = positive_plan().to_canonical_json().unwrap();
     assert_eq!(plan_a, plan_b);
 
-    let spec_a = RealizationSpecDtoV02::from_json(&fixture("thermal-realization-spec.json")).unwrap();
+    let spec_a =
+        RealizationSpecDtoV02::from_json(&fixture("thermal-realization-spec.json")).unwrap();
     let spec_b = RealizationSpecDtoV02::from_json(&fixture(
         "thermal-realization-spec-alternate-values.json",
     ))
@@ -106,8 +107,7 @@ fn missing_unknown_and_duplicate_action_bindings_are_rejected() {
 #[test]
 fn unresolved_subject_and_scope_are_rejected() {
     let mut subject = positive_spec_value();
-    subject["action_bindings"][0]["subjects"][0]["id"] =
-        serde_json::json!("thermal.missing");
+    subject["action_bindings"][0]["subjects"][0]["id"] = serde_json::json!("thermal.missing");
     assert!(matches!(
         parse_spec(&subject),
         Err(RealizationSpecError::UnresolvedReference(reference)) if reference == "thermal.missing"
