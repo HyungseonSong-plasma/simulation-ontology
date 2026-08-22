@@ -130,8 +130,14 @@ fn v02_compatibility_requires_both_explicit_axes() {
     let assessment =
         assess_compatibility(&CompatibilitySupport::realization_v02(), &exact_v02_adapter).unwrap();
     assert_eq!(assessment.overall, CompatibilityOutcome::Compatible);
-    assert_eq!(assessment.adapter_protocol.selected_version.as_deref(), Some("0.2"));
-    assert_eq!(assessment.public_contract.selected_version.as_deref(), Some("0.2"));
+    assert_eq!(
+        assessment.adapter_protocol.selected_version.as_deref(),
+        Some("0.2")
+    );
+    assert_eq!(
+        assessment.public_contract.selected_version.as_deref(),
+        Some("0.2")
+    );
 
     let wrong_public_axis = AdapterBootstrap {
         supported_public_contract_versions: Some(vec!["0.1".to_owned()]),
@@ -139,7 +145,13 @@ fn v02_compatibility_requires_both_explicit_axes() {
     };
     let assessment =
         assess_compatibility(&CompatibilitySupport::realization_v02(), &wrong_public_axis).unwrap();
-    assert_eq!(assessment.adapter_protocol.outcome, CompatibilityOutcome::Compatible);
-    assert_eq!(assessment.public_contract.outcome, CompatibilityOutcome::Incompatible);
+    assert_eq!(
+        assessment.adapter_protocol.outcome,
+        CompatibilityOutcome::Compatible
+    );
+    assert_eq!(
+        assessment.public_contract.outcome,
+        CompatibilityOutcome::Incompatible
+    );
     assert_eq!(assessment.overall, CompatibilityOutcome::Incompatible);
 }
