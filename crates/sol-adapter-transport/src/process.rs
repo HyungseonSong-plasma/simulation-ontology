@@ -143,9 +143,7 @@ impl AdapterSessionError {
             Self::Correlation(_) => AdapterSessionErrorKind::Correlation,
             Self::JsonRpcError { .. } => AdapterSessionErrorKind::RemoteJsonRpc,
             Self::ProtocolPayload(_) => AdapterSessionErrorKind::ProtocolPayload,
-            Self::BootstrapProtocolFailure(_) => {
-                AdapterSessionErrorKind::BootstrapProtocolFailure
-            }
+            Self::BootstrapProtocolFailure(_) => AdapterSessionErrorKind::BootstrapProtocolFailure,
             Self::Shutdown(_) => AdapterSessionErrorKind::Shutdown,
             Self::ShutdownTimeout => AdapterSessionErrorKind::ShutdownTimeout,
             Self::ReaderThreadPanicked(_) => AdapterSessionErrorKind::ReaderThreadPanicked,
@@ -162,7 +160,10 @@ impl Display for AdapterSessionError {
             Self::Request(error) => Display::fmt(error, formatter),
             Self::Write(detail) => write!(formatter, "could not write adapter request: {detail}"),
             Self::BrokenPipe(detail) => {
-                write!(formatter, "adapter stdin closed while writing a request: {detail}")
+                write!(
+                    formatter,
+                    "adapter stdin closed while writing a request: {detail}"
+                )
             }
             Self::ResponseTimeout => write!(formatter, "adapter response timed out"),
             Self::StdoutClosed => write!(formatter, "adapter stdout closed before a response"),
@@ -404,9 +405,7 @@ impl AdapterProcessSession {
         stdin
             .write_all(&request.to_stdio_frame())
             .map_err(request_write_error)?;
-        stdin
-            .flush()
-            .map_err(request_write_error)?;
+        stdin.flush().map_err(request_write_error)?;
 
         let frame = match self.stdout_events.recv_timeout(self.response_timeout) {
             Ok(StdoutEvent::Frame(Ok(frame))) => frame,
