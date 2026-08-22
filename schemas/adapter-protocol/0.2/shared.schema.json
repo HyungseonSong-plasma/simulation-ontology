@@ -10,6 +10,11 @@
       "type": "string",
       "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
     },
+    "stableSymbol": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._-]+$"
+    },
     "adapterId": {
       "type": "string",
       "pattern": "^[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+$"
@@ -28,6 +33,50 @@
           "type": "array",
           "items": { "$ref": "#/$defs/majorMinorVersion" }
         }
+      }
+    },
+    "opaqueExecutionReference": {
+      "type": "object",
+      "required": ["namespace", "reference"],
+      "properties": {
+        "namespace": { "type": "string", "minLength": 1 },
+        "reference": { "type": "string", "minLength": 1 }
+      }
+    },
+    "executionProvenance": {
+      "type": "object",
+      "required": ["producer"],
+      "properties": {
+        "producer": { "type": "string", "minLength": 1 },
+        "opaque_references": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/opaqueExecutionReference" }
+        }
+      }
+    },
+    "actionExecutionState": {
+      "type": "string",
+      "enum": ["completed", "failed", "unavailable", "skipped_dependency", "not_started"]
+    },
+    "actionExecutionReport": {
+      "type": "object",
+      "required": ["action_id", "state"],
+      "properties": {
+        "action_id": { "$ref": "#/$defs/stableSymbol" },
+        "state": { "$ref": "#/$defs/actionExecutionState" },
+        "effects": {
+          "type": "array",
+          "items": {
+            "$ref": "../../public-contract/0.2/shared.schema.json#/$defs/realizationEffect"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "../../public-contract/0.2/shared.schema.json#/$defs/diagnostic"
+          }
+        },
+        "provenance": { "$ref": "#/$defs/executionProvenance" }
       }
     }
   }
