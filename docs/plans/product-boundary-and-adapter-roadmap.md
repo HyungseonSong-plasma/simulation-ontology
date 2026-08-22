@@ -1,7 +1,7 @@
 # SOL Product Boundary and Adapter Roadmap
 
-**Status:** Accepted roadmap, synchronized after M0.4 completion  
-**Date:** 2026-08-21  
+**Status:** Accepted roadmap, synchronized after M0.5 completion  
+**Date:** 2026-08-22  
 **Scope:** Core product boundary, adapter ownership, protocol/transport sequencing, MockAdapter role, and reference-adapter roadmap
 
 ## Purpose
@@ -131,11 +131,11 @@ SOL Core / CLI
 Adapter process
 ```
 
-M0.5 owns JSON-RPC framing, method mapping, request IDs, subprocess lifecycle, malformed transport input, process failure propagation, reconnect behavior, and replay constraints. Transport SHALL carry Adapter Protocol 0.1 without changing its semantics.
+M0.5 completed JSON-RPC framing, exact method mapping, transport-only request correlation, local subprocess lifecycle, typed operation exchange, malformed transport/process failure propagation, explicit reconnect, operation-specific response-loss handling, and canonical in-process/subprocess parity. Transport carries Adapter Protocol 0.1 without changing its semantics.
 
-M0.5 is defined under parent tracker #74 with Phase issues #75–#80. M0.4 is closed and its completion state is synchronized, so M0.5 is implementation-eligible with Phase 0 #75 next.
+M0.5 Phase 0–5 are complete. Final exact-head Rust Core CI #617 passed, the Validator exit verdict is **APPROVE**, PR #101 merged and was verified on `main` as `e902e76668c3a6060cbd9d06d5ff130df3896c7f`, Phase issues #75–#80 and parent #74 are closed, and GitHub Milestone #5 closure was user-confirmed. The completion record is `docs/implementation/m0.5-completion-handoff.md`.
 
-Remote/network transports remain deferred until demonstrated requirements justify them.
+M0.6 is now implementation-eligible under parent #81, with Phase 0 #82 next. Remote/network transports remain deferred until demonstrated requirements justify them.
 
 ## Conformance boundary
 
@@ -154,7 +154,7 @@ Adapter repository
   -> physical/numerical validation where applicable
 ```
 
-M0.6 is planned under parent tracker #81 with Phase issues #82–#87. It productizes reusable external-adapter invocation, positive/adversarial conformance fixture execution, authoring scaffolding, and external-project workflow only after M0.5 closes successfully.
+M0.6 is accepted under parent tracker #81 with Phase issues #82–#87. It is now implementation-eligible and productizes reusable external-adapter invocation, positive/adversarial conformance fixture execution, authoring scaffolding, and external-project workflow on top of the completed M0.5 transport.
 
 ## Milestone sequence
 
@@ -171,10 +171,10 @@ M0.3  Adapter Protocol 0.1                     COMPLETE
 M0.4  MockAdapter Protocol Conformance         COMPLETE
   |
   v
-M0.5  JSON-RPC / stdio Transport               READY (Phase 0 next)
+M0.5  JSON-RPC / stdio Transport               COMPLETE
   |
   v
-M0.6  Adapter Conformance Tooling              PLANNED
+M0.6  Adapter Conformance Tooling              READY (Phase 0 #82 next)
   |
   +-------------------------+
   |                         |
@@ -206,8 +206,8 @@ M0.1: parent #2,  Phase #6–#16   historical complete
 M0.2: parent #28, Phase #29–#35  historical complete
 M0.3: parent #38, Phase #39–#44  historical complete
 M0.4: parent #65, Phase #66–#71  complete
-M0.5: parent #74, Phase #75–#80  ready; Phase 0 #75 next
-M0.6: parent #81, Phase #82–#87  planned
+M0.5: parent #74, Phase #75–#80  complete
+M0.6: parent #81, Phase #82–#87  ready; Phase 0 #82 next
 ```
 
 See `docs/operations/github-milestone-convention.md` for naming, membership, progress, due-date, closure, backfill, and Operator `resume`/`update` rules.
