@@ -43,7 +43,6 @@ fn run() -> Result<(), String> {
     }
 }
 
-
 fn configured_adapter() -> Result<MockAdapter, String> {
     let mut arguments = env::args().skip(1);
     let profile = match arguments.next() {
