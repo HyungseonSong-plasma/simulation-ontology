@@ -124,11 +124,11 @@ impl MockAdapterProfile {
             Self::ExecutionAlternateOrder => {
                 MockAdapter::thermal().with_execution_state(MockExecutionState::AlternateOrder)
             }
-            Self::ExecutionParallelIndependent => MockAdapter::thermal()
-                .with_execution_state(MockExecutionState::ParallelIndependent),
-            Self::FailureCompatibility => MockAdapter::thermal().with_protocol_failure_state(
-                MockProtocolFailureState::CompatibilityNotEstablished,
-            ),
+            Self::ExecutionParallelIndependent => {
+                MockAdapter::thermal().with_execution_state(MockExecutionState::ParallelIndependent)
+            }
+            Self::FailureCompatibility => MockAdapter::thermal()
+                .with_protocol_failure_state(MockProtocolFailureState::CompatibilityNotEstablished),
             Self::FailureInvalidRequest => MockAdapter::thermal()
                 .with_protocol_failure_state(MockProtocolFailureState::InvalidRequest),
             Self::FailureValidateOperational => MockAdapter::thermal()
@@ -137,9 +137,8 @@ impl MockAdapterProfile {
                 .with_protocol_failure_state(
                     MockProtocolFailureState::ExecuteOperationalBeforeSideEffect,
                 ),
-            Self::FailureExecuteAmbiguous => MockAdapter::thermal().with_protocol_failure_state(
-                MockProtocolFailureState::ExecuteOperationalAmbiguous,
-            ),
+            Self::FailureExecuteAmbiguous => MockAdapter::thermal()
+                .with_protocol_failure_state(MockProtocolFailureState::ExecuteOperationalAmbiguous),
             Self::PriorAlreadyRealized => MockAdapter::thermal()
                 .with_prior_execution_state(MockPriorExecutionState::AlreadyRealized),
             Self::PriorPartialExecution => MockAdapter::thermal()
