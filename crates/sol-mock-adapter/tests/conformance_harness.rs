@@ -1,7 +1,6 @@
-use sol_adapter_conformance::HarnessFailureKind;
 use sol_adapter_conformance_harness::{
     AdapterProtocolObservation, ExternalAdapterCommand, ExternalAdapterHarness,
-    ExternalAdapterLaunch, InvocationStage,
+    ExternalAdapterLaunch, HarnessFailureKind, InvocationStage,
 };
 use sol_adapter_protocol::{
     CompatibilityOutcome, ExecutePlanRequest, FailureCategory, ValidatePlanRequest,

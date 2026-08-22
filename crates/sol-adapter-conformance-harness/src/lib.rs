@@ -5,7 +5,7 @@
 //! This crate composes the M0.5 process transport with the Phase 0 conformance result
 //! model. It does not link adapter implementations or backend runtimes into Core.
 
-use sol_adapter_conformance::{HarnessFailure, HarnessFailureKind};
+pub use sol_adapter_conformance::{HarnessFailure, HarnessFailureKind};
 use sol_adapter_protocol::{
     assess_compatibility, AdapterDescription, CompatibilityAssessment, CompatibilitySupport,
     ExecutePlanRequest, ExecutePlanResponse, ProtocolError, ProtocolFailure, ValidatePlanRequest,
