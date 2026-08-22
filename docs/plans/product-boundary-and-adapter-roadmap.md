@@ -1,6 +1,6 @@
 # SOL Product Boundary and Adapter Roadmap
 
-**Status:** Accepted roadmap, synchronized after M0.5 completion  
+**Status:** Accepted roadmap, synchronized after M0.6 completion  
 **Date:** 2026-08-22  
 **Scope:** Core product boundary, adapter ownership, protocol/transport sequencing, MockAdapter role, and reference-adapter roadmap
 
@@ -119,11 +119,11 @@ M0.4 promoted MockAdapter to reference Protocol 0.1 behavior and now exercises:
 
 M0.4 Phase 0–5 are complete. Final exact-head Rust Core CI #542 passed, the Validator exit verdict is **APPROVE**, PR #93 is merged and verified on `main`, parent/Phase issues are closed, and GitHub Milestone #1 is closed. The completion record is `docs/implementation/m0.4-completion-handoff.md`.
 
-M0.4 may build Core-local reusable test helpers as needed for MockAdapter reference conformance, but general external-adapter test-runner/tooling productization belongs to M0.6.
+M0.4 may build Core-local reusable test helpers as needed for MockAdapter reference conformance, while general external-adapter test-runner/tooling productization is completed by M0.6.
 
 ## Transport roadmap
 
-The planned default local v0.x transport is JSON-RPC over process `stdio`.
+The default local v0.x transport is JSON-RPC over process `stdio`.
 
 ```text
 SOL Core / CLI
@@ -135,7 +135,7 @@ M0.5 completed JSON-RPC framing, exact method mapping, transport-only request co
 
 M0.5 Phase 0–5 are complete. Final exact-head Rust Core CI #617 passed, the Validator exit verdict is **APPROVE**, PR #101 merged and was verified on `main` as `e902e76668c3a6060cbd9d06d5ff130df3896c7f`, Phase issues #75–#80 and parent #74 are closed, and GitHub Milestone #5 closure was user-confirmed. The completion record is `docs/implementation/m0.5-completion-handoff.md`.
 
-M0.6 is now implementation-eligible under parent #81, with Phase 0 #82 next. Remote/network transports remain deferred until demonstrated requirements justify them.
+Remote/network transports remain deferred until demonstrated requirements justify them.
 
 ## Conformance boundary
 
@@ -146,6 +146,7 @@ Core repository
   -> protocol/schema conformance
   -> deterministic contract behavior
   -> MockAdapter reference behavior
+  -> reusable external-adapter conformance tooling
 
 Adapter repository
   -> backend-native mapping correctness
@@ -154,7 +155,15 @@ Adapter repository
   -> physical/numerical validation where applicable
 ```
 
-M0.6 is accepted under parent tracker #81 with Phase issues #82–#87. It is now implementation-eligible and productizes reusable external-adapter invocation, positive/adversarial conformance fixture execution, authoring scaffolding, and external-project workflow on top of the completed M0.5 transport.
+M0.6 completed reusable external-adapter invocation, positive/adversarial conformance fixture execution, solver-independent authoring scaffolding, and a standalone external-project workflow on top of the completed M0.5 transport.
+
+M0.6 Phase 0–5 are complete. Final Phase 5 head `2d9eead12c71a086b371dd6b4052d670f8bd9b76` passed exact-head Rust Core CI #730 (`32584930760`), including the standalone external-project conformance workflow, full workspace tests, Clippy, architecture counterexamples, and both schema gates. The Validator exit verdict is **APPROVE**. PR #108 merged as `a014216b957b3a2128fd1f516f2490f38caf8fac` and was verified identical to `main`; Phase issues #82–#87 and parent #81 are closed completed.
+
+The M0.6 runner distinguishes `Conformant`, `NonConformant`, and `NotEstablished` outcomes; keeps harness/transport failure separate from adapter non-conformance; detects parsable scheduling/effect/provenance semantic violations; preserves ambiguous execute response loss without replay authority; and keeps backend physical/numerical validation outside conformance. Exact conformance CLI/report/environment/profile/exit behavior remains provisional unless separately stabilized by a public-interface decision.
+
+GitHub Milestone #6 has `0` open and `6` closed canonical Phase issues. Its final UI close remains an administrative action because the available GitHub connector does not expose milestone-state writes. The accepted Validator, parent, Phase, CI, and `main` evidence is complete independently of that UI limitation.
+
+The completion record is `docs/implementation/m0.6-completion-handoff.md`.
 
 ## Milestone sequence
 
@@ -174,7 +183,7 @@ M0.4  MockAdapter Protocol Conformance         COMPLETE
 M0.5  JSON-RPC / stdio Transport               COMPLETE
   |
   v
-M0.6  Adapter Conformance Tooling              READY (Phase 0 #82 next)
+M0.6  Adapter Conformance Tooling              COMPLETE
   |
   +-------------------------+
   |                         |
@@ -191,7 +200,9 @@ The sequencing invariants are:
 3. MockAdapter reference conformance before transport integration;
 4. reusable external-adapter conformance tooling before official real-adapter development.
 
-Experimental SDK or real-adapter spikes may occur earlier for research, but they cannot redefine or silently mutate the published Public Contract or Adapter Protocol baseline.
+The M0.6 prerequisite is now satisfied. Concrete SDK and real-adapter scope, milestone decomposition, release/support commitments, and compatibility decisions require the normal Manager/Planner decision flow before implementation begins.
+
+Experimental SDK or real-adapter spikes may occur for research, but they cannot redefine or silently mutate the published Public Contract or Adapter Protocol baseline.
 
 ## GitHub Milestone projection
 
@@ -207,7 +218,7 @@ M0.2: parent #28, Phase #29–#35  historical complete
 M0.3: parent #38, Phase #39–#44  historical complete
 M0.4: parent #65, Phase #66–#71  complete
 M0.5: parent #74, Phase #75–#80  complete
-M0.6: parent #81, Phase #82–#87  ready; Phase 0 #82 next
+M0.6: parent #81, Phase #82–#87  accepted complete; Milestone #6 UI close pending administrative action
 ```
 
 See `docs/operations/github-milestone-convention.md` for naming, membership, progress, due-date, closure, backfill, and Operator `resume`/`update` rules.
@@ -216,7 +227,9 @@ See `docs/operations/github-milestone-convention.md` for naming, membership, pro
 
 ### First — MOOSE
 
-The first official real adapter SHALL target MOOSE in a separate repository after reusable Core-side conformance foundations are available. It should validate the complete SOL -> MappingPlan -> Adapter -> backend-artifact path and act as the first real-system feedback source for later contract hardening.
+The first official real adapter SHALL target MOOSE in a separate repository after reusable Core-side conformance foundations are available. M0.6 has now satisfied that Core-side prerequisite. The adapter should validate the complete SOL -> MappingPlan -> Adapter -> backend-artifact path and act as the first real-system feedback source for later contract hardening.
+
+The real MOOSE adapter must consume the accepted Protocol/Public Contract boundary rather than introduce MOOSE-native objects into canonical SOL semantics. Solver-native correctness, integration regression tests, and physical/numerical V&V remain responsibilities of the adapter project.
 
 ### Next — Zapdos / CRANE
 
