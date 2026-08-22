@@ -8,8 +8,8 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 use crate::{
-    canonicalize_value, reject_transport_markers, AdapterProtocolVersion, Extensions, ProtocolError,
-    ADAPTER_PROTOCOL_VERSION_0_2,
+    canonicalize_value, reject_transport_markers, AdapterProtocolVersion, Extensions,
+    ProtocolError, ADAPTER_PROTOCOL_VERSION_0_2,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -57,12 +57,12 @@ impl ValidatePlanRequestV02 {
     }
 
     pub fn canonical_plan_identity(&self) -> Result<String, RealizationRequestError> {
-        self.plan
-            .to_canonical_json()
-            .map_err(|error| RealizationRequestError::InvalidPublicPayload {
+        self.plan.to_canonical_json().map_err(|error| {
+            RealizationRequestError::InvalidPublicPayload {
                 field: "plan",
                 detail: error.to_string(),
-            })
+            }
+        })
     }
 
     pub fn canonical_realization_identity(&self) -> Result<String, RealizationRequestError> {
@@ -130,12 +130,12 @@ impl ExecutePlanRequestV02 {
     }
 
     pub fn canonical_plan_identity(&self) -> Result<String, RealizationRequestError> {
-        self.plan
-            .to_canonical_json()
-            .map_err(|error| RealizationRequestError::InvalidPublicPayload {
+        self.plan.to_canonical_json().map_err(|error| {
+            RealizationRequestError::InvalidPublicPayload {
                 field: "plan",
                 detail: error.to_string(),
-            })
+            }
+        })
     }
 
     pub fn canonical_realization_identity(&self) -> Result<String, RealizationRequestError> {
@@ -213,18 +213,17 @@ fn normalize_realization_request(
         detail: error.to_string(),
     })?;
 
-    *realization_spec = RealizationSpecDtoV02::from_json(
-        &realization_spec
-            .to_canonical_json()
-            .map_err(|error| RealizationRequestError::InvalidPublicPayload {
+    *realization_spec =
+        RealizationSpecDtoV02::from_json(&realization_spec.to_canonical_json().map_err(
+            |error| RealizationRequestError::InvalidPublicPayload {
                 field: "realization_spec",
                 detail: error.to_string(),
-            })?,
-    )
-    .map_err(|error| RealizationRequestError::InvalidPublicPayload {
-        field: "realization_spec",
-        detail: error.to_string(),
-    })?;
+            },
+        )?)
+        .map_err(|error| RealizationRequestError::InvalidPublicPayload {
+            field: "realization_spec",
+            detail: error.to_string(),
+        })?;
 
     realization_spec
         .validate_against_plan(plan)
@@ -232,7 +231,8 @@ fn normalize_realization_request(
 }
 
 fn require_v02_protocol_version(version: &str) -> Result<(), RealizationRequestError> {
-    let parsed = AdapterProtocolVersion::parse(version).map_err(RealizationRequestError::Protocol)?;
+    let parsed =
+        AdapterProtocolVersion::parse(version).map_err(RealizationRequestError::Protocol)?;
     if parsed != AdapterProtocolVersion::realization_v02() {
         return Err(RealizationRequestError::UnsupportedProtocolVersion(
             version.to_owned(),
