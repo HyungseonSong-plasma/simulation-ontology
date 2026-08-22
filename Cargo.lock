@@ -118,6 +118,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "sol-adapter-runtime"
+version = "0.1.0"
+dependencies = [
+ "sol-target-resolver",
+]
+
+[[package]]
 name = "sol-adapter-transport"
 version = "0.1.0"
 dependencies = [
