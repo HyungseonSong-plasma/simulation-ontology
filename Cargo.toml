@@ -10,6 +10,7 @@ members = [
     "crates/sol-core-evaluation",
     "crates/sol-mock-adapter",
     "crates/sol-public-contract",
+    "crates/sol-adapter-conformance",
     "crates/sol-adapter-protocol",
     "crates/sol-adapter-transport",
     "crates/sol-target-resolver",

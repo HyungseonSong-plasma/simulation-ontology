@@ -1,0 +1,12 @@
+[package]
+name = "sol-adapter-conformance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+description = "Reusable boundary and result model for SOL external-adapter conformance"
+
+[dependencies]
+sol-adapter-protocol = { path = "../sol-adapter-protocol" }
+
