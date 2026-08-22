@@ -6,12 +6,15 @@ use sol_mock_adapter::{MockAdapter, MockProtocolFailureState};
 use std::env;
 use std::io::{self, BufRead, BufReader, Read, Write};
 use std::process;
+use std::thread;
+use std::time::Duration;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ProbeMode {
     MalformedJson,
     InvalidEnvelope,
     HumanStdout,
+    BootstrapTimeout,
     InvalidUtf8,
     Eof,
     Crash,
@@ -33,6 +36,7 @@ impl ProbeMode {
             "malformed-json" => Some(Self::MalformedJson),
             "invalid-envelope" => Some(Self::InvalidEnvelope),
             "human-stdout" => Some(Self::HumanStdout),
+            "bootstrap-timeout" => Some(Self::BootstrapTimeout),
             "invalid-utf8" => Some(Self::InvalidUtf8),
             "eof" => Some(Self::Eof),
             "crash" => Some(Self::Crash),
@@ -75,6 +79,10 @@ fn run(mode: ProbeMode) -> Result<(), String> {
     let bootstrap = read_request(&mut input)?;
     if bootstrap.method() != AdapterTransportMethod::DescribeAdapter {
         return Err("first request was not describe_adapter".to_owned());
+    }
+    if mode == ProbeMode::BootstrapTimeout {
+        thread::sleep(Duration::from_secs(30));
+        return Ok(());
     }
     if mode == ProbeMode::DescribeResponseLoss {
         return Ok(());
@@ -168,6 +176,7 @@ fn run(mode: ProbeMode) -> Result<(), String> {
         ),
         ProbeMode::BrokenPipe
         | ProbeMode::StderrBytes
+        | ProbeMode::BootstrapTimeout
         | ProbeMode::DescribeResponseLoss
         | ProbeMode::NoReplayObserver => {
             unreachable!("early-return probe mode reached response dispatch")

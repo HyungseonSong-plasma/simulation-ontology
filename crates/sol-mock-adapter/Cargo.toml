@@ -16,3 +16,6 @@ sol-core-effect = { path = "../sol-core-effect" }
 sol-core-evaluation = { path = "../sol-core-evaluation" }
 sol-core-mapping = { path = "../sol-core-mapping" }
 sol-core-plan = { path = "../sol-core-plan" }
+
+[dev-dependencies]
+sol-adapter-conformance-harness = { path = "../sol-adapter-conformance-harness" }
