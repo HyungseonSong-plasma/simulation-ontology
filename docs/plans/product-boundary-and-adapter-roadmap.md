@@ -1,6 +1,6 @@
 # SOL Product Boundary and Adapter Roadmap
 
-**Status:** Accepted roadmap, synchronized for M0.7 planning after M0.6 completion  
+**Status:** Accepted roadmap, synchronized through M0.7 Phase 1  
 **Date:** 2026-08-22  
 **Scope:** Core product boundary, adapter ownership, protocol/transport sequencing, MockAdapter role, runtime/registry sequencing, and reference-adapter roadmap
 
@@ -164,7 +164,7 @@ M0.6 Phase 0–5 are complete. Final Phase 5 head `2d9eead12c71a086b371dd6b4052d
 
 The M0.6 runner distinguishes `Conformant`, `NonConformant`, and `NotEstablished` outcomes; keeps harness/transport failure separate from adapter non-conformance; detects parsable scheduling/effect/provenance semantic violations; preserves ambiguous execute response loss without replay authority; and keeps backend physical/numerical validation outside conformance. Exact conformance CLI/report/environment/profile/exit behavior remains provisional unless separately stabilized by a public-interface decision.
 
-GitHub Milestone #6 has `0` open and `6` closed canonical Phase issues. Its final UI close remains an administrative action because the available GitHub connector does not expose milestone-state writes. The accepted Validator, parent, Phase, CI, and `main` evidence is complete independently of that UI limitation.
+GitHub Milestone #6 has `0` open and `6` closed canonical Phase issues. Its final UI close remains an administrative action because the available GitHub connector does not expose a milestone-state write. The accepted Validator, parent, Phase, CI, and `main` evidence is complete independently of that UI limitation.
 
 The completion record is `docs/implementation/m0.6-completion-handoff.md`.
 
@@ -189,6 +189,16 @@ After launch/bootstrap, compatibility and capability evidence comes from the pub
 The runtime composes the existing M0.5 process transport and preserves the existing no-replay/side-effect boundaries. M0.7 does not redefine Adapter Protocol 0.1 or Public Contract 0.1.
 
 The normative architecture is `docs/adr/ADR-003-adapter-runtime-registration-boundary.md`; the accepted milestone plan is `docs/plans/m0.7-adapter-runtime-registry-plan.md`.
+
+### Current accepted M0.7 implementation
+
+The accepted `main` head is `dfbc78d0fd7dba3792c8d805a815eccf85d1e18e`.
+
+Phase 0 (#112) is complete through PR #120 / exact-head CI #752 / merge `8d63dc54d602c27ab3d49e42a3f616244efc2211`. It established the `sol-adapter-runtime` local runtime boundary and executable separation of `BackendTarget`, `AdapterRegistration`, and `AdapterInstance`.
+
+Phase 1 (#113) is complete through PR #121 / exact-head CI #760 / merge `dfbc78d0fd7dba3792c8d805a815eccf85d1e18e`. It established deterministic explicit local registration with register/get/list/remove/enable-disable behavior, duplicate rejection, and no static compatibility/capability authority.
+
+Phase 2 (#114) is the active implementation Phase. Work on PR #122 remains unaccepted until required exact-head CI, merge, and post-merge `main` verification complete.
 
 ## Milestone sequence
 
@@ -215,7 +225,7 @@ M0.6  Adapter Conformance Tooling              COMPLETE
   v                               v
 Core runtime track             Real-adapter track
 M0.7 Adapter Runtime           MOOSE adapter
-& Registry                     separate repository/team
+& Registry — ACTIVE            separate repository/team
   |
   v
 future stable SDK / GUI
@@ -227,10 +237,10 @@ The sequencing invariants are:
 1. canonical Public Contract before stable SDK ergonomics;
 2. Adapter Protocol semantics before transport;
 3. MockAdapter reference conformance before transport integration;
-4. reusable external-adapter conformance tooling before official/reference real-adapter development;
+4. reusable external-adapter conformance tooling before reference real-adapter development;
 5. solver-neutral runtime/registration evidence before stabilizing broad SDK/GUI adapter-selection surfaces.
 
-The M0.6 prerequisite is satisfied. The 2026-08-22 Manager decision makes M0.7 the next Core milestone while the independent MOOSE adapter track may proceed in parallel.
+The M0.6 prerequisite is satisfied. The 2026-08-22 Manager decision makes M0.7 the active Core milestone while the independent MOOSE adapter track may proceed in parallel.
 
 Stable TypeScript/Python SDK or GUI plugin surfaces remain future decisions and should consume the proven M0.7 runtime boundary rather than freeze incidental pre-M0.7 internals.
 
@@ -251,10 +261,10 @@ M0.3: parent #38,  Phase #39–#44   historical complete
 M0.4: parent #65,  Phase #66–#71   complete
 M0.5: parent #74,  Phase #75–#80   complete
 M0.6: parent #81,  Phase #82–#87   accepted complete; Milestone #6 UI close pending administrative action
-M0.7: parent #111, Phase #112–#117 accepted / implementation-ready after planning PR merge; GitHub Milestone creation/assignment pending administrative tooling
+M0.7: parent #111, Phase #112–#117 active in GitHub Milestone #7; 2/6 Phase issues complete
 ```
 
-For M0.7 the intended GitHub Milestone title is `M0.7 — Adapter Runtime & Registry`. Parent #111 remains outside milestone membership; Phase issues #112–#117 are the canonical progress units.
+For M0.7, GitHub Milestone #7 has canonical title `M0.7 — Adapter Runtime & Registry`. Phase issues #112–#117 are assigned to it; #112 and #113 are closed completed, #114–#117 are open, and parent #111 remains outside milestone membership. This produces 2/6 informational GitHub progress units complete.
 
 See `docs/operations/github-milestone-convention.md` for naming, membership, progress, due-date, closure, backfill, and Operator `resume`/`update` rules.
 
