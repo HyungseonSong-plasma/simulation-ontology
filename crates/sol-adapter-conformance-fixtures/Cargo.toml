@@ -1,0 +1,13 @@
+[package]
+name = "sol-adapter-conformance-fixtures"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+description = "Published fixture execution for SOL external adapter conformance"
+
+[dependencies]
+sol-adapter-conformance = { path = "../sol-adapter-conformance" }
+sol-adapter-conformance-harness = { path = "../sol-adapter-conformance-harness" }
+sol-adapter-protocol = { path = "../sol-adapter-protocol" }
