@@ -33,6 +33,27 @@ jobs:
       - name: Build workspace
         run: cargo build --workspace --all-targets --locked
 
+      - name: Exercise standalone external-project conformance workflow
+        env:
+          SOL_REFERENCE_ADAPTER: ${{ github.workspace }}/target/debug/sol-adapter-authoring-skeleton
+          SOL_MOCK_ADAPTER: ${{ github.workspace }}/target/debug/sol-mock-adapter-stdio
+          SOL_TRANSPORT_PROBE: ${{ github.workspace }}/target/debug/sol-transport-error-probe
+          SOL_SEMANTIC_ADVERSARY: ${{ github.workspace }}/target/debug/sol-conformance-adversary
+        run: |
+          external_fixtures="$RUNNER_TEMP/sol-adapter-protocol-0.1"
+          cp -R fixtures/adapter-protocol/0.1 "$external_fixtures"
+          export SOL_CONFORMANCE_FIXTURES="$external_fixtures"
+
+          cargo fmt --manifest-path examples/external-project-conformance/Cargo.toml -- --check
+          cargo test --manifest-path examples/external-project-conformance/Cargo.toml --locked
+
+          first="$RUNNER_TEMP/m0.6-external-conformance-1.json"
+          second="$RUNNER_TEMP/m0.6-external-conformance-2.json"
+          cargo run --manifest-path examples/external-project-conformance/Cargo.toml --locked --quiet > "$first"
+          cargo run --manifest-path examples/external-project-conformance/Cargo.toml --locked --quiet > "$second"
+          cmp "$first" "$second"
+          python3 scripts/validate_m06_external_conformance_snapshot.py "$first"
+
       - name: Test workspace
         run: cargo test --workspace --locked
 
