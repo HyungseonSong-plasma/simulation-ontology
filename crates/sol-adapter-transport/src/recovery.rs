@@ -39,9 +39,7 @@ impl ResponseLossRecovery {
     }
 }
 
-pub const fn response_loss_recovery(
-    operation: AdapterTransportMethod,
-) -> ResponseLossRecovery {
+pub const fn response_loss_recovery(operation: AdapterTransportMethod) -> ResponseLossRecovery {
     let (replay, conservative_side_effects) = match operation {
         AdapterTransportMethod::DescribeAdapter => (
             ReplayDisposition::CallerMayReissueDescription,
@@ -65,8 +63,6 @@ pub const fn response_loss_recovery(
     }
 }
 
-pub const fn protocol_failure_authorizes_automatic_replay(
-    _failure: &ProtocolFailure,
-) -> bool {
+pub const fn protocol_failure_authorizes_automatic_replay(_failure: &ProtocolFailure) -> bool {
     false
 }
