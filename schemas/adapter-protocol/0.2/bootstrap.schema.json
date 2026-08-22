@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Adapter Protocol 0.2 version-safe bootstrap envelope",
+  "type": "object",
+  "required": ["bootstrap"],
+  "properties": {
+    "bootstrap": { "$ref": "shared.schema.json#/$defs/adapterBootstrap" }
+  }
+}
