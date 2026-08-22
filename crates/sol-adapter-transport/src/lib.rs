@@ -7,8 +7,9 @@
 //! channel boundary. Adapter Protocol DTO meaning remains in
 //! `sol-adapter-protocol`. It also owns deterministic JSON-RPC envelopes,
 //! request correlation, line-delimited stdio framing, and local subprocess
-//! session lifecycle. Detailed process-error evidence and replay behavior
-//! remain in later M0.5 phases.
+//! session lifecycle. Transport/process error categories and opaque diagnostic
+//! evidence are deterministic; replay and reconnect behavior remain in later
+//! M0.5 phases.
 
 mod framing;
 mod json_rpc;
