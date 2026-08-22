@@ -1,6 +1,4 @@
-use sol_adapter_protocol::{
-    ExecutePlanRequest, ExecutionProvenance, OpaqueExecutionReference,
-};
+use sol_adapter_protocol::{ExecutePlanRequest, ExecutionProvenance, OpaqueExecutionReference};
 use sol_adapter_transport::{
     decode_request, AdapterTransportMethod, JsonRpcResponse, RequestDisposition, TransportRequest,
 };
