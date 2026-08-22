@@ -6,7 +6,7 @@ version = 3
 name = "itoa"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
+checksum = "49f1f14873335454500d59611f1cf4a0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
 name = "memchr"
@@ -74,6 +74,15 @@ dependencies = [
 name = "sol-adapter-conformance"
 version = "0.1.0"
 dependencies = [
+ "sol-adapter-protocol",
+]
+
+[[package]]
+name = "sol-adapter-conformance-fixtures"
+version = "0.1.0"
+dependencies = [
+ "sol-adapter-conformance",
+ "sol-adapter-conformance-harness",
  "sol-adapter-protocol",
 ]
 
@@ -175,6 +184,8 @@ name = "sol-mock-adapter"
 version = "0.1.0"
 dependencies = [
  "serde_json",
+ "sol-adapter-conformance",
+ "sol-adapter-conformance-fixtures",
  "sol-adapter-conformance-harness",
  "sol-adapter-protocol",
  "sol-adapter-transport",
