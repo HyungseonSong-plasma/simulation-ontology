@@ -7,6 +7,10 @@
 //! `sol-target-resolver`; Protocol compatibility and capability evidence remains
 //! a later live-bootstrap concern derived from `describe_adapter`.
 
+mod registry;
+
+pub use registry::*;
+
 use std::ffi::{OsStr, OsString};
 use std::path::{Path, PathBuf};
 
