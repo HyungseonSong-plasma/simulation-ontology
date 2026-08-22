@@ -194,10 +194,7 @@ mod tests {
             Path::new("/opt/sol/adapters/thermal")
         );
         assert_eq!(
-            registration
-                .command()
-                .arguments()
-                .collect::<Vec<_>>(),
+            registration.command().arguments().collect::<Vec<_>>(),
             vec![std::ffi::OsStr::new("--stdio")]
         );
         assert_eq!(
@@ -215,10 +212,7 @@ mod tests {
         );
 
         assert_eq!(instance.id().as_str(), "instance.42");
-        assert_eq!(
-            instance.registration_id().as_str(),
-            "local.thermal.adapter"
-        );
+        assert_eq!(instance.registration_id().as_str(), "local.thermal.adapter");
         assert_eq!(instance.process_id(), 4242);
     }
 }
