@@ -7,6 +7,9 @@
 //! serialization contract. Published JSON is decoded by the existing canonical DTO
 //! parsers and observations are recorded with the Phase 0 conformance result model.
 
+mod adversarial;
+pub use adversarial::{PublishedAdversarialFixtureSuite, PublishedAdversarialScenario};
+
 use sol_adapter_conformance::{
     ConformanceCaseId, ConformanceCaseRecord, ConformanceCaseResult, ConformanceEvidence,
     ConformanceReport, ConformanceScope, ConformanceViolation, HarnessFailure, HarnessFailureKind,
