@@ -8,7 +8,9 @@ rust-version.workspace = true
 description = "MockAdapter reference behavior and protocol conformance for SOL"
 
 [dependencies]
+serde_json = "=1.0.128"
 sol-adapter-protocol = { path = "../sol-adapter-protocol" }
+sol-adapter-transport = { path = "../sol-adapter-transport" }
 sol-public-contract = { path = "../sol-public-contract" }
 sol-core-effect = { path = "../sol-core-effect" }
 sol-core-evaluation = { path = "../sol-core-evaluation" }
