@@ -1,0 +1,9 @@
+{
+  "backend_target_is_registration": false,
+  "registration_is_instance": true,
+  "registration_declares_protocol_compatibility": false,
+  "registration_declares_public_contract_compatibility": false,
+  "registration_declares_capabilities": false,
+  "runtime_identity_affects_canonical_identity": false,
+  "backend_native_identity_affects_canonical_identity": false
+}
