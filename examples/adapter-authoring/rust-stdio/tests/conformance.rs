@@ -50,6 +50,9 @@ fn guide_preserves_the_non_normative_and_physical_correctness_boundaries() {
         "backend-native identifiers belong only in opaque provenance",
         "exact conformance CLI and serialized report format remain provisional",
     ] {
-        assert!(GUIDE.contains(required), "guide is missing boundary: {required}");
+        assert!(
+            GUIDE.contains(required),
+            "guide is missing boundary: {required}"
+        );
     }
 }
