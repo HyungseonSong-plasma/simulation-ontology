@@ -32,13 +32,7 @@ def load_json(path: Path):
 
 
 def make_validator(schema_name: str) -> Draft202012Validator:
-    schema_path = SCHEMA_DIR / schema_name
-    schema = load_json(schema_path)
-    if schema.get("$schema") != DIALECT:
-        raise AssertionError(f"{schema_name}: expected Draft 2020-12 dialect")
-    Draft202012Validator.check_schema(schema)
-    resolver = RefResolver(base_uri=schema_path.resolve().as_uri(), referrer=schema)
-    return Draft202012Validator(schema, resolver=resolver)
+    return make_validator_at(SCHEMA_DIR, schema_name)
 
 
 def make_validator_at(schema_dir: Path, schema_name: str) -> Draft202012Validator:
@@ -52,12 +46,7 @@ def make_validator_at(schema_dir: Path, schema_name: str) -> Draft202012Validato
 
 
 def require_valid(schema_name: str, fixture: Path, payload=None) -> None:
-    validator = make_validator(schema_name)
-    value = load_json(fixture) if payload is None else payload
-    errors = sorted(validator.iter_errors(value), key=lambda error: list(error.path))
-    if errors:
-        details = "\n".join(f"  - {error.json_path}: {error.message}" for error in errors)
-        raise AssertionError(f"{fixture.relative_to(ROOT)} should satisfy {schema_name}:\n{details}")
+    require_valid_at(SCHEMA_DIR, schema_name, fixture, payload)
 
 
 def require_valid_at(schema_dir: Path, schema_name: str, fixture: Path, payload=None) -> None:
@@ -263,14 +252,16 @@ def main() -> None:
         if reference not in reusable_schema_sources:
             raise AssertionError(f"missing Public Contract schema reuse reference: {reference}")
 
-    # M0.8 adds an explicit request/bootstrap Adapter Protocol 0.2 realization delta. The
-    # complete Protocol 0.1 publication gate above remains unchanged in meaning.
+    # M0.8 publishes the complete Adapter Protocol 0.2 realization request/response profile.
+    # The complete Protocol 0.1 publication gate above remains unchanged in meaning.
     schema_files_v02 = sorted(SCHEMA_DIR_V02.glob("*.schema.json"))
     expected_schemas_v02 = {
         "shared.schema.json",
         "bootstrap.schema.json",
         "validate-plan-request.schema.json",
+        "validate-plan-response.schema.json",
         "execute-plan-request.schema.json",
+        "execute-plan-response.schema.json",
     }
     actual_schemas_v02 = {path.name for path in schema_files_v02}
     if actual_schemas_v02 != expected_schemas_v02:
@@ -295,6 +286,12 @@ def main() -> None:
     for schema_name in ["validate-plan-request.schema.json", "execute-plan-request.schema.json"]:
         require_valid_at(SCHEMA_DIR_V02, schema_name, thermal_v02)
 
+    accepted_v02 = FIXTURE_DIR_V02 / "validate-plan-accepted-response.json"
+    require_valid_at(SCHEMA_DIR_V02, "validate-plan-response.schema.json", accepted_v02)
+
+    execution_v02 = FIXTURE_DIR_V02 / "execute-plan-exact-response.json"
+    require_valid_at(SCHEMA_DIR_V02, "execute-plan-response.schema.json", execution_v02)
+
     missing_realization = load_json(thermal_v02)
     del missing_realization["realization_spec"]
     require_invalid_payload_at(
@@ -313,14 +310,31 @@ def main() -> None:
         "mixed Public Contract 0.1/0.2 payload",
     )
 
+    wrong_response_version = load_json(execution_v02)
+    wrong_response_version["adapter_protocol_version"] = "0.1"
+    require_invalid_payload_at(
+        SCHEMA_DIR_V02,
+        "execute-plan-response.schema.json",
+        wrong_response_version,
+        "Protocol 0.1 version in a 0.2 response",
+    )
+
     reusable_schema_sources_v02 = "\n".join(
         (SCHEMA_DIR_V02 / name).read_text(encoding="utf-8")
-        for name in ["validate-plan-request.schema.json", "execute-plan-request.schema.json"]
+        for name in [
+            "validate-plan-request.schema.json",
+            "validate-plan-response.schema.json",
+            "execute-plan-request.schema.json",
+            "execute-plan-response.schema.json",
+            "shared.schema.json",
+        ]
     )
     required_refs_v02 = [
         "../../public-contract/0.2/backend-target.schema.json",
         "../../public-contract/0.2/mapping-plan.schema.json",
         "../../public-contract/0.2/realization-spec.schema.json",
+        "../../public-contract/0.2/shared.schema.json#/$defs/diagnostic",
+        "../../public-contract/0.2/shared.schema.json#/$defs/realizationEffect",
     ]
     for reference in required_refs_v02:
         if reference not in reusable_schema_sources_v02:
@@ -331,7 +345,7 @@ def main() -> None:
         f"0.1={len(expected_schemas)} schemas/{len(positive)} positive fixtures/"
         f"{len(structurally_invalid)} structural negatives/"
         f"{len(schema_valid_semantic_counterexamples) + 1} semantic-boundary fixtures; "
-        "0.2 realization=4 schemas/2 fixtures/2 structural-negative checks"
+        "0.2 realization=6 schemas/4 fixtures/3 structural-negative checks"
     )
 
 
