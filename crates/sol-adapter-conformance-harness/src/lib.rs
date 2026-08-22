@@ -170,9 +170,7 @@ impl ExternalAdapterSession {
         self.transport
             .shutdown()
             .map(ExternalAdapterExitEvidence::from)
-            .map_err(|error| {
-                HarnessInvocationError::from_session(InvocationStage::Shutdown, error)
-            })
+            .map_err(|error| HarnessInvocationError::from_session(InvocationStage::Shutdown, error))
     }
 }
 
@@ -192,9 +190,7 @@ pub enum AdapterProtocolObservation<T> {
     ProtocolFailure(ProtocolFailure),
 }
 
-fn protocol_observation<T>(
-    result: AdapterOperationResult<T>,
-) -> AdapterProtocolObservation<T> {
+fn protocol_observation<T>(result: AdapterOperationResult<T>) -> AdapterProtocolObservation<T> {
     match result {
         AdapterOperationResult::Success(value) => AdapterProtocolObservation::Success(value),
         AdapterOperationResult::ProtocolFailure(failure) => {
@@ -334,11 +330,8 @@ impl HarnessInvocationError {
         Self {
             stage,
             evidence: InvocationFailureEvidence::RunnerInvariant(detail),
-            report_failure: HarnessFailure::new(
-                HarnessFailureKind::RunnerInvariant,
-                report_detail,
-            )
-            .expect("runner invariant errors always produce non-blank harness evidence"),
+            report_failure: HarnessFailure::new(HarnessFailureKind::RunnerInvariant, report_detail)
+                .expect("runner invariant errors always produce non-blank harness evidence"),
         }
     }
 }
@@ -353,12 +346,15 @@ impl Display for HarnessInvocationError {
                 write!(formatter, "external adapter compatibility failed: {error}")
             }
             InvocationFailureEvidence::RunnerInvariant(detail) => {
-                write!(formatter, "conformance harness {} invariant failed: {detail}", self.stage)
+                write!(
+                    formatter,
+                    "conformance harness {} invariant failed: {detail}",
+                    self.stage
+                )
             }
         }
     }
 }
-
 impl Error for HarnessInvocationError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match &self.evidence {
@@ -418,4 +414,3 @@ mod tests {
         );
     }
 }
-

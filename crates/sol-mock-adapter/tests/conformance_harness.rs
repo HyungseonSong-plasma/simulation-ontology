@@ -14,9 +14,8 @@ const VALIDATE_REQUEST: &str =
     include_str!("../../../fixtures/adapter-protocol/0.1/validate-plan-accepted-request.json");
 const EXECUTE_REQUEST: &str =
     include_str!("../../../fixtures/adapter-protocol/0.1/execute-plan-thermal-request.json");
-const HARNESS_BOUNDARY: &str = include_str!(
-    "../../../docs/implementation/m0.6-external-adapter-invocation-harness.md"
-);
+const HARNESS_BOUNDARY: &str =
+    include_str!("../../../docs/implementation/m0.6-external-adapter-invocation-harness.md");
 const HARNESS_CARGO: &str = include_str!("../../sol-adapter-conformance-harness/Cargo.toml");
 const HARNESS_SOURCE: &str = include_str!("../../sol-adapter-conformance-harness/src/lib.rs");
 const MODEL_CARGO: &str = include_str!("../../sol-adapter-conformance/Cargo.toml");
@@ -26,7 +25,6 @@ fn profile_command(profile: MockAdapterProfile) -> ExternalAdapterCommand {
     ExternalAdapterCommand::new(env!("CARGO_BIN_EXE_sol-mock-adapter-stdio"))
         .arg(format!("--profile={}", profile.wire_name()))
 }
-
 fn probe_command(mode: &str) -> ExternalAdapterCommand {
     ExternalAdapterCommand::new(env!("CARGO_BIN_EXE_sol-transport-error-probe")).arg(mode)
 }
@@ -193,4 +191,3 @@ fn harness_keeps_external_dependencies_and_identity_outside_core_semantics() {
         assert!(HARNESS_BOUNDARY.contains(counterexample));
     }
 }
-
