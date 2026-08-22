@@ -208,8 +208,6 @@ def main() -> None:
     for schema_name, fixture in structurally_invalid:
         require_invalid(schema_name, fixture)
 
-    # These shapes are structurally Protocol-shaped but intentionally violate
-    # runtime/semantic invariants. Schema success is not semantic conformance.
     schema_valid_semantic_counterexamples = [
         (
             "validate-plan-response.schema.json",
@@ -242,12 +240,9 @@ def main() -> None:
     if semantic_break["published_meaning"] == semantic_break["incompatible_redefinition"]:
         raise AssertionError("semantic break fixture must model changed normative meaning")
 
-    # Canonical protocol fixtures are transport-independent. Public Contract payloads may
-    # legitimately contain semantic `id` fields, so only transport-qualified keys are banned.
     for fixture in sorted(FIXTURE_DIR.glob("*.json")):
         require_transport_independent(fixture)
 
-    # Reused Public Contract DTOs must stay references, not protocol-local copies.
     reusable_schema_sources = "\n".join(
         (SCHEMA_DIR / name).read_text(encoding="utf-8")
         for name in [
@@ -268,11 +263,12 @@ def main() -> None:
         if reference not in reusable_schema_sources:
             raise AssertionError(f"missing Public Contract schema reuse reference: {reference}")
 
-    # M0.8 adds an explicit request-only Adapter Protocol 0.2 realization delta. The full
-    # Protocol 0.1 publication gate above is intentionally preserved unchanged in meaning.
+    # M0.8 adds an explicit request/bootstrap Adapter Protocol 0.2 realization delta. The
+    # complete Protocol 0.1 publication gate above remains unchanged in meaning.
     schema_files_v02 = sorted(SCHEMA_DIR_V02.glob("*.schema.json"))
     expected_schemas_v02 = {
         "shared.schema.json",
+        "bootstrap.schema.json",
         "validate-plan-request.schema.json",
         "execute-plan-request.schema.json",
     }
@@ -289,8 +285,13 @@ def main() -> None:
         Draft202012Validator.check_schema(schema)
         require_transport_independent(schema_path)
 
+    for fixture in sorted(FIXTURE_DIR_V02.glob("*.json")):
+        require_transport_independent(fixture)
+
+    bootstrap_v02 = FIXTURE_DIR_V02 / "realization-compatible-bootstrap.json"
+    require_valid_at(SCHEMA_DIR_V02, "bootstrap.schema.json", bootstrap_v02)
+
     thermal_v02 = FIXTURE_DIR_V02 / "thermal-realization-request.json"
-    require_transport_independent(thermal_v02)
     for schema_name in ["validate-plan-request.schema.json", "execute-plan-request.schema.json"]:
         require_valid_at(SCHEMA_DIR_V02, schema_name, thermal_v02)
 
@@ -330,7 +331,7 @@ def main() -> None:
         f"0.1={len(expected_schemas)} schemas/{len(positive)} positive fixtures/"
         f"{len(structurally_invalid)} structural negatives/"
         f"{len(schema_valid_semantic_counterexamples) + 1} semantic-boundary fixtures; "
-        "0.2 realization requests=3 schemas/1 thermal fixture/2 structural-negative checks"
+        "0.2 realization=4 schemas/2 fixtures/2 structural-negative checks"
     )
 
 
