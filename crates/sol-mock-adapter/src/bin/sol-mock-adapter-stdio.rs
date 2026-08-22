@@ -1,9 +1,7 @@
-use sol_adapter_protocol::{
-    ExecutePlanRequest, ProtocolFailure, ValidatePlanRequest,
-};
+use sol_adapter_protocol::{ExecutePlanRequest, ProtocolFailure, ValidatePlanRequest};
 use sol_adapter_transport::{
-    decode_request, AdapterTransportMethod, JsonRpcResponse, RequestDisposition,
-    StdioFrameDecoder, TransportRequest,
+    decode_request, AdapterTransportMethod, JsonRpcResponse, RequestDisposition, StdioFrameDecoder,
+    TransportRequest,
 };
 use sol_mock_adapter::MockAdapter;
 use std::io::{self, Read, Write};
@@ -54,22 +52,17 @@ fn handle_frame(adapter: &MockAdapter, frame: &str) -> Result<Option<Vec<u8>>, S
     }
 }
 
-fn dispatch(
-    adapter: &MockAdapter,
-    request: &TransportRequest,
-) -> Result<JsonRpcResponse, String> {
+fn dispatch(adapter: &MockAdapter, request: &TransportRequest) -> Result<JsonRpcResponse, String> {
     match request.method() {
-        AdapterTransportMethod::DescribeAdapter => {
-            match adapter.describe_adapter_operation() {
-                Ok(description) => success_response(
-                    request,
-                    description
-                        .to_canonical_json()
-                        .map_err(|error| error.to_string())?,
-                ),
-                Err(failure) => failure_response(request, &failure),
-            }
-        }
+        AdapterTransportMethod::DescribeAdapter => match adapter.describe_adapter_operation() {
+            Ok(description) => success_response(
+                request,
+                description
+                    .to_canonical_json()
+                    .map_err(|error| error.to_string())?,
+            ),
+            Err(failure) => failure_response(request, &failure),
+        },
         AdapterTransportMethod::ValidatePlan => {
             let outcome = parse_validate_request(request)
                 .and_then(|request| adapter.validate_plan_operation(&request));
