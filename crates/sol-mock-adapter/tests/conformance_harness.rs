@@ -63,10 +63,7 @@ fn external_mock_command_bootstraps_checks_both_versions_and_runs_operations() {
         session.compatibility().overall,
         CompatibilityOutcome::Compatible
     );
-    assert_eq!(
-        session.description().bootstrap.adapter_id,
-        "adapter.mock"
-    );
+    assert_eq!(session.description().bootstrap.adapter_id, "adapter.mock");
 
     assert!(matches!(
         session.validate_plan(&validate_request()).unwrap(),
