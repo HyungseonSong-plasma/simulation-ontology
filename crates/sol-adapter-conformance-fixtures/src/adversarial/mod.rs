@@ -156,10 +156,7 @@ impl PublishedAdversarialFixtureSuite {
         }
     }
 
-    fn launch_case(
-        &self,
-        command: ExternalAdapterCommand,
-    ) -> Result<CaseLaunch, HarnessFailure> {
+    fn launch_case(&self, command: ExternalAdapterCommand) -> Result<CaseLaunch, HarnessFailure> {
         match self.harness.launch(command) {
             Ok(ExternalAdapterLaunch::Ready(session)) => Ok(CaseLaunch::Ready(session)),
             Ok(ExternalAdapterLaunch::ProtocolFailure(_)) => Ok(CaseLaunch::ProtocolFailure),
