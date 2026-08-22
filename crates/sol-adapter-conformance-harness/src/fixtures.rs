@@ -127,7 +127,11 @@ impl PublishedPositiveFixtureSuite {
                 .public_contract
                 .selected_version
                 .as_deref(),
-            sol_public_contract::PUBLIC_CONTRACT_VERSION,
+            fixtures
+                .validate_request
+                .target
+                .public_contract_version
+                .as_str(),
         ));
 
         cases.push(match session.validate_plan(&fixtures.validate_request) {
