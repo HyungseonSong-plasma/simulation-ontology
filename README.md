@@ -30,22 +30,24 @@ The platform is intended to enable solver-independent model exchange, semantic v
 
 ## Current status
 
-The first four foundation milestones are complete and M0.5 Phase 0 is the next eligible implementation phase:
+The first five foundation milestones are complete and M0.6 Phase 0 is the next eligible implementation phase:
 
 ```text
 M0.1  Semantic Core Bootstrap                  COMPLETE
 M0.2  Canonical Public Contract 0.1            COMPLETE
 M0.3  Adapter Protocol 0.1                     COMPLETE
 M0.4  MockAdapter Protocol Conformance         COMPLETE
-M0.5  JSON-RPC / stdio Transport               READY (Phase 0 next)
-M0.6  Adapter Conformance Tooling              PLANNED
+M0.5  JSON-RPC / stdio Transport               COMPLETE
+M0.6  Adapter Conformance Tooling              READY (Phase 0 #82 next)
 ```
 
 M0.3 closed after exact-head CI, a Validator exit audit with verdict **APPROVE**, and PR #63 publication merge. Adapter Protocol 0.1 is now a published, versioned, transport-independent v0.x interoperability baseline.
 
 M0.4 closed after Phase 0–5 implementation, exact-head Rust Core CI #542, a Validator exit verdict of **APPROVE**, PR #93 merge, `main` verification, parent/Phase closure, and GitHub Milestone #1 closure. MockAdapter now provides executable in-process reference behavior for Adapter Protocol 0.1 description, advisory preflight, authoritative execution, failure/state/replay boundaries, provenance, and dependency-safe scheduling.
 
-M0.5 Phase 0 (#75) is the next eligible implementation phase. It may add JSON-RPC/stdio transport mapping without changing the published Adapter Protocol 0.1 semantics.
+M0.5 closed after Phase 0–5 implementation, exact-head Rust Core CI #617, a Validator exit verdict of **APPROVE**, PR #101 merge, `main` verification, parent/Phase closure, and user-confirmed GitHub Milestone #5 closure. The completed local JSON-RPC/stdio boundary now carries the unchanged Protocol 0.1 describe, validate, execute, and ProtocolFailure semantics through a typed subprocess session with deterministic error, reconnect, response-loss, and no-replay behavior.
+
+M0.6 Phase 0 (#82) is the next eligible implementation phase. It defines the reusable conformance runner boundary and result model before external-adapter invocation tooling is productized.
 
 The repository currently contains:
 
@@ -58,7 +60,9 @@ The repository currently contains:
 - an intentional Rust public facade plus explicit `sol-cli --json` machine-facing paths;
 - independently versioned Adapter Protocol 0.1 bootstrap, compatibility, preflight, execution, failure, idempotency, and provenance semantics;
 - canonical Adapter Protocol 0.1 Draft 2020-12 schemas and executable counterexamples;
-- MockAdapter executable in-process Adapter Protocol 0.1 reference behavior and positive/adversarial conformance matrix.
+- MockAdapter executable in-process Adapter Protocol 0.1 reference behavior and positive/adversarial conformance matrix;
+- deterministic local JSON-RPC/stdio method mapping, framing, request correlation, process session, and typed error/recovery boundaries; and
+- canonical in-process/subprocess parity across all MockAdapter reference states and key transport counterexamples.
 
 ## Public Contract 0.1
 
@@ -107,7 +111,7 @@ validate_plan    -> ValidatePlanResponse | ProtocolFailure
 execute_plan     -> ExecutePlanResponse | ProtocolFailure
 ```
 
-These are logical protocol responsibilities, not JSON-RPC method definitions. JSON-RPC framing, request IDs, stdio process lifecycle, retry/backoff, transport error mapping, and replay orchestration remain M0.5 concerns.
+These are logical protocol responsibilities rather than transport-derived semantics. M0.5 maps them onto constrained local JSON-RPC/stdio while keeping request IDs, framing, process lifecycle, transport errors, reconnect, and replay policy outside Protocol payload meaning.
 
 ### Compatibility
 
@@ -135,6 +139,16 @@ Protocol/bootstrap/request/operational failures, preflight state, and execution 
 
 Solver-native object models and vendor API structures cannot become canonical semantic identity. Opaque namespaced job/artifact references are allowed only as provenance/evidence when semantic meaning and equality do not depend on them.
 
+## JSON-RPC / stdio transport
+
+M0.5 provides the default local v0.x transport as a child-process session using constrained JSON-RPC 2.0 over standard input/output. A fresh session must bootstrap with `describe_adapter` before typed validation or execution requests are accepted.
+
+JSON-RPC IDs are correlation only. ProtocolFailure remains a normal logical Protocol result, while framing, malformed envelope, timeout, EOF, broken pipe, abnormal exit, stderr, correlation, and payload errors remain typed transport/process evidence.
+
+Reconnect creates a new bootstrapped process session. Lost description may be reissued through bootstrap, equivalent validation may be explicitly reissued by the caller under equivalent relevant state, and lost execute response is conservatively ambiguous. The transport never replays `execute_plan` automatically.
+
+The M0.5 completion record is [`docs/implementation/m0.5-completion-handoff.md`](docs/implementation/m0.5-completion-handoff.md).
+
 ## Roadmap
 
 ```text
@@ -150,10 +164,10 @@ M0.3  Adapter Protocol 0.1                     complete
 M0.4  MockAdapter Protocol Conformance         complete
   |
   v
-M0.5  JSON-RPC / stdio Transport               ready — Phase 0 #75 next
+M0.5  JSON-RPC / stdio Transport               complete
   |
   v
-M0.6  Adapter Conformance Tooling              planned — parent #81 / phases #82–#87
+M0.6  Adapter Conformance Tooling              ready — Phase 0 #82 next
   |
   +-------------------------+
   |                         |
@@ -253,6 +267,8 @@ See:
 - M0.3 exit audit: [`docs/implementation/m0.3-adapter-protocol-0.1-exit-audit.md`](docs/implementation/m0.3-adapter-protocol-0.1-exit-audit.md)
 - M0.4 exit audit: [`docs/implementation/m0.4-mock-adapter-conformance-exit-audit.md`](docs/implementation/m0.4-mock-adapter-conformance-exit-audit.md)
 - M0.4 completion handoff: [`docs/implementation/m0.4-completion-handoff.md`](docs/implementation/m0.4-completion-handoff.md)
+- M0.5 exit audit: [`docs/implementation/m0.5-json-rpc-stdio-transport-exit-audit.md`](docs/implementation/m0.5-json-rpc-stdio-transport-exit-audit.md)
+- M0.5 completion handoff: [`docs/implementation/m0.5-completion-handoff.md`](docs/implementation/m0.5-completion-handoff.md)
 - M0.1 tracker: [Issue #2](../../issues/2)
 - M0.2 tracker: [Issue #28](../../issues/28)
 - M0.3 tracker: [Issue #38](../../issues/38)
