@@ -15,6 +15,7 @@ members = [
     "crates/sol-adapter-conformance-fixtures",
     "crates/sol-adapter-protocol",
     "crates/sol-adapter-transport",
+    "crates/sol-adapter-runtime",
     "crates/sol-target-resolver",
     "crates/sol-cli",
     "examples/adapter-authoring/rust-stdio",
