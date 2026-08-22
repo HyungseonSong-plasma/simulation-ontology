@@ -37,7 +37,7 @@ Validator exit audit
   = milestone acceptance authority
 
 Operator update
-  = post-closure documentation synchronization
+  = documentation synchronization with accepted repository state
 ```
 
 The parent issue is deliberately not assigned to its GitHub Milestone. Phase PRs are also deliberately not assigned when a corresponding Phase issue already exists.
@@ -204,13 +204,15 @@ Operator then executes the accepted Phase through the existing CI-first/bounded-
 
 A planned successor milestone does not become implementation-eligible merely because its GitHub Milestone already exists. Accepted dependency order remains authoritative.
 
-If repository tooling cannot create or mutate the intended GitHub Milestone container, Operator uses the accepted parent tracker and Phase issues as the authoritative execution projection while reporting the administrative milestone action as pending. Tooling limitations do not change milestone semantics.
+If repository tooling cannot create or mutate an intended GitHub Milestone container, Operator uses the accepted parent tracker and Phase issues as the authoritative execution projection while reporting the administrative milestone action as pending. Tooling limitations do not change milestone semantics.
 
 ## 12. Operator `update`
 
-Operator `update` occurs after milestone closure when used as the milestone handoff documentation synchronization step.
+`update` synchronizes user/developer-facing documentation with accepted repository state. It does not promote unmerged PR state into accepted implementation.
 
-The update PR is not assigned back into the closed milestone. `update` synchronizes README, guides, roadmap/status documents, examples, and developer-facing documentation with the already accepted repository state.
+A milestone-handoff `update` normally runs after milestone closure, but an in-progress synchronization update may also be used when durable repository metadata has materially changed—for example after accepted Phase merges or manual GitHub Milestone administration.
+
+The update PR is not assigned to the active or closed roadmap milestone because documentation synchronization is evidence/handoff work rather than a canonical Phase progress unit.
 
 ## 13. Historical backfill
 
@@ -234,7 +236,7 @@ Normally create/assign the corrective work to the current or next appropriate mi
 
 ## 15. Current roadmap projection
 
-Current repository projection after M0.7 planning acceptance:
+Current repository projection after M0.7 Phase 0–1 acceptance and Milestone #7 administration:
 
 ```text
 M0.1 — Semantic Core Bootstrap            historical / complete
@@ -243,7 +245,7 @@ M0.3 — Adapter Protocol 0.1               historical / complete
 M0.4 — MockAdapter Protocol Conformance   historical / complete
 M0.5 — JSON-RPC / stdio Transport         historical / complete
 M0.6 — Adapter Conformance Tooling        accepted complete; Milestone #6 UI close pending
-M0.7 — Adapter Runtime & Registry         accepted; implementation-ready after planning PR merge; Milestone creation pending tooling
+M0.7 — Adapter Runtime & Registry         ACTIVE; Milestone #7; 2/6 Phase issues complete
 ```
 
 Canonical issue groupings are:
@@ -255,14 +257,12 @@ M0.3: parent #38,  progress units #39–#44
 M0.4: parent #65,  progress units #66–#71
 M0.5: parent #74,  progress units #75–#80
 M0.6: parent #81,  progress units #82–#87
-M0.7: parent #111, progress units #112–#117
+M0.7: parent #111, progress units #112–#117, GitHub Milestone #7
 ```
 
 For M0.6, Phase #82–#87 and parent #81 are closed completed, exact-head CI and Validator exit acceptance are complete, and the final merge is verified on `main`. GitHub Milestone #6 reports `0` open and `6` closed Phase issues; the available GitHub connector does not expose a milestone-state write action, so its final UI **Close milestone** action remains administrative.
 
-For M0.7, the roadmap objective, ADR, parent tracker #111, and Phase decomposition #112–#117 are accepted. The intended GitHub Milestone title is `M0.7 — Adapter Runtime & Registry`. The available connector does not expose milestone creation, so creation and Phase assignment remain an administrative repository action until suitable tooling is available. Parent #111 remains outside milestone membership by convention.
-
-The parent issues remain outside GitHub Milestone membership under the convention above.
+For M0.7, GitHub Milestone #7 exists with canonical title `M0.7 — Adapter Runtime & Registry`. Phase issues #112–#117 are assigned to it; #112 and #113 are closed completed, while #114–#117 are open. Parent #111 remains outside milestone membership by convention. The current GitHub progress is therefore 2/6 Phase issues complete and is informational only.
 
 ## 16. Change control
 
