@@ -30,7 +30,7 @@ The platform is intended to enable solver-independent model exchange, semantic v
 
 ## Current status
 
-The first six foundation milestones have completed their implementation and acceptance gates:
+The first six foundation milestones have completed their implementation and acceptance gates. M0.7 is the active Core milestone:
 
 ```text
 M0.1  Semantic Core Bootstrap                  COMPLETE
@@ -39,6 +39,7 @@ M0.3  Adapter Protocol 0.1                     COMPLETE
 M0.4  MockAdapter Protocol Conformance         COMPLETE
 M0.5  JSON-RPC / stdio Transport               COMPLETE
 M0.6  Adapter Conformance Tooling              COMPLETE
+M0.7  Adapter Runtime & Registry               ACTIVE — 2/6 phases accepted complete
 ```
 
 M0.3 closed after exact-head CI, a Validator exit audit with verdict **APPROVE**, and PR #63 publication merge. Adapter Protocol 0.1 is now a published, versioned, transport-independent v0.x interoperability baseline.
@@ -50,6 +51,8 @@ M0.5 closed after Phase 0–5 implementation, exact-head Rust Core CI #617, a Va
 M0.6 completed Phase 0–5 implementation, exact-head Rust Core CI #730, a Validator exit verdict of **APPROVE**, PR #108 merge as `a014216b957b3a2128fd1f516f2490f38caf8fac`, `main` verification, Phase #82–#87 closure, and parent #81 closure. Reusable conformance tooling now exercises external adapter commands through the published process transport, executes positive and adversarial Protocol/Public Contract fixtures, distinguishes adapter non-conformance from harness/transport failure, provides a solver-independent authoring skeleton, and proves a standalone external-project-style workflow with deterministic provisional machine-readable CI evidence.
 
 GitHub Milestone #6 contains `0` open and `6` closed canonical Phase issues. Its final UI **Close milestone** action remains administrative because the GitHub connector available to Operator does not expose milestone-state writes; this does not alter the accepted Validator, CI, Phase, parent, or `main` evidence.
+
+M0.7 is tracked by parent #111 and GitHub Milestone #7 `M0.7 — Adapter Runtime & Registry`. Canonical Phase issues #112–#117 are assigned to the milestone while parent #111 remains outside it by convention. Phase 0 (#112) and Phase 1 (#113) are accepted complete; Phase 2 (#114) is the current implementation Phase. The accepted `main` head after Phase 1 is `dfbc78d0fd7dba3792c8d805a815eccf85d1e18e`. Work on Phase 2 PR #122 is not accepted repository state until exact-head CI, merge, and post-merge `main` verification complete.
 
 The repository currently contains:
 
@@ -67,8 +70,10 @@ The repository currently contains:
 - canonical in-process/subprocess parity across all MockAdapter reference states and key transport counterexamples;
 - reusable conformance result/harness libraries for external adapter commands;
 - versioned positive and 23-case adversarial conformance fixture execution;
-- a solver-independent Rust/stdin-stdout adapter-authoring skeleton and guide; and
-- a standalone external-project conformance consumer that proves fixture reuse, semantic counterexample detection, response-loss separation, and deterministic provisional CI evidence.
+- a solver-independent Rust/stdin-stdout adapter-authoring skeleton and guide;
+- a standalone external-project conformance consumer that proves fixture reuse, semantic counterexample detection, response-loss separation, and deterministic provisional CI evidence;
+- a Core-local `sol-adapter-runtime` boundary that keeps `BackendTarget`, `AdapterRegistration`, and `AdapterInstance` structurally and semantically distinct; and
+- deterministic explicit local adapter registration with register/get/list/remove/enable-disable behavior and no static compatibility/capability authority.
 
 ## Public Contract 0.1
 
@@ -185,6 +190,36 @@ The M0.6 final audit and completion records are:
 - [`docs/implementation/m0.6-adapter-conformance-exit-candidate.md`](docs/implementation/m0.6-adapter-conformance-exit-candidate.md)
 - [`docs/implementation/m0.6-completion-handoff.md`](docs/implementation/m0.6-completion-handoff.md)
 
+## Adapter Runtime / Registry
+
+M0.7 adds a solver-neutral runtime layer above the published adapter process/contract boundary.
+
+The accepted architecture is:
+
+```text
+BackendTarget
+  = canonical solver-independent target semantics
+
+AdapterRegistration
+  = Core-local invocation/configuration state
+
+AdapterInstance
+  = live operational process/session state
+```
+
+`AdapterRegistration` and `AdapterInstance` are not canonical ontology entities and do not define Public Contract semantic identity.
+
+Phase 0 implemented the runtime-local type boundary and architecture counterexamples. Phase 1 implemented deterministic explicit local registration. Later M0.7 phases add process/session composition, live compatibility/capability discovery from `describe_adapter`, solver-neutral selection/projection, and external-adapter integration.
+
+The runtime does not stabilize a plugin marketplace, package/signing/update contract, automatic discovery mechanism, or solver-specific mapping API. Real solver adapters remain external processes and separate repositories.
+
+Primary M0.7 references:
+
+- [`docs/adr/ADR-003-adapter-runtime-registration-boundary.md`](docs/adr/ADR-003-adapter-runtime-registration-boundary.md)
+- [`docs/plans/m0.7-adapter-runtime-registry-plan.md`](docs/plans/m0.7-adapter-runtime-registry-plan.md)
+- [`docs/implementation/m0.7-runtime-boundary-and-registration-model.md`](docs/implementation/m0.7-runtime-boundary-and-registration-model.md)
+- [`docs/implementation/m0.7-explicit-local-adapter-registration.md`](docs/implementation/m0.7-explicit-local-adapter-registration.md)
+
 ## Roadmap
 
 ```text
@@ -205,17 +240,19 @@ M0.5  JSON-RPC / stdio Transport               complete
   v
 M0.6  Adapter Conformance Tooling              complete
   |
-  +-------------------------+
-  |                         |
-  v                         v
-SDK track               Real-adapter track
-TypeScript / Python     sol-adapter-moose
-                        separate repository
+  +-------------------------------+
+  |                               |
+  v                               v
+M0.7 Core runtime track        Real-adapter track
+Adapter Runtime & Registry     MOOSE adapter
+ACTIVE — Phase 0–1 complete    separate repository/team
+  |
+  v
+future stable SDK / GUI
+integration surface
 ```
 
-The ordering is deliberate: canonical semantics precede SDK ergonomics; Adapter Protocol precedes transport; MockAdapter proves reference behavior before transport; reusable conformance tooling precedes the first official real MOOSE adapter.
-
-Concrete successor scope, milestone decomposition, and compatibility commitments for the SDK and real-adapter tracks require the normal Manager/Planner decision flow before implementation.
+The ordering is deliberate: canonical semantics precede SDK ergonomics; Adapter Protocol precedes transport; MockAdapter proves reference behavior before transport; reusable conformance tooling precedes the first SOL reference real adapter; solver-neutral runtime evidence precedes stabilization of broad SDK/GUI adapter-selection surfaces.
 
 ## MockAdapter responsibility
 
@@ -228,6 +265,7 @@ Core repository
   -> deterministic reference behavior
   -> MockAdapter Protocol conformance
   -> reusable external-adapter conformance tooling
+  -> solver-neutral Adapter Runtime / Registry
 
 Real adapter repository
   -> backend-native realization correctness
@@ -236,7 +274,7 @@ Real adapter repository
   -> physical/numerical validation where applicable
 ```
 
-Real solver adapters remain separate repositories so solver dependencies and release cycles do not contaminate the Core workspace. The intended first official reference adapter is MOOSE, followed by Zapdos/CRANE-focused work after the reusable Core-side conformance foundations are complete.
+Real solver adapters remain separate repositories so solver dependencies and release cycles do not contaminate the Core workspace. The first SOL reference real-adapter target is MOOSE, followed by Zapdos/CRANE-focused work as justified by real-system evidence. SOL reference-adapter status does not imply official MOOSE Framework or Idaho National Laboratory component status.
 
 ## Version axes
 
@@ -281,7 +319,7 @@ Manager meeting
 
 `resume` continues accepted implementation through the current GitHub Milestone, parent tracker, Phase issue, PR, CI/fix loop, bounded merge, main verification, and the next eligible Phase until a real gate appears. A planned successor GitHub Milestone does not bypass accepted predecessor dependencies.
 
-`update` synchronizes user/developer-facing documentation with accepted repository state. A milestone-handoff `update` normally runs after milestone closure and its PR is not counted back into the closed milestone.
+`update` synchronizes user/developer-facing documentation with accepted repository state and does not promote unmerged PR work into accepted implementation. A milestone-handoff `update` normally runs after milestone closure; in-progress synchronization is also valid when accepted Phase state or durable GitHub milestone metadata materially changes. Update PRs are not counted as milestone Phase progress units.
 
 Operator may auto-merge already accepted Phase implementation only when exact-head required CI is green, evidence is complete, the PR is mergeable, and no unresolved semantic/architecture/Public Contract/Adapter Protocol/compatibility decision exists. Milestone exit audits, blocking reviews, conflicts, permission failures, non-green CI, and unresolved semantic choices remain real gates.
 
@@ -297,11 +335,13 @@ See:
 
 - Core architecture / M0.1 plan: [`docs/plans/core-simulation-ontology-v0.1-implementation-plan.md`](docs/plans/core-simulation-ontology-v0.1-implementation-plan.md)
 - Product boundary / adapter roadmap: [`docs/plans/product-boundary-and-adapter-roadmap.md`](docs/plans/product-boundary-and-adapter-roadmap.md)
+- M0.7 runtime/registry plan: [`docs/plans/m0.7-adapter-runtime-registry-plan.md`](docs/plans/m0.7-adapter-runtime-registry-plan.md)
 - Versioning / compatibility policy: [`docs/plans/versioning-and-compatibility-policy.md`](docs/plans/versioning-and-compatibility-policy.md)
 - Logical agent workflow: [`docs/operations/logical-agent-workflow.md`](docs/operations/logical-agent-workflow.md)
 - GitHub Milestone convention: [`docs/operations/github-milestone-convention.md`](docs/operations/github-milestone-convention.md)
 - Spatial Scope ADR: [`docs/adr/ADR-001-first-class-spatial-scope.md`](docs/adr/ADR-001-first-class-spatial-scope.md)
 - Adapter Protocol boundary ADR: [`docs/adr/ADR-002-adapter-protocol-boundary.md`](docs/adr/ADR-002-adapter-protocol-boundary.md)
+- Adapter Runtime/Registration boundary ADR: [`docs/adr/ADR-003-adapter-runtime-registration-boundary.md`](docs/adr/ADR-003-adapter-runtime-registration-boundary.md)
 - M0.2 completion handoff: [`docs/implementation/m0.2-completion-handoff.md`](docs/implementation/m0.2-completion-handoff.md)
 - M0.3 exit audit: [`docs/implementation/m0.3-adapter-protocol-0.1-exit-audit.md`](docs/implementation/m0.3-adapter-protocol-0.1-exit-audit.md)
 - M0.4 exit audit: [`docs/implementation/m0.4-mock-adapter-conformance-exit-audit.md`](docs/implementation/m0.4-mock-adapter-conformance-exit-audit.md)
@@ -310,12 +350,15 @@ See:
 - M0.5 completion handoff: [`docs/implementation/m0.5-completion-handoff.md`](docs/implementation/m0.5-completion-handoff.md)
 - M0.6 exit audit: [`docs/implementation/m0.6-adapter-conformance-exit-candidate.md`](docs/implementation/m0.6-adapter-conformance-exit-candidate.md)
 - M0.6 completion handoff: [`docs/implementation/m0.6-completion-handoff.md`](docs/implementation/m0.6-completion-handoff.md)
+- M0.7 Phase 0 record: [`docs/implementation/m0.7-runtime-boundary-and-registration-model.md`](docs/implementation/m0.7-runtime-boundary-and-registration-model.md)
+- M0.7 Phase 1 record: [`docs/implementation/m0.7-explicit-local-adapter-registration.md`](docs/implementation/m0.7-explicit-local-adapter-registration.md)
 - M0.1 tracker: [Issue #2](../../issues/2)
 - M0.2 tracker: [Issue #28](../../issues/28)
 - M0.3 tracker: [Issue #38](../../issues/38)
 - M0.4 tracker: [Issue #65](../../issues/65)
 - M0.5 tracker: [Issue #74](../../issues/74)
 - M0.6 tracker: [Issue #81](../../issues/81)
+- M0.7 tracker: [Issue #111](../../issues/111)
 
 ## Planned distributions
 
