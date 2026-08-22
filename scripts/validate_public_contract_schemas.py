@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_DIR = ROOT / "schemas" / "public-contract" / "0.1"
 FIXTURE_DIR = ROOT / "fixtures" / "public-contract" / "0.1"
 SCHEMA_DIR_V02 = ROOT / "schemas" / "public-contract" / "0.2"
+FIXTURE_DIR_V02 = ROOT / "fixtures" / "public-contract" / "0.2"
 COUNTEREXAMPLE_DIR = ROOT / "fixtures" / "counterexamples"
 DIALECT = "https://json-schema.org/draft/2020-12/schema"
 
@@ -31,12 +32,16 @@ def make_validator(schema_dir: Path, schema_name: str) -> Draft202012Validator:
     return Draft202012Validator(schema, resolver=resolver)
 
 
-def require_valid(schema_name: str, fixture: Path) -> None:
-    validator = make_validator(SCHEMA_DIR, schema_name)
+def require_valid_in(schema_dir: Path, schema_name: str, fixture: Path) -> None:
+    validator = make_validator(schema_dir, schema_name)
     errors = sorted(validator.iter_errors(load_json(fixture)), key=lambda error: list(error.path))
     if errors:
         details = "\n".join(f"  - {error.json_path}: {error.message}" for error in errors)
         raise AssertionError(f"{fixture.relative_to(ROOT)} should satisfy {schema_name}:\n{details}")
+
+
+def require_valid(schema_name: str, fixture: Path) -> None:
+    require_valid_in(SCHEMA_DIR, schema_name, fixture)
 
 
 def require_invalid(schema_name: str, fixture: Path) -> None:
@@ -134,10 +139,8 @@ def main() -> None:
     for schema_name, fixture in schema_valid_semantic_counterexamples:
         require_valid(schema_name, fixture)
 
-    # M0.8 adds an explicit Public Contract 0.2 realization subset. This does not
-    # replace or weaken the published 0.1 schema gate above. Phase 1 validates the
-    # normative schema set itself; Phase 2 adds executable thermal/counterexample
-    # fixture coverage against these schemas.
+    # Public Contract 0.2 is additive: retain every 0.1 gate above and validate the
+    # explicit realization subset independently.
     validate_schema_set(
         SCHEMA_DIR_V02,
         {
@@ -148,7 +151,21 @@ def main() -> None:
         },
     )
 
-    # Resolve every external $ref now, even before Phase 2 fixtures exist.
+    positive_v02 = [
+        ("mapping-plan.schema.json", FIXTURE_DIR_V02 / "thermal-mapping-plan.json"),
+        ("backend-target.schema.json", FIXTURE_DIR_V02 / "thermal-backend-target.json"),
+        ("realization-spec.schema.json", FIXTURE_DIR_V02 / "thermal-realization-spec.json"),
+        (
+            "realization-spec.schema.json",
+            FIXTURE_DIR_V02 / "thermal-realization-spec-alternate-values.json",
+        ),
+    ]
+    for schema_name, fixture in positive_v02:
+        require_valid_in(SCHEMA_DIR_V02, schema_name, fixture)
+
+    # Resolve every external $ref with a minimal independent payload as well as the
+    # published thermal fixtures. Semantic invariants beyond JSON shape remain Rust
+    # contract/conformance responsibilities.
     smoke_payloads = {
         "mapping-plan.schema.json": {
             "public_contract_version": "0.2",
@@ -193,7 +210,7 @@ def main() -> None:
         "Public Contract schema validation passed: "
         f"0.1={len(positive)} positive/{len(structurally_invalid)} structural-negative/"
         f"{len(schema_valid_semantic_counterexamples)} semantic-boundary fixtures; "
-        "0.2 realization subset=4 schemas + ref-resolution smoke"
+        f"0.2 realization subset=4 schemas/{len(positive_v02)} thermal fixtures + ref-resolution smoke"
     )
 
 
