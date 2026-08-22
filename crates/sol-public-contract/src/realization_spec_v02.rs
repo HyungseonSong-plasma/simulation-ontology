@@ -212,8 +212,7 @@ impl ActionRealizationBindingDtoV02 {
         for subject in &self.subjects {
             validate_subject_shape(subject)?;
         }
-        self.subjects
-            .sort_by(|left, right| subject_key(left).cmp(&subject_key(right)));
+        self.subjects.sort_by_key(subject_key);
         self.subjects.dedup();
         for scope in &self.scopes {
             require_canonical_reference("action binding scope", scope)?;
