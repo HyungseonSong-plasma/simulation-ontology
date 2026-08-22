@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Public Contract 0.1 schemas and fixture boundary behavior."""
+"""Validate published SOL Public Contract schema/fixture boundaries."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from jsonschema import Draft202012Validator, RefResolver
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_DIR = ROOT / "schemas" / "public-contract" / "0.1"
 FIXTURE_DIR = ROOT / "fixtures" / "public-contract" / "0.1"
+SCHEMA_DIR_V02 = ROOT / "schemas" / "public-contract" / "0.2"
 COUNTEREXAMPLE_DIR = ROOT / "fixtures" / "counterexamples"
 DIALECT = "https://json-schema.org/draft/2020-12/schema"
 
@@ -20,8 +21,8 @@ def load_json(path: Path):
         return json.load(handle)
 
 
-def make_validator(schema_name: str) -> Draft202012Validator:
-    schema_path = SCHEMA_DIR / schema_name
+def make_validator(schema_dir: Path, schema_name: str) -> Draft202012Validator:
+    schema_path = schema_dir / schema_name
     schema = load_json(schema_path)
     if schema.get("$schema") != DIALECT:
         raise AssertionError(f"{schema_name}: expected Draft 2020-12 dialect")
@@ -31,7 +32,7 @@ def make_validator(schema_name: str) -> Draft202012Validator:
 
 
 def require_valid(schema_name: str, fixture: Path) -> None:
-    validator = make_validator(schema_name)
+    validator = make_validator(SCHEMA_DIR, schema_name)
     errors = sorted(validator.iter_errors(load_json(fixture)), key=lambda error: list(error.path))
     if errors:
         details = "\n".join(f"  - {error.json_path}: {error.message}" for error in errors)
@@ -39,7 +40,7 @@ def require_valid(schema_name: str, fixture: Path) -> None:
 
 
 def require_invalid(schema_name: str, fixture: Path) -> None:
-    validator = make_validator(schema_name)
+    validator = make_validator(SCHEMA_DIR, schema_name)
     errors = list(validator.iter_errors(load_json(fixture)))
     if not errors:
         raise AssertionError(
@@ -47,10 +48,25 @@ def require_invalid(schema_name: str, fixture: Path) -> None:
         )
 
 
+def validate_schema_set(schema_dir: Path, expected: set[str]) -> None:
+    schema_files = sorted(schema_dir.glob("*.schema.json"))
+    actual = {path.name for path in schema_files}
+    if actual != expected:
+        raise AssertionError(
+            f"{schema_dir.relative_to(ROOT)} schema set mismatch: "
+            f"expected={sorted(expected)}, actual={sorted(actual)}"
+        )
+    for schema_path in schema_files:
+        schema = load_json(schema_path)
+        if schema.get("$schema") != DIALECT:
+            raise AssertionError(f"{schema_path.name}: expected Draft 2020-12 dialect")
+        Draft202012Validator.check_schema(schema)
+
+
 def main() -> None:
     schema_files = sorted(SCHEMA_DIR.glob("*.schema.json"))
     if not schema_files:
-        raise AssertionError("no Public Contract schemas found")
+        raise AssertionError("no Public Contract 0.1 schemas found")
     for schema_path in schema_files:
         schema = load_json(schema_path)
         if schema.get("$schema") != DIALECT:
@@ -118,10 +134,66 @@ def main() -> None:
     for schema_name, fixture in schema_valid_semantic_counterexamples:
         require_valid(schema_name, fixture)
 
+    # M0.8 adds an explicit Public Contract 0.2 realization subset. This does not
+    # replace or weaken the published 0.1 schema gate above. Phase 1 validates the
+    # normative schema set itself; Phase 2 adds executable thermal/counterexample
+    # fixture coverage against these schemas.
+    validate_schema_set(
+        SCHEMA_DIR_V02,
+        {
+            "shared.schema.json",
+            "mapping-plan.schema.json",
+            "backend-target.schema.json",
+            "realization-spec.schema.json",
+        },
+    )
+
+    # Resolve every external $ref now, even before Phase 2 fixtures exist.
+    smoke_payloads = {
+        "mapping-plan.schema.json": {
+            "public_contract_version": "0.2",
+            "actions": [{"id": "smoke.action", "dependencies": []}],
+        },
+        "backend-target.schema.json": {
+            "public_contract_version": "0.2",
+            "target": "mock",
+            "required_capabilities": [],
+        },
+        "realization-spec.schema.json": {
+            "public_contract_version": "0.2",
+            "ontology_version": "0.1",
+            "source_model": "model.smoke",
+            "entities": [
+                {
+                    "id": "domain.smoke",
+                    "kind": "spatial_model",
+                    "semantic_type": "Domain",
+                    "parameters": [],
+                }
+            ],
+            "scopes": [{"id": "scope.smoke", "members": ["domain.smoke"]}],
+            "relations": [],
+            "action_bindings": [
+                {
+                    "action_id": "smoke.action",
+                    "subjects": [{"subject_kind": "entity", "id": "domain.smoke"}],
+                    "scopes": ["scope.smoke"],
+                }
+            ],
+        },
+    }
+    for schema_name, payload in smoke_payloads.items():
+        validator = make_validator(SCHEMA_DIR_V02, schema_name)
+        errors = sorted(validator.iter_errors(payload), key=lambda error: list(error.path))
+        if errors:
+            details = "\n".join(f"  - {error.json_path}: {error.message}" for error in errors)
+            raise AssertionError(f"0.2 schema smoke failed for {schema_name}:\n{details}")
+
     print(
-        "Public Contract 0.1 schema validation passed: "
-        f"{len(positive)} positive, {len(structurally_invalid)} structural negative, "
-        f"{len(schema_valid_semantic_counterexamples)} semantic-boundary fixtures"
+        "Public Contract schema validation passed: "
+        f"0.1={len(positive)} positive/{len(structurally_invalid)} structural-negative/"
+        f"{len(schema_valid_semantic_counterexamples)} semantic-boundary fixtures; "
+        "0.2 realization subset=4 schemas + ref-resolution smoke"
     )
 
 

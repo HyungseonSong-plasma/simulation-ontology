@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.2 BackendTargetDto",
+  "type": "object",
+  "required": ["public_contract_version", "target", "required_capabilities"],
+  "properties": {
+    "public_contract_version": { "$ref": "shared.schema.json#/$defs/publicContractVersion" },
+    "target": { "$ref": "shared.schema.json#/$defs/stableSymbol" },
+    "required_capabilities": {
+      "type": "array",
+      "items": { "$ref": "shared.schema.json#/$defs/stableSymbol" }
+    }
+  }
+}
