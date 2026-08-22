@@ -8,9 +8,9 @@ use sol_adapter_conformance_harness::{
     AdapterProtocolObservation, ExternalAdapterCommand, ExternalAdapterLaunch,
 };
 use sol_adapter_protocol::{
-    PreflightOutcome, ProtocolFailure, ProtocolOperation, ValidatePlanRequest, ValidatePlanResponse,
-    DIAGNOSTIC_MISSING_CAPABILITY, DIAGNOSTIC_PRECONDITION_REJECTED, DIAGNOSTIC_TARGET_MISMATCH,
-    DIAGNOSTIC_TRANSIENT_UNAVAILABLE, DIAGNOSTIC_UNSUPPORTED_ACTION,
+    PreflightOutcome, ProtocolFailure, ProtocolOperation, ValidatePlanRequest,
+    ValidatePlanResponse, DIAGNOSTIC_MISSING_CAPABILITY, DIAGNOSTIC_PRECONDITION_REJECTED,
+    DIAGNOSTIC_TARGET_MISMATCH, DIAGNOSTIC_TRANSIENT_UNAVAILABLE, DIAGNOSTIC_UNSUPPORTED_ACTION,
 };
 
 const VALIDATE_REQUEST: &str = "validate-plan-accepted-request.json";
