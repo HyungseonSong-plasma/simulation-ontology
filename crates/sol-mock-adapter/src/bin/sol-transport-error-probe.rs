@@ -40,7 +40,10 @@ impl ProbeMode {
 }
 
 fn main() {
-    let Some(mode) = env::args().nth(1).and_then(|value| ProbeMode::parse(&value)) else {
+    let Some(mode) = env::args()
+        .nth(1)
+        .and_then(|value| ProbeMode::parse(&value))
+    else {
         eprintln!("transport error probe requires one recognized mode");
         process::exit(2);
     };
@@ -104,9 +107,10 @@ fn run(mode: ProbeMode) -> Result<(), String> {
             )
             .as_bytes(),
         ),
-        ProbeMode::HumanStdout => {
-            write_frame(&mut output, b"human diagnostic accidentally sent to stdout\n")
-        }
+        ProbeMode::HumanStdout => write_frame(
+            &mut output,
+            b"human diagnostic accidentally sent to stdout\n",
+        ),
         ProbeMode::InvalidUtf8 => write_frame(&mut output, &[0xff, b'\n']),
         ProbeMode::Eof => Ok(()),
         ProbeMode::Crash => panic!("intentional transport probe crash"),
@@ -167,8 +171,6 @@ fn write_protocol_failure(
 }
 
 fn write_frame(output: &mut impl Write, bytes: &[u8]) -> Result<(), String> {
-    output
-        .write_all(bytes)
-        .map_err(|error| error.to_string())?;
+    output.write_all(bytes).map_err(|error| error.to_string())?;
     output.flush().map_err(|error| error.to_string())
 }
