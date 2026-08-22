@@ -13,7 +13,8 @@ use sol_adapter_conformance::{
     PublishedContract,
 };
 use sol_adapter_conformance_harness::{
-    AdapterProtocolObservation, ExternalAdapterCommand, ExternalAdapterHarness, ExternalAdapterLaunch,
+    AdapterProtocolObservation, ExternalAdapterCommand, ExternalAdapterHarness,
+    ExternalAdapterLaunch,
 };
 use sol_adapter_protocol::{
     AdapterDescription, CompatibilityOutcome, ExecutePlanRequest, ExecutePlanResponse,
@@ -104,7 +105,10 @@ impl PublishedPositiveFixtureSuite {
             }
         };
 
-        cases.push(description_case(session.description(), &fixtures.description));
+        cases.push(description_case(
+            session.description(),
+            &fixtures.description,
+        ));
         cases.push(compatibility_case(
             "compatibility.adapter-protocol",
             PublishedContract::AdapterProtocol,
@@ -125,11 +129,17 @@ impl PublishedPositiveFixtureSuite {
                 .public_contract
                 .selected_version
                 .as_deref(),
-            fixtures.validate_request.target.public_contract_version.as_str(),
+            fixtures
+                .validate_request
+                .target
+                .public_contract_version
+                .as_str(),
         ));
 
         cases.push(match session.validate_plan(&fixtures.validate_request) {
-            Ok(AdapterProtocolObservation::Success(observed)) if observed == fixtures.validate_response => {
+            Ok(AdapterProtocolObservation::Success(observed))
+                if observed == fixtures.validate_response =>
+            {
                 conformant_case(
                     "validate-plan.positive",
                     ConformanceScope::OperationSemantics(ProtocolOperation::ValidatePlan),
@@ -209,14 +219,23 @@ struct PositiveFixtures {
 impl PositiveFixtures {
     fn load(root: &Path) -> Result<Self, HarnessFailure> {
         let description = load_fixture(root, DESCRIPTION_FIXTURE, AdapterDescription::from_json)?;
-        let validate_request =
-            load_fixture(root, VALIDATE_REQUEST_FIXTURE, ValidatePlanRequest::from_json)?;
-        let validate_response =
-            load_fixture(root, VALIDATE_RESPONSE_FIXTURE, ValidatePlanResponse::from_json)?;
+        let validate_request = load_fixture(
+            root,
+            VALIDATE_REQUEST_FIXTURE,
+            ValidatePlanRequest::from_json,
+        )?;
+        let validate_response = load_fixture(
+            root,
+            VALIDATE_RESPONSE_FIXTURE,
+            ValidatePlanResponse::from_json,
+        )?;
         let execute_request =
             load_fixture(root, EXECUTE_REQUEST_FIXTURE, ExecutePlanRequest::from_json)?;
-        let mut execute_response =
-            load_fixture(root, EXECUTE_RESPONSE_FIXTURE, ExecutePlanResponse::from_json)?;
+        let mut execute_response = load_fixture(
+            root,
+            EXECUTE_RESPONSE_FIXTURE,
+            ExecutePlanResponse::from_json,
+        )?;
         execute_response
             .validate_against(&execute_request)
             .map_err(|error| fixture_failure(root.join(EXECUTE_RESPONSE_FIXTURE), error))?;
@@ -232,10 +251,22 @@ impl PositiveFixtures {
 
     fn validate_public_contract_payloads(&self) -> Result<(), HarnessFailure> {
         for (label, result) in [
-            ("validate request target", self.validate_request.target.to_canonical_json()),
-            ("validate request plan", self.validate_request.plan.to_canonical_json()),
-            ("execute request target", self.execute_request.target.to_canonical_json()),
-            ("execute request plan", self.execute_request.plan.to_canonical_json()),
+            (
+                "validate request target",
+                self.validate_request.target.to_canonical_json(),
+            ),
+            (
+                "validate request plan",
+                self.validate_request.plan.to_canonical_json(),
+            ),
+            (
+                "execute request target",
+                self.execute_request.target.to_canonical_json(),
+            ),
+            (
+                "execute request plan",
+                self.execute_request.plan.to_canonical_json(),
+            ),
         ] {
             result.map_err(|error| fixture_failure(label, error))?;
         }
@@ -344,7 +375,11 @@ fn harness_case(
     scope: ConformanceScope,
     failure: HarnessFailure,
 ) -> ConformanceCaseRecord {
-    ConformanceCaseRecord::new(fixed_id(id), scope, ConformanceCaseResult::HarnessFailure(failure))
+    ConformanceCaseRecord::new(
+        fixed_id(id),
+        scope,
+        ConformanceCaseResult::HarnessFailure(failure),
+    )
 }
 
 fn fixed_id(value: &'static str) -> ConformanceCaseId {
