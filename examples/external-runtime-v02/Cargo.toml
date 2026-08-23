@@ -1,0 +1,16 @@
+[package]
+name = "sol-external-runtime-v02-consumer"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+rust-version = "1.80"
+publish = false
+
+[workspace]
+
+[dependencies]
+serde_json = "1.0.128"
+sol-adapter-protocol = { path = "../../crates/sol-adapter-protocol" }
+sol-adapter-runtime = { path = "../../crates/sol-adapter-runtime" }
+sol-adapter-transport = { path = "../../crates/sol-adapter-transport" }
+sol-target-resolver = { path = "../../crates/sol-target-resolver" }
