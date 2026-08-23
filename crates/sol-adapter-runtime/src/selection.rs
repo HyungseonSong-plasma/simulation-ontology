@@ -3,9 +3,7 @@ use std::collections::BTreeSet;
 use sol_adapter_protocol::{CompatibilityAssessment, CompatibilityOutcome};
 use sol_target_resolver::{BackendCapability, BackendTarget};
 
-use crate::{
-    AdapterDiscoveryError, AdapterInstanceId, AdapterRegistrationId, RunningAdapter,
-};
+use crate::{AdapterDiscoveryError, AdapterInstanceId, AdapterRegistrationId, RunningAdapter};
 
 /// Solver-neutral projection of one target declaration observed from a live adapter.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -170,9 +168,7 @@ pub fn select_adapter(
 ) -> AdapterSelectionOutcome {
     let mut candidates: Vec<_> = projections
         .iter()
-        .filter(|projection| {
-            projection.compatibility.overall == CompatibilityOutcome::Compatible
-        })
+        .filter(|projection| projection.compatibility.overall == CompatibilityOutcome::Compatible)
         .flat_map(|projection| {
             projection.targets.iter().filter_map(move |target| {
                 if &target.target != request.target()
@@ -213,9 +209,7 @@ pub fn select_adapter(
 mod tests {
     use std::collections::BTreeSet;
 
-    use sol_adapter_protocol::{
-        AxisCompatibility, CompatibilityAssessment, CompatibilityOutcome,
-    };
+    use sol_adapter_protocol::{AxisCompatibility, CompatibilityAssessment, CompatibilityOutcome};
     use sol_target_resolver::{BackendCapability, BackendTarget};
 
     use crate::{AdapterInstanceId, AdapterRegistrationId};
@@ -295,7 +289,10 @@ mod tests {
         );
 
         assert_eq!(
-            select_adapter(&request(), &[wrong_target, missing_capability, incompatible]),
+            select_adapter(
+                &request(),
+                &[wrong_target, missing_capability, incompatible]
+            ),
             AdapterSelectionOutcome::NoCompatibleCandidate
         );
     }
