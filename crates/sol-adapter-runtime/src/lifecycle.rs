@@ -1,6 +1,7 @@
 use sol_adapter_protocol::{
-    AdapterDescription, ExecutePlanRequest, ExecutePlanResponse, ValidatePlanRequest,
-    ValidatePlanResponse,
+    AdapterDescription, CompatibilityOutcome, ExecutePlanRequest, ExecutePlanRequestV02,
+    ExecutePlanResponse, ExecutePlanResponseV02, ValidatePlanRequest, ValidatePlanRequestV02,
+    ValidatePlanResponse, ValidatePlanResponseV02,
 };
 use sol_adapter_transport::{
     response_loss_recovery, AdapterOperationResult, AdapterProcessCommand, AdapterProcessExit,
@@ -9,8 +10,8 @@ use sol_adapter_transport::{
 };
 
 use crate::{
-    AdapterInstance, AdapterInstanceId, AdapterRegistration, AdapterRegistrationId,
-    AdapterRegistryEntry,
+    AdapterDiscoveryError, AdapterInstance, AdapterInstanceId, AdapterRegistration,
+    AdapterRegistrationId, AdapterRegistryEntry, RuntimeContractProfile,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -20,12 +21,23 @@ pub enum AdapterRuntimeError {
         running: AdapterRegistrationId,
         requested: AdapterRegistrationId,
     },
+    Discovery(AdapterDiscoveryError),
+    ProfileNotCompatible {
+        profile: RuntimeContractProfile,
+        outcome: CompatibilityOutcome,
+    },
     Transport(AdapterSessionError),
 }
 
 impl From<AdapterSessionError> for AdapterRuntimeError {
     fn from(error: AdapterSessionError) -> Self {
         Self::Transport(error)
+    }
+}
+
+impl From<AdapterDiscoveryError> for AdapterRuntimeError {
+    fn from(error: AdapterDiscoveryError) -> Self {
+        Self::Discovery(error)
     }
 }
 
@@ -78,11 +90,12 @@ impl RunningAdapter {
     }
 
     /// Live bootstrap evidence returned by the published `describe_adapter`
-    /// operation. Phase 2 exposes it but does not yet interpret compatibility.
+    /// operation. Compatibility interpretation is kept in the discovery layer.
     pub fn description(&self) -> Option<&AdapterDescription> {
         self.session.description()
     }
 
+    /// Existing M0.7 Adapter Protocol/Public Contract 0.1 path.
     pub fn validate_plan(
         &mut self,
         request: &ValidatePlanRequest,
@@ -90,11 +103,52 @@ impl RunningAdapter {
         self.session.validate_plan(request).map_err(Into::into)
     }
 
+    /// Explicit Adapter Protocol/Public Contract 0.2 realization path.
+    ///
+    /// Runtime dispatch is permitted only when the live bootstrapped adapter is
+    /// compatible with the explicit 0.2 runtime profile. The runtime does not
+    /// inspect or rewrite realization semantics; the typed request is passed to
+    /// the transport unchanged after canonical DTO validation.
+    pub fn validate_plan_v02(
+        &mut self,
+        request: &ValidatePlanRequestV02,
+    ) -> Result<AdapterOperationResult<ValidatePlanResponseV02>, AdapterRuntimeError> {
+        self.require_compatible_profile(RuntimeContractProfile::realization_v02())?;
+        self.session.validate_plan_v02(request).map_err(Into::into)
+    }
+
+    /// Existing M0.7 Adapter Protocol/Public Contract 0.1 path.
     pub fn execute_plan(
         &mut self,
         request: &ExecutePlanRequest,
     ) -> Result<AdapterOperationResult<ExecutePlanResponse>, AdapterRuntimeError> {
         self.session.execute_plan(request).map_err(Into::into)
+    }
+
+    /// Explicit Adapter Protocol/Public Contract 0.2 authoritative execution.
+    ///
+    /// Compatibility is checked against live description evidence immediately
+    /// before dispatch. The full target + plan + realization_spec request is
+    /// carried by the typed Protocol 0.2 DTO and is not synthesized by runtime.
+    pub fn execute_plan_v02(
+        &mut self,
+        request: &ExecutePlanRequestV02,
+    ) -> Result<AdapterOperationResult<ExecutePlanResponseV02>, AdapterRuntimeError> {
+        self.require_compatible_profile(RuntimeContractProfile::realization_v02())?;
+        self.session.execute_plan_v02(request).map_err(Into::into)
+    }
+
+    fn require_compatible_profile(
+        &self,
+        profile: RuntimeContractProfile,
+    ) -> Result<(), AdapterRuntimeError> {
+        let evidence = self.discover_live_evidence_for(profile)?;
+        let outcome = evidence.compatibility_outcome();
+        if outcome == CompatibilityOutcome::Compatible {
+            Ok(())
+        } else {
+            Err(AdapterRuntimeError::ProfileNotCompatible { profile, outcome })
+        }
     }
 
     /// Close stdin, wait for process exit, and return transport-owned exit/stderr
@@ -133,8 +187,9 @@ impl RunningAdapter {
     }
 
     /// Convenience invariant for callers deciding whether execution may be
-    /// automatically retried after response loss. It is always false for the
-    /// published execute operation under Protocol/Transport 0.1 semantics.
+    /// automatically retried after response loss. It remains false for both
+    /// 0.1 and 0.2 because both use the same published execute operation and
+    /// transport recovery boundary.
     pub const fn execution_response_loss_allows_transport_replay() -> bool {
         matches!(
             response_loss_recovery(AdapterTransportMethod::ExecutePlan).replay(),
@@ -159,27 +214,46 @@ fn transport_command(command: &crate::AdapterCommand) -> AdapterProcessCommand {
 mod tests {
     use std::path::{Path, PathBuf};
 
-    use sol_adapter_protocol::SideEffectEvidence;
-    use sol_adapter_transport::{AdapterSessionState, AdapterTransportMethod, ReplayDisposition};
+    use sol_adapter_protocol::{
+        CompatibilityOutcome, ExecutePlanRequestV02, ExecutionOutcome, SideEffectEvidence,
+        ValidatePlanRequestV02,
+    };
+    use sol_adapter_transport::{
+        AdapterOperationResult, AdapterSessionState, AdapterTransportMethod, ReplayDisposition,
+    };
 
     use crate::{
         AdapterCommand, AdapterInstanceId, AdapterRegistration, AdapterRegistrationId,
-        AdapterRegistry,
+        AdapterRegistry, RuntimeContractProfile,
     };
 
     use super::{transport_command, AdapterRuntimeError, RunningAdapter};
 
-    fn mock_adapter_binary() -> PathBuf {
-        let workspace = Path::new(env!("CARGO_MANIFEST_DIR"))
+    const THERMAL_V02_REQUEST: &str =
+        include_str!("../../../fixtures/adapter-protocol/0.2/thermal-realization-request.json");
+
+    fn workspace_root() -> PathBuf {
+        Path::new(env!("CARGO_MANIFEST_DIR"))
             .parent()
             .and_then(Path::parent)
-            .expect("runtime crate must live under workspace/crates");
+            .expect("runtime crate must live under workspace/crates")
+            .to_path_buf()
+    }
+
+    fn workspace_binary(name: &str) -> PathBuf {
         let executable = if cfg!(windows) {
-            "sol-mock-adapter-stdio.exe"
+            format!("{name}.exe")
         } else {
-            "sol-mock-adapter-stdio"
+            name.to_owned()
         };
-        let path = workspace.join("target").join("debug").join(executable);
+        workspace_root()
+            .join("target")
+            .join("debug")
+            .join(executable)
+    }
+
+    fn mock_adapter_binary() -> PathBuf {
+        let path = workspace_binary("sol-mock-adapter-stdio");
         assert!(
             path.is_file(),
             "workspace CI/build must produce mock adapter fixture at {}",
@@ -188,19 +262,33 @@ mod tests {
         path
     }
 
-    fn register_mock(registry: &mut AdapterRegistry, id: &str) -> AdapterRegistrationId {
+    fn v02_fixture_adapter_binary() -> PathBuf {
+        let path = workspace_binary("sol-runtime-v02-fixture-adapter");
+        assert!(
+            path.is_file(),
+            "workspace CI/build must produce v0.2 fixture adapter at {}",
+            path.display()
+        );
+        path
+    }
+
+    fn register_command(
+        registry: &mut AdapterRegistry,
+        id: &str,
+        program: PathBuf,
+    ) -> AdapterRegistrationId {
         let id = AdapterRegistrationId::new(id);
-        let workspace = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .and_then(Path::parent)
-            .expect("runtime crate must live under workspace/crates");
         registry
             .register(AdapterRegistration::new(
                 id.clone(),
-                AdapterCommand::new(mock_adapter_binary()).with_working_directory(workspace),
+                AdapterCommand::new(program).with_working_directory(workspace_root()),
             ))
             .unwrap();
         id
+    }
+
+    fn register_mock(registry: &mut AdapterRegistry, id: &str) -> AdapterRegistrationId {
+        register_command(registry, id, mock_adapter_binary())
     }
 
     #[test]
@@ -269,6 +357,68 @@ mod tests {
 
         let second_exit = replacement.shutdown().unwrap();
         assert!(second_exit.success);
+    }
+
+    #[test]
+    fn explicit_v02_runtime_dispatch_preserves_full_realization_request() {
+        let mut registry = AdapterRegistry::new();
+        let id = register_command(
+            &mut registry,
+            "fixture.runtime.v02",
+            v02_fixture_adapter_binary(),
+        );
+        let mut running = RunningAdapter::launch(
+            registry.get(&id).unwrap(),
+            AdapterInstanceId::new("instance.v02"),
+        )
+        .unwrap();
+
+        let evidence = running
+            .discover_live_evidence_for(RuntimeContractProfile::realization_v02())
+            .unwrap();
+        assert_eq!(
+            evidence.compatibility_outcome(),
+            CompatibilityOutcome::Compatible
+        );
+
+        let validate = ValidatePlanRequestV02::from_json(THERMAL_V02_REQUEST).unwrap();
+        let execute = ExecutePlanRequestV02::from_json(THERMAL_V02_REQUEST).unwrap();
+
+        assert!(matches!(
+            running.validate_plan_v02(&validate).unwrap(),
+            AdapterOperationResult::Success(response)
+                if response.adapter_protocol_version == "0.2"
+        ));
+        assert!(matches!(
+            running.execute_plan_v02(&execute).unwrap(),
+            AdapterOperationResult::Success(response)
+                if response.execution == ExecutionOutcome::Completed
+                    && response.adapter_protocol_version == "0.2"
+        ));
+
+        assert!(running.shutdown().unwrap().success);
+    }
+
+    #[test]
+    fn v01_only_live_adapter_is_rejected_before_v02_dispatch() {
+        let mut registry = AdapterRegistry::new();
+        let id = register_mock(&mut registry, "mock.v01.only");
+        let mut running = RunningAdapter::launch(
+            registry.get(&id).unwrap(),
+            AdapterInstanceId::new("instance.v01.only"),
+        )
+        .unwrap();
+        let request = ValidatePlanRequestV02::from_json(THERMAL_V02_REQUEST).unwrap();
+
+        assert!(matches!(
+            running.validate_plan_v02(&request),
+            Err(AdapterRuntimeError::ProfileNotCompatible {
+                profile,
+                outcome: CompatibilityOutcome::Incompatible,
+            }) if profile == RuntimeContractProfile::realization_v02()
+        ));
+        assert_eq!(running.state(), AdapterSessionState::Ready);
+        assert!(running.shutdown().unwrap().success);
     }
 
     #[test]
