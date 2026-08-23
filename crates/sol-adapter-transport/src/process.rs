@@ -5,8 +5,9 @@ use crate::{
 };
 use serde_json::Value;
 use sol_adapter_protocol::{
-    AdapterDescription, ExecutePlanRequest, ExecutePlanResponse, ProtocolFailure,
-    ValidatePlanRequest, ValidatePlanResponse,
+    AdapterDescription, ExecutePlanRequest, ExecutePlanRequestV02, ExecutePlanResponse,
+    ExecutePlanResponseV02, ProtocolFailure, ValidatePlanRequest, ValidatePlanRequestV02,
+    ValidatePlanResponse, ValidatePlanResponseV02,
 };
 use std::error::Error;
 use std::ffi::{OsStr, OsString};
@@ -338,6 +339,35 @@ impl AdapterProcessSession {
         }
     }
 
+    /// Transport Adapter Protocol 0.2 preflight over the same published
+    /// `validate_plan` JSON-RPC method. Version meaning remains entirely in the
+    /// typed Protocol DTO; the wire method is not versioned or renamed.
+    pub fn validate_plan_v02(
+        &mut self,
+        request: &ValidatePlanRequestV02,
+    ) -> Result<AdapterOperationResult<ValidatePlanResponseV02>, AdapterSessionError> {
+        self.require_ready()?;
+        let params = protocol_json_value(
+            request
+                .to_canonical_json()
+                .map_err(|error| AdapterSessionError::ProtocolPayload(error.to_string()))?,
+        )?;
+        match self.exchange(AdapterTransportMethod::ValidatePlan, Some(params))? {
+            ProtocolOutcome::Success(payload) => {
+                let response =
+                    ValidatePlanResponseV02::from_json(&canonical_protocol_value(payload))
+                        .map_err(|error| AdapterSessionError::ProtocolPayload(error.to_string()));
+                if response.is_err() {
+                    self.state = AdapterSessionState::Faulted;
+                }
+                response.map(AdapterOperationResult::Success)
+            }
+            ProtocolOutcome::Failure(failure) => {
+                Ok(AdapterOperationResult::ProtocolFailure(failure))
+            }
+        }
+    }
+
     pub fn execute_plan(
         &mut self,
         request: &ExecutePlanRequest,
@@ -351,6 +381,39 @@ impl AdapterProcessSession {
         match self.exchange(AdapterTransportMethod::ExecutePlan, Some(params))? {
             ProtocolOutcome::Success(payload) => {
                 let response = ExecutePlanResponse::from_json(&canonical_protocol_value(payload))
+                    .map_err(|error| AdapterSessionError::ProtocolPayload(error.to_string()));
+                if response.is_err() {
+                    self.state = AdapterSessionState::Faulted;
+                }
+                response.map(AdapterOperationResult::Success)
+            }
+            ProtocolOutcome::Failure(failure) => {
+                Ok(AdapterOperationResult::ProtocolFailure(failure))
+            }
+        }
+    }
+
+    /// Transport Adapter Protocol 0.2 authoritative execution over the same
+    /// published `execute_plan` JSON-RPC method. The returned response is also
+    /// checked against the exact request so request-relative action/effect and
+    /// provenance invariants remain enforced after transport.
+    pub fn execute_plan_v02(
+        &mut self,
+        request: &ExecutePlanRequestV02,
+    ) -> Result<AdapterOperationResult<ExecutePlanResponseV02>, AdapterSessionError> {
+        self.require_ready()?;
+        let params = protocol_json_value(
+            request
+                .to_canonical_json()
+                .map_err(|error| AdapterSessionError::ProtocolPayload(error.to_string()))?,
+        )?;
+        match self.exchange(AdapterTransportMethod::ExecutePlan, Some(params))? {
+            ProtocolOutcome::Success(payload) => {
+                let response = ExecutePlanResponseV02::from_json(&canonical_protocol_value(payload))
+                    .and_then(|mut response| {
+                        response.validate_against(request)?;
+                        Ok(response)
+                    })
                     .map_err(|error| AdapterSessionError::ProtocolPayload(error.to_string()));
                 if response.is_err() {
                     self.state = AdapterSessionState::Faulted;
