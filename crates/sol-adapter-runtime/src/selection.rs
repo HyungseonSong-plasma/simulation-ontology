@@ -3,7 +3,10 @@ use std::collections::BTreeSet;
 use sol_adapter_protocol::{CompatibilityAssessment, CompatibilityOutcome};
 use sol_target_resolver::{BackendCapability, BackendTarget};
 
-use crate::{AdapterDiscoveryError, AdapterInstanceId, AdapterRegistrationId, RunningAdapter};
+use crate::{
+    AdapterDiscoveryError, AdapterInstanceId, AdapterRegistrationId, RunningAdapter,
+    RuntimeContractProfile,
+};
 
 /// Solver-neutral projection of one target declaration observed from a live adapter.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -27,19 +30,32 @@ impl RuntimeTargetProjection {
 /// Registration and instance IDs remain local operational identifiers. Adapter
 /// implementation metadata, compatibility, target, and capability evidence all
 /// originate from the live Adapter Protocol description rather than registration.
+/// `profile` records which explicit Adapter Protocol/Public Contract pair the
+/// compatibility assessment belongs to; evidence from different profiles is not
+/// interchangeable during selection.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AdapterRuntimeProjection {
     registration_id: AdapterRegistrationId,
     instance_id: AdapterInstanceId,
     adapter_id: String,
     adapter_version: String,
+    profile: RuntimeContractProfile,
     compatibility: CompatibilityAssessment,
     targets: Vec<RuntimeTargetProjection>,
 }
 
 impl AdapterRuntimeProjection {
+    /// Preserve the accepted M0.7 projection behavior as an explicit 0.1 path.
     pub fn from_running(adapter: &RunningAdapter) -> Result<Self, AdapterDiscoveryError> {
-        let evidence = adapter.discover_live_evidence()?;
+        Self::from_running_for(adapter, RuntimeContractProfile::v01())
+    }
+
+    /// Project live evidence for one explicitly selected runtime contract profile.
+    pub fn from_running_for(
+        adapter: &RunningAdapter,
+        profile: RuntimeContractProfile,
+    ) -> Result<Self, AdapterDiscoveryError> {
+        let evidence = adapter.discover_live_evidence_for(profile)?;
         let targets = evidence
             .targets()
             .iter()
@@ -58,6 +74,7 @@ impl AdapterRuntimeProjection {
             instance_id: adapter.instance().id().clone(),
             adapter_id: evidence.adapter_id().to_owned(),
             adapter_version: evidence.adapter_version().to_owned(),
+            profile,
             compatibility: evidence.compatibility().clone(),
             targets,
         })
@@ -79,6 +96,10 @@ impl AdapterRuntimeProjection {
         &self.adapter_version
     }
 
+    pub fn profile(&self) -> RuntimeContractProfile {
+        self.profile
+    }
+
     pub fn compatibility(&self) -> &CompatibilityAssessment {
         &self.compatibility
     }
@@ -90,13 +111,20 @@ impl AdapterRuntimeProjection {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AdapterSelectionRequest {
+    profile: RuntimeContractProfile,
     target: BackendTarget,
     required_capabilities: BTreeSet<BackendCapability>,
 }
 
 impl AdapterSelectionRequest {
+    /// Preserve the accepted M0.7 selection API as an explicit 0.1 request.
     pub fn new(target: BackendTarget) -> Self {
+        Self::for_profile(target, RuntimeContractProfile::v01())
+    }
+
+    pub fn for_profile(target: BackendTarget, profile: RuntimeContractProfile) -> Self {
         Self {
+            profile,
             target,
             required_capabilities: BTreeSet::new(),
         }
@@ -105,6 +133,10 @@ impl AdapterSelectionRequest {
     pub fn require(mut self, capability: BackendCapability) -> Self {
         self.required_capabilities.insert(capability);
         self
+    }
+
+    pub fn profile(&self) -> RuntimeContractProfile {
+        self.profile
     }
 
     pub fn target(&self) -> &BackendTarget {
@@ -124,6 +156,7 @@ pub struct AdapterSelectionCandidate {
     instance_id: AdapterInstanceId,
     adapter_id: String,
     adapter_version: String,
+    profile: RuntimeContractProfile,
     target: BackendTarget,
     capabilities: BTreeSet<BackendCapability>,
 }
@@ -143,6 +176,10 @@ impl AdapterSelectionCandidate {
 
     pub fn adapter_version(&self) -> &str {
         &self.adapter_version
+    }
+
+    pub fn profile(&self) -> RuntimeContractProfile {
+        self.profile
     }
 
     pub fn target(&self) -> &BackendTarget {
@@ -168,7 +205,10 @@ pub fn select_adapter(
 ) -> AdapterSelectionOutcome {
     let mut candidates: Vec<_> = projections
         .iter()
-        .filter(|projection| projection.compatibility.overall == CompatibilityOutcome::Compatible)
+        .filter(|projection| {
+            projection.profile == request.profile()
+                && projection.compatibility.overall == CompatibilityOutcome::Compatible
+        })
         .flat_map(|projection| {
             projection.targets.iter().filter_map(move |target| {
                 if &target.target != request.target()
@@ -184,6 +224,7 @@ pub fn select_adapter(
                     instance_id: projection.instance_id.clone(),
                     adapter_id: projection.adapter_id.clone(),
                     adapter_version: projection.adapter_version.clone(),
+                    profile: projection.profile,
                     target: target.target.clone(),
                     capabilities: target.capabilities.clone(),
                 })
@@ -212,32 +253,43 @@ mod tests {
     use sol_adapter_protocol::{AxisCompatibility, CompatibilityAssessment, CompatibilityOutcome};
     use sol_target_resolver::{BackendCapability, BackendTarget};
 
-    use crate::{AdapterInstanceId, AdapterRegistrationId};
+    use crate::{AdapterInstanceId, AdapterRegistrationId, RuntimeContractProfile};
 
     use super::{
         select_adapter, AdapterRuntimeProjection, AdapterSelectionOutcome, AdapterSelectionRequest,
         RuntimeTargetProjection,
     };
 
-    fn compatibility(outcome: CompatibilityOutcome) -> CompatibilityAssessment {
-        let axis = AxisCompatibility {
-            outcome,
-            selected_version: if outcome == CompatibilityOutcome::Compatible {
-                Some("0.1".to_owned())
-            } else {
-                None
-            },
+    fn compatibility(
+        outcome: CompatibilityOutcome,
+        profile: RuntimeContractProfile,
+    ) -> CompatibilityAssessment {
+        let selected_version = if outcome == CompatibilityOutcome::Compatible {
+            Some(profile.adapter_protocol_version().to_string())
+        } else {
+            None
         };
         CompatibilityAssessment {
-            adapter_protocol: axis.clone(),
-            public_contract: axis,
+            adapter_protocol: AxisCompatibility {
+                outcome,
+                selected_version: selected_version.clone(),
+            },
+            public_contract: AxisCompatibility {
+                outcome,
+                selected_version: if outcome == CompatibilityOutcome::Compatible {
+                    Some(profile.public_contract_version().to_string())
+                } else {
+                    None
+                },
+            },
             overall: outcome,
         }
     }
 
-    fn projection(
+    fn projection_for(
         local: &str,
         adapter_id: &str,
+        profile: RuntimeContractProfile,
         compatibility_outcome: CompatibilityOutcome,
         target: &str,
         capabilities: &[&str],
@@ -247,7 +299,8 @@ mod tests {
             instance_id: AdapterInstanceId::new(format!("instance.{local}")),
             adapter_id: adapter_id.to_owned(),
             adapter_version: "7.5.0".to_owned(),
-            compatibility: compatibility(compatibility_outcome),
+            profile,
+            compatibility: compatibility(compatibility_outcome, profile),
             targets: vec![RuntimeTargetProjection {
                 target: BackendTarget::new(target),
                 capabilities: capabilities
@@ -258,10 +311,41 @@ mod tests {
         }
     }
 
+    fn projection(
+        local: &str,
+        adapter_id: &str,
+        compatibility_outcome: CompatibilityOutcome,
+        target: &str,
+        capabilities: &[&str],
+    ) -> AdapterRuntimeProjection {
+        projection_for(
+            local,
+            adapter_id,
+            RuntimeContractProfile::v01(),
+            compatibility_outcome,
+            target,
+            capabilities,
+        )
+    }
+
     fn request() -> AdapterSelectionRequest {
         AdapterSelectionRequest::new(BackendTarget::new("thermal_target"))
             .require(BackendCapability::new("thermal.domain"))
             .require(BackendCapability::new("thermal.solve"))
+    }
+
+    fn request_v02() -> AdapterSelectionRequest {
+        AdapterSelectionRequest::for_profile(
+            BackendTarget::new("thermal_target"),
+            RuntimeContractProfile::realization_v02(),
+        )
+        .require(BackendCapability::new("thermal.domain"))
+        .require(BackendCapability::new("thermal.solve"))
+    }
+
+    #[test]
+    fn default_selection_request_preserves_v01_behavior() {
+        assert_eq!(request().profile(), RuntimeContractProfile::v01());
     }
 
     #[test]
@@ -314,10 +398,124 @@ mod tests {
         };
 
         assert_eq!(selected.adapter_id(), "adapter.alpha");
+        assert_eq!(selected.profile(), RuntimeContractProfile::v01());
         assert_eq!(selected.target().as_str(), "thermal_target");
         assert!(selected
             .capabilities()
             .contains(&BackendCapability::new("thermal.solve")));
+    }
+
+    #[test]
+    fn explicit_v02_request_selects_only_v02_projection() {
+        let v01 = projection_for(
+            "v01",
+            "adapter.same",
+            RuntimeContractProfile::v01(),
+            CompatibilityOutcome::Compatible,
+            "thermal_target",
+            &["thermal.domain", "thermal.solve"],
+        );
+        let v02 = projection_for(
+            "v02",
+            "adapter.same",
+            RuntimeContractProfile::realization_v02(),
+            CompatibilityOutcome::Compatible,
+            "thermal_target",
+            &["thermal.domain", "thermal.solve"],
+        );
+
+        let AdapterSelectionOutcome::Selected(selected) =
+            select_adapter(&request_v02(), &[v01, v02])
+        else {
+            panic!("expected the explicit v0.2 projection to be selected");
+        };
+        assert_eq!(selected.instance_id().as_str(), "instance.v02");
+        assert_eq!(
+            selected.profile(),
+            RuntimeContractProfile::realization_v02()
+        );
+    }
+
+    #[test]
+    fn no_hidden_v02_to_v01_fallback_occurs() {
+        let v01 = projection_for(
+            "v01",
+            "adapter.v01",
+            RuntimeContractProfile::v01(),
+            CompatibilityOutcome::Compatible,
+            "thermal_target",
+            &["thermal.domain", "thermal.solve"],
+        );
+        assert_eq!(
+            select_adapter(&request_v02(), &[v01]),
+            AdapterSelectionOutcome::NoCompatibleCandidate
+        );
+    }
+
+    #[test]
+    fn v02_incompatible_or_unknown_evidence_is_not_eligible() {
+        for outcome in [
+            CompatibilityOutcome::Incompatible,
+            CompatibilityOutcome::Unknown,
+        ] {
+            let projection = projection_for(
+                "v02-negative",
+                "adapter.v02",
+                RuntimeContractProfile::realization_v02(),
+                outcome,
+                "thermal_target",
+                &["thermal.domain", "thermal.solve"],
+            );
+            assert_eq!(
+                select_adapter(&request_v02(), &[projection]),
+                AdapterSelectionOutcome::NoCompatibleCandidate
+            );
+        }
+    }
+
+    #[test]
+    fn multiple_v02_candidates_remain_explicit_and_deterministic() {
+        let z = projection_for(
+            "z",
+            "adapter.zeta",
+            RuntimeContractProfile::realization_v02(),
+            CompatibilityOutcome::Compatible,
+            "thermal_target",
+            &["thermal.domain", "thermal.solve"],
+        );
+        let a2 = projection_for(
+            "a2",
+            "adapter.alpha",
+            RuntimeContractProfile::realization_v02(),
+            CompatibilityOutcome::Compatible,
+            "thermal_target",
+            &["thermal.domain", "thermal.solve"],
+        );
+        let a1 = projection_for(
+            "a1",
+            "adapter.alpha",
+            RuntimeContractProfile::realization_v02(),
+            CompatibilityOutcome::Compatible,
+            "thermal_target",
+            &["thermal.domain", "thermal.solve"],
+        );
+
+        let AdapterSelectionOutcome::Ambiguous(candidates) =
+            select_adapter(&request_v02(), &[z, a2, a1])
+        else {
+            panic!("multiple eligible v0.2 candidates must remain ambiguous");
+        };
+
+        assert_eq!(
+            candidates
+                .iter()
+                .map(|candidate| candidate.instance_id().as_str())
+                .collect::<Vec<_>>(),
+            vec!["instance.a1", "instance.a2", "instance.z"]
+        );
+        assert!(candidates
+            .iter()
+            .all(|candidate| candidate.profile() == RuntimeContractProfile::realization_v02()));
     }
 
     #[test]
