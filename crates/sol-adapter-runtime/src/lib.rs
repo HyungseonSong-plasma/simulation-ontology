@@ -1,15 +1,18 @@
 #![forbid(unsafe_code)]
 
-//! Core-local runtime model for external adapter registration and live instance state.
+//! Core-local runtime model for external adapter registration, live instance state,
+//! and solver-neutral discovery of protocol compatibility/target/capability evidence.
 //!
 //! These types are deliberately not Public Contract DTOs and do not represent
 //! canonical SOL semantic identity. Canonical backend-target meaning remains in
-//! `sol-target-resolver`; Protocol compatibility and capability evidence remains
-//! a later live-bootstrap concern derived from `describe_adapter`.
+//! `sol-target-resolver`; live compatibility and capability evidence is derived
+//! only from the bootstrapped Adapter Protocol `describe_adapter` result.
 
+mod discovery;
 mod lifecycle;
 mod registry;
 
+pub use discovery::*;
 pub use lifecycle::*;
 pub use registry::*;
 
