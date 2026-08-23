@@ -10,6 +10,11 @@ const PUBLIC_CONTRACT_INTERNAL_MARKERS: [&str; 4] = [
     "sol-cli",
 ];
 
+const RUNTIME_ALLOWED_ADAPTER_INFRASTRUCTURE: [&str; 2] = [
+    "sol-adapter-protocol",
+    "sol-adapter-transport",
+];
+
 const PROTOCOL_OPERATION_CANDIDATES: [&str; 3] =
     ["describe_adapter", "validate_plan", "execute_plan"];
 
@@ -32,6 +37,18 @@ fn violates_public_contract_boundary(manifest_line: &str) -> bool {
     PUBLIC_CONTRACT_INTERNAL_MARKERS
         .iter()
         .any(|marker| normalized.contains(marker))
+}
+
+fn violates_runtime_backend_boundary(manifest_line: &str) -> bool {
+    let normalized = manifest_line.trim().to_ascii_lowercase();
+    if RUNTIME_ALLOWED_ADAPTER_INFRASTRUCTURE
+        .iter()
+        .any(|allowed| normalized.contains(allowed))
+    {
+        return false;
+    }
+
+    violates_backend_boundary(manifest_line)
 }
 
 fn adapter_protocol_boundary_violations(fixture: &str) -> Vec<&'static str> {
@@ -295,16 +312,23 @@ fn adapter_runtime_operational_semantic_identity_is_rejected() {
 }
 
 #[test]
-fn adapter_runtime_manifest_has_no_backend_native_runtime_dependency() {
+fn adapter_runtime_manifest_allows_only_sol_adapter_infrastructure_not_backend_native_runtime() {
     let workspace_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let manifest_path = workspace_root.join("crates/sol-adapter-runtime/Cargo.toml");
     let manifest = fs::read_to_string(&manifest_path).expect("read sol-adapter-runtime manifest");
     let violations: Vec<_> = dependency_lines(&manifest)
-        .filter(|line| violates_backend_boundary(line))
+        .filter(|line| violates_runtime_backend_boundary(line))
         .collect();
 
     assert!(
         violations.is_empty(),
-        "adapter runtime must not depend on backend-native solver crates: {violations:?}"
+        "adapter runtime may depend on SOL adapter infrastructure but not backend-native solver crates: {violations:?}"
     );
+
+    for allowed in RUNTIME_ALLOWED_ADAPTER_INFRASTRUCTURE {
+        assert!(manifest.contains(allowed));
+    }
+    assert!(violates_runtime_backend_boundary(
+        "moose-adapter = { path = \"../adapter-moose\" }"
+    ));
 }
