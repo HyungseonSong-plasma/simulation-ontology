@@ -54,6 +54,21 @@ jobs:
           cmp "$first" "$second"
           python3 scripts/validate_m06_external_conformance_snapshot.py "$first"
 
+      - name: Exercise standalone external runtime v0.2 workflow
+        env:
+          SOL_RUNTIME_V02_ADAPTER: ${{ github.workspace }}/target/debug/sol-runtime-v02-fixture-adapter
+          SOL_RUNTIME_V01_ADAPTER: ${{ github.workspace }}/target/debug/sol-mock-adapter-stdio
+          SOL_RUNTIME_V02_FIXTURE: ${{ github.workspace }}/fixtures/adapter-protocol/0.2/thermal-realization-request.json
+        run: |
+          cargo fmt --manifest-path examples/external-runtime-v02/Cargo.toml -- --check
+          cargo test --manifest-path examples/external-runtime-v02/Cargo.toml --locked
+
+          first="$RUNNER_TEMP/m0.9-external-runtime-v02-1.json"
+          second="$RUNNER_TEMP/m0.9-external-runtime-v02-2.json"
+          cargo run --manifest-path examples/external-runtime-v02/Cargo.toml --locked --quiet > "$first"
+          cargo run --manifest-path examples/external-runtime-v02/Cargo.toml --locked --quiet > "$second"
+          cmp "$first" "$second"
+
       - name: Test workspace
         run: cargo test --workspace --locked
 
