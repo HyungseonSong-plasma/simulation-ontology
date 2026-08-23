@@ -409,12 +409,13 @@ impl AdapterProcessSession {
         )?;
         match self.exchange(AdapterTransportMethod::ExecutePlan, Some(params))? {
             ProtocolOutcome::Success(payload) => {
-                let response = ExecutePlanResponseV02::from_json(&canonical_protocol_value(payload))
-                    .and_then(|mut response| {
-                        response.validate_against(request)?;
-                        Ok(response)
-                    })
-                    .map_err(|error| AdapterSessionError::ProtocolPayload(error.to_string()));
+                let response =
+                    ExecutePlanResponseV02::from_json(&canonical_protocol_value(payload))
+                        .and_then(|mut response| {
+                            response.validate_against(request)?;
+                            Ok(response)
+                        })
+                        .map_err(|error| AdapterSessionError::ProtocolPayload(error.to_string()));
                 if response.is_err() {
                     self.state = AdapterSessionState::Faulted;
                 }
