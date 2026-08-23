@@ -14,9 +14,8 @@ const DESCRIPTION: &str = include_str!(
 );
 const THERMAL_REQUEST: &str =
     include_str!("../../../../fixtures/adapter-protocol/0.2/thermal-realization-request.json");
-const EXECUTE_RESPONSE: &str = include_str!(
-    "../../../../fixtures/adapter-protocol/0.2/execute-plan-exact-response.json"
-);
+const EXECUTE_RESPONSE: &str =
+    include_str!("../../../../fixtures/adapter-protocol/0.2/execute-plan-exact-response.json");
 
 fn main() {
     if let Err(error) = run() {
@@ -63,8 +62,8 @@ fn handle_frame(frame: &str) -> Result<Option<Vec<u8>>, String> {
 fn dispatch(request: &TransportRequest) -> Result<JsonRpcResponse, String> {
     match request.method() {
         AdapterTransportMethod::DescribeAdapter => {
-            let description = AdapterDescription::from_json(DESCRIPTION)
-                .map_err(|error| error.to_string())?;
+            let description =
+                AdapterDescription::from_json(DESCRIPTION).map_err(|error| error.to_string())?;
             success_response(
                 request,
                 description
@@ -136,8 +135,8 @@ fn params_json(request: &TransportRequest) -> String {
 fn require_exact_validate_fixture(
     received: &ValidatePlanRequestV02,
 ) -> Result<(), ProtocolFailure> {
-    let expected = ValidatePlanRequestV02::from_json(THERMAL_REQUEST)
-        .map_err(invalid_request_failure)?;
+    let expected =
+        ValidatePlanRequestV02::from_json(THERMAL_REQUEST).map_err(invalid_request_failure)?;
     if received
         .to_canonical_json()
         .map_err(invalid_request_failure)?
@@ -152,9 +151,7 @@ fn require_exact_validate_fixture(
     Ok(())
 }
 
-fn require_exact_execute_fixture(
-    received: &ExecutePlanRequestV02,
-) -> Result<(), ProtocolFailure> {
+fn require_exact_execute_fixture(received: &ExecutePlanRequestV02) -> Result<(), ProtocolFailure> {
     let expected =
         ExecutePlanRequestV02::from_json(THERMAL_REQUEST).map_err(invalid_request_failure)?;
     if received
