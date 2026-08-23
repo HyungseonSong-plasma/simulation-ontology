@@ -7,19 +7,13 @@ use sol_adapter_runtime::{
     AdapterRegistry, AdapterRuntimeProjection, AdapterSelectionOutcome, AdapterSelectionRequest,
     RunningAdapter, RuntimeContractProfile,
 };
-use sol_adapter_transport::{
-    AdapterOperationResult, AdapterTransportMethod, ReplayDisposition,
-};
+use sol_adapter_transport::{AdapterOperationResult, AdapterTransportMethod, ReplayDisposition};
 use sol_target_resolver::{BackendCapability, BackendTarget};
 use std::fs;
 use std::path::{Path, PathBuf};
 
 const TARGET: &str = "mock";
-const REQUIRED_CAPABILITIES: [&str; 3] = [
-    "thermal.domain",
-    "thermal.material",
-    "thermal.solve",
-];
+const REQUIRED_CAPABILITIES: [&str; 3] = ["thermal.domain", "thermal.material", "thermal.solve"];
 
 pub fn adapter_from_env(name: &str) -> Result<PathBuf, String> {
     std::env::var_os(name)
@@ -50,8 +44,8 @@ pub fn run_external_v02_flow(adapter: &Path, fixture: &Path) -> Result<Value, St
     .map_err(debug_error)?;
 
     let profile = RuntimeContractProfile::realization_v02();
-    let projection = AdapterRuntimeProjection::from_running_for(&running, profile)
-        .map_err(debug_error)?;
+    let projection =
+        AdapterRuntimeProjection::from_running_for(&running, profile).map_err(debug_error)?;
     let request = selection_request(profile);
     let selected = match select_adapter(&request, std::slice::from_ref(&projection)) {
         AdapterSelectionOutcome::Selected(candidate) => candidate,
@@ -64,10 +58,8 @@ pub fn run_external_v02_flow(adapter: &Path, fixture: &Path) -> Result<Value, St
     };
 
     let fixture_json = fs::read_to_string(fixture).map_err(|error| error.to_string())?;
-    let validate_request =
-        ValidatePlanRequestV02::from_json(&fixture_json).map_err(debug_error)?;
-    let execute_request =
-        ExecutePlanRequestV02::from_json(&fixture_json).map_err(debug_error)?;
+    let validate_request = ValidatePlanRequestV02::from_json(&fixture_json).map_err(debug_error)?;
+    let execute_request = ExecutePlanRequestV02::from_json(&fixture_json).map_err(debug_error)?;
 
     let validate_response = match running
         .validate_plan_v02(&validate_request)
@@ -153,8 +145,8 @@ pub fn prove_v01_not_eligible_for_v02(adapter: &Path) -> Result<(), String> {
     .map_err(debug_error)?;
 
     let profile = RuntimeContractProfile::realization_v02();
-    let projection = AdapterRuntimeProjection::from_running_for(&running, profile)
-        .map_err(debug_error)?;
+    let projection =
+        AdapterRuntimeProjection::from_running_for(&running, profile).map_err(debug_error)?;
     let outcome = select_adapter(&selection_request(profile), &[projection]);
     let exit = running.shutdown().map_err(debug_error)?;
     if !exit.success {
@@ -168,9 +160,7 @@ pub fn prove_v01_not_eligible_for_v02(adapter: &Path) -> Result<(), String> {
     }
 }
 
-pub fn prove_multiple_v02_candidates_are_ambiguous(
-    adapter: &Path,
-) -> Result<(), String> {
+pub fn prove_multiple_v02_candidates_are_ambiguous(adapter: &Path) -> Result<(), String> {
     let mut first_registry = AdapterRegistry::new();
     let first_id = AdapterRegistrationId::new("external.runtime.v02.first");
     first_registry
