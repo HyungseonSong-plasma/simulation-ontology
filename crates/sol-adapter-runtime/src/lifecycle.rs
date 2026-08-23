@@ -246,7 +246,10 @@ mod tests {
         } else {
             name.to_owned()
         };
-        workspace_root().join("target").join("debug").join(executable)
+        workspace_root()
+            .join("target")
+            .join("debug")
+            .join(executable)
     }
 
     fn mock_adapter_binary() -> PathBuf {
