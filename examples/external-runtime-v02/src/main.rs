@@ -1,4 +1,6 @@
-use sol_external_runtime_v02_consumer::{adapter_from_env, fixture_from_env, run_external_v02_flow};
+use sol_external_runtime_v02_consumer::{
+    adapter_from_env, fixture_from_env, run_external_v02_flow,
+};
 
 fn main() {
     if let Err(error) = run() {
