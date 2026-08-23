@@ -18,7 +18,9 @@ fn v02_preflight_response_is_explicit_and_not_v01() {
         ValidatePlanResponseV02::from_json(&fixture("validate-plan-accepted-response.json"))
             .unwrap();
     assert_eq!(response.adapter_protocol_version, "0.2");
-    assert!(ValidatePlanResponse::from_json(&fixture("validate-plan-accepted-response.json")).is_err());
+    assert!(
+        ValidatePlanResponse::from_json(&fixture("validate-plan-accepted-response.json")).is_err()
+    );
 }
 
 #[test]
@@ -41,13 +43,10 @@ fn inherited_dependency_and_action_coverage_rules_still_apply() {
         ExecutePlanRequestV02::from_json(&fixture("thermal-realization-request.json")).unwrap();
     let mut value: serde_json::Value =
         serde_json::from_str(&fixture("execute-plan-exact-response.json")).unwrap();
-    value["execution_batches"] = serde_json::json!([
-        ["thermal.material"],
-        ["thermal.domain"],
-        ["thermal.solve"]
-    ]);
-    let mut response = ExecutePlanResponseV02::from_json(&serde_json::to_string(&value).unwrap())
-        .unwrap();
+    value["execution_batches"] =
+        serde_json::json!([["thermal.material"], ["thermal.domain"], ["thermal.solve"]]);
+    let mut response =
+        ExecutePlanResponseV02::from_json(&serde_json::to_string(&value).unwrap()).unwrap();
     assert!(matches!(
         response.validate_against(&request),
         Err(RealizationResponseError::InheritedExecutionInvariant(_))
@@ -60,10 +59,9 @@ fn opaque_provenance_cannot_reuse_realization_spec_semantic_identity() {
         ExecutePlanRequestV02::from_json(&fixture("thermal-realization-request.json")).unwrap();
     let mut value: serde_json::Value =
         serde_json::from_str(&fixture("execute-plan-exact-response.json")).unwrap();
-    value["provenance"]["opaque_references"][0]["reference"] =
-        serde_json::json!("unit.kelvin");
-    let mut response = ExecutePlanResponseV02::from_json(&serde_json::to_string(&value).unwrap())
-        .unwrap();
+    value["provenance"]["opaque_references"][0]["reference"] = serde_json::json!("unit.kelvin");
+    let mut response =
+        ExecutePlanResponseV02::from_json(&serde_json::to_string(&value).unwrap()).unwrap();
     assert!(matches!(
         response.validate_against(&request),
         Err(RealizationResponseError::OpaqueReferenceUsedAsSemanticIdentity(reference))
