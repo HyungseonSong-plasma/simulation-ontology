@@ -125,6 +125,7 @@ version = "0.1.0"
 dependencies = [
  "sol-adapter-protocol",
  "sol-adapter-transport",
+ "sol-public-contract",
  "sol-target-resolver",
 ]
 

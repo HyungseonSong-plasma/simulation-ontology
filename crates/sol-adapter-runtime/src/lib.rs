@@ -10,11 +10,13 @@
 
 mod discovery;
 mod lifecycle;
+mod profile;
 mod registry;
 mod selection;
 
 pub use discovery::*;
 pub use lifecycle::*;
+pub use profile::*;
 pub use registry::*;
 pub use selection::*;
 
