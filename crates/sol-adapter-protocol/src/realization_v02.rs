@@ -13,8 +13,8 @@ use crate::{
     canonicalize_value, reject_transport_markers, ActionExecutionReport, AdapterProtocolVersion,
     ExecutePlanRequest, ExecutePlanResponse, ExecutionOutcome, ExecutionProvenance, Extensions,
     PreflightOutcome, ProtocolError, ADAPTER_PROTOCOL_VERSION_0_2, DIAGNOSTIC_MISSING_CAPABILITY,
-    DIAGNOSTIC_PRECONDITION_REJECTED, DIAGNOSTIC_TARGET_MISMATCH,
-    DIAGNOSTIC_TRANSIENT_UNAVAILABLE, DIAGNOSTIC_UNSUPPORTED_ACTION,
+    DIAGNOSTIC_PRECONDITION_REJECTED, DIAGNOSTIC_TARGET_MISMATCH, DIAGNOSTIC_TRANSIENT_UNAVAILABLE,
+    DIAGNOSTIC_UNSUPPORTED_ACTION,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -275,7 +275,9 @@ impl ExecutePlanResponseV02 {
         let mut shadow_response = self.shadow_v01()?;
         shadow_response
             .validate_against(&shadow_request)
-            .map_err(|error| RealizationResponseError::InheritedExecutionInvariant(error.to_string()))?;
+            .map_err(|error| {
+                RealizationResponseError::InheritedExecutionInvariant(error.to_string())
+            })?;
         self.copy_normalized_shadow(&shadow_response);
         validate_realization_provenance_separation(self, request)
     }
@@ -326,7 +328,8 @@ fn normalize_realization_request(
             .collect(),
     );
     reject_transport_markers(&extension_value).map_err(RealizationRequestError::Protocol)?;
-    reject_v02_forbidden_fields(&extension_value).map_err(RealizationRequestError::ForbiddenField)?;
+    reject_v02_forbidden_fields(&extension_value)
+        .map_err(RealizationRequestError::ForbiddenField)?;
 
     if target.public_contract_version != plan.public_contract_version
         || target.public_contract_version != realization_spec.public_contract_version
@@ -509,11 +512,12 @@ fn shadow_public_contract_v01<T>(
 where
     T: for<'de> Deserialize<'de>,
 {
-    let mut value = serde_json::to_value(value)
-        .map_err(|error| RealizationResponseError::InvalidPublicPayload {
+    let mut value = serde_json::to_value(value).map_err(|error| {
+        RealizationResponseError::InvalidPublicPayload {
             field,
             detail: error.to_string(),
-        })?;
+        }
+    })?;
     value["public_contract_version"] = Value::String(PUBLIC_CONTRACT_VERSION.to_owned());
     serde_json::from_value(value).map_err(|error| RealizationResponseError::InvalidPublicPayload {
         field,
@@ -533,9 +537,7 @@ fn validate_realization_provenance_separation(
     }
     for reference in opaque_references {
         if semantic_references.contains(reference.as_str()) {
-            return Err(RealizationResponseError::OpaqueReferenceUsedAsSemanticIdentity(
-                reference,
-            ));
+            return Err(RealizationResponseError::OpaqueReferenceUsedAsSemanticIdentity(reference));
         }
     }
     Ok(())
@@ -593,9 +595,7 @@ fn collect_opaque_references(
     }
 }
 
-fn reject_v02_response_value<T: Serialize>(
-    response: &T,
-) -> Result<(), RealizationResponseError> {
+fn reject_v02_response_value<T: Serialize>(response: &T) -> Result<(), RealizationResponseError> {
     let value = serde_json::to_value(response)
         .map_err(|error| RealizationResponseError::InvalidResponse(error.to_string()))?;
     reject_transport_markers(&value).map_err(RealizationResponseError::Protocol)?;
@@ -711,15 +711,9 @@ impl Error for RealizationRequestError {}
 pub enum RealizationResponseError {
     Protocol(ProtocolError),
     InvalidResponse(String),
-    InvalidPublicPayload {
-        field: &'static str,
-        detail: String,
-    },
+    InvalidPublicPayload { field: &'static str, detail: String },
     UnsupportedProtocolVersion(String),
-    MalformedDiagnostic {
-        index: usize,
-        detail: String,
-    },
+    MalformedDiagnostic { index: usize, detail: String },
     InconsistentPreflight(String),
     InheritedExecutionInvariant(String),
     OpaqueReferenceUsedAsSemanticIdentity(String),
