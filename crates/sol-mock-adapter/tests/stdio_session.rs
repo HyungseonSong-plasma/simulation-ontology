@@ -82,7 +82,14 @@ fn process_and_session_state_remain_transport_only() {
 
     assert!(MOCK_CARGO.contains("sol-adapter-transport"));
     assert!(!TRANSPORT_CARGO.contains("sol-mock-adapter"));
-    assert!(!TRANSPORT_SOURCE.contains(".id()"));
+
+    // A child-process PID may be exposed as local operational evidence, but it
+    // must not become a serialized Protocol/Public Contract identity field.
+    assert!(TRANSPORT_SOURCE.contains("pub fn process_id(&self) -> u32"));
+    for forbidden_payload_marker in ["\"process_id\"", "\"session_id\""] {
+        assert!(!TRANSPORT_SOURCE.contains(forbidden_payload_marker));
+    }
+
     for forbidden_dependency in [
         "tokio", "reqwest", "tonic", "zmq", "moose", "comsol", "ansys",
     ] {

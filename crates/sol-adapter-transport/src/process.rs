@@ -12,7 +12,7 @@ use std::error::Error;
 use std::ffi::{OsStr, OsString};
 use std::fmt::{Display, Formatter};
 use std::io::{self, Read, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Child, ChildStdin, Command, ExitStatus, Stdio};
 use std::sync::mpsc::{self, Receiver, RecvTimeoutError};
 use std::thread::{self, JoinHandle};
@@ -24,6 +24,7 @@ pub const DEFAULT_ADAPTER_RESPONSE_TIMEOUT: Duration = Duration::from_secs(5);
 pub struct AdapterProcessCommand {
     program: PathBuf,
     args: Vec<OsString>,
+    working_directory: Option<PathBuf>,
 }
 
 impl AdapterProcessCommand {
@@ -31,11 +32,17 @@ impl AdapterProcessCommand {
         Self {
             program: PathBuf::from(program.as_ref()),
             args: Vec::new(),
+            working_directory: None,
         }
     }
 
     pub fn arg(mut self, arg: impl Into<OsString>) -> Self {
         self.args.push(arg.into());
+        self
+    }
+
+    pub fn current_dir(mut self, directory: impl Into<PathBuf>) -> Self {
+        self.working_directory = Some(directory.into());
         self
     }
 
@@ -45,6 +52,10 @@ impl AdapterProcessCommand {
 
     pub fn args(&self) -> &[OsString] {
         &self.args
+    }
+
+    pub fn working_directory(&self) -> Option<&Path> {
+        self.working_directory.as_deref()
     }
 }
 
@@ -231,8 +242,11 @@ impl AdapterProcessSession {
         response_timeout: Duration,
     ) -> Result<Self, AdapterSessionError> {
         let mut process = Command::new(&command.program);
+        process.args(&command.args);
+        if let Some(directory) = command.working_directory.as_ref() {
+            process.current_dir(directory);
+        }
         process
-            .args(&command.args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
@@ -289,6 +303,10 @@ impl AdapterProcessSession {
 
     pub const fn state(&self) -> AdapterSessionState {
         self.state
+    }
+
+    pub fn process_id(&self) -> u32 {
+        self.child.id()
     }
 
     pub fn description(&self) -> Option<&AdapterDescription> {
