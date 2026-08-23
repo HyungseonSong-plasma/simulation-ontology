@@ -73,7 +73,8 @@ fn required_realization_spec_and_referential_integrity_are_executable_rules() {
         .unwrap()
         .retain(|binding| binding["action_id"] != "thermal.material");
     assert!(
-        ValidatePlanRequestV02::from_json(&serde_json::to_string(&broken_binding).unwrap()).is_err()
+        ValidatePlanRequestV02::from_json(&serde_json::to_string(&broken_binding).unwrap())
+            .is_err()
     );
 }
 
@@ -118,7 +119,8 @@ fn hidden_plan_semantics_and_mixed_versions_are_rejected() {
     let mut wrong_protocol = protocol_request_value();
     wrong_protocol["adapter_protocol_version"] = serde_json::json!("0.1");
     assert!(
-        ValidatePlanRequestV02::from_json(&serde_json::to_string(&wrong_protocol).unwrap()).is_err()
+        ValidatePlanRequestV02::from_json(&serde_json::to_string(&wrong_protocol).unwrap())
+            .is_err()
     );
 
     let mut mixed_public = protocol_request_value();
@@ -181,21 +183,24 @@ fn published_v02_validate_and_execute_roundtrips_are_conformant() {
             ConformanceCaseId::new("realization-v02.validate-roundtrip").unwrap(),
             ConformanceScope::OperationSemantics(ProtocolOperation::ValidatePlan),
             ConformanceCaseResult::Conformant(
-                ConformanceEvidence::new("Protocol 0.2 thermal validate roundtrip accepted").unwrap(),
+                ConformanceEvidence::new("Protocol 0.2 thermal validate roundtrip accepted")
+                    .unwrap(),
             ),
         ),
         ConformanceCaseRecord::new(
             ConformanceCaseId::new("realization-v02.execute-roundtrip").unwrap(),
             ConformanceScope::OperationSemantics(ProtocolOperation::ExecutePlan),
             ConformanceCaseResult::Conformant(
-                ConformanceEvidence::new("Protocol 0.2 thermal execute roundtrip accepted").unwrap(),
+                ConformanceEvidence::new("Protocol 0.2 thermal execute roundtrip accepted")
+                    .unwrap(),
             ),
         ),
         ConformanceCaseRecord::new(
             ConformanceCaseId::new("realization-v02.public-contract").unwrap(),
             ConformanceScope::Fixture(PublishedContract::PublicContract),
             ConformanceCaseResult::Conformant(
-                ConformanceEvidence::new("Public Contract 0.2 realization fixtures accepted").unwrap(),
+                ConformanceEvidence::new("Public Contract 0.2 realization fixtures accepted")
+                    .unwrap(),
             ),
         ),
     ])
