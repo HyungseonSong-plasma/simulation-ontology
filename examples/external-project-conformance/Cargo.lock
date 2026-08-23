@@ -81,9 +81,11 @@ dependencies = [
 name = "sol-adapter-conformance-fixtures"
 version = "0.1.0"
 dependencies = [
+ "serde_json",
  "sol-adapter-conformance",
  "sol-adapter-conformance-harness",
  "sol-adapter-protocol",
+ "sol-public-contract",
 ]
 
 [[package]]
