@@ -8,6 +8,8 @@ rust-version.workspace = true
 description = "Published fixture execution for SOL external adapter conformance"
 
 [dependencies]
+serde_json = "=1.0.128"
 sol-adapter-conformance = { path = "../sol-adapter-conformance" }
 sol-adapter-conformance-harness = { path = "../sol-adapter-conformance-harness" }
 sol-adapter-protocol = { path = "../sol-adapter-protocol" }
+sol-public-contract = { path = "../sol-public-contract" }
