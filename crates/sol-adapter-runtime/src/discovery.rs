@@ -272,14 +272,26 @@ mod tests {
             RuntimeContractProfile::realization_v02(),
         );
 
-        assert_eq!(v01.compatibility_outcome(), CompatibilityOutcome::Compatible);
-        assert_eq!(v02.compatibility_outcome(), CompatibilityOutcome::Compatible);
         assert_eq!(
-            v01.compatibility().adapter_protocol.selected_version.as_deref(),
+            v01.compatibility_outcome(),
+            CompatibilityOutcome::Compatible
+        );
+        assert_eq!(
+            v02.compatibility_outcome(),
+            CompatibilityOutcome::Compatible
+        );
+        assert_eq!(
+            v01.compatibility()
+                .adapter_protocol
+                .selected_version
+                .as_deref(),
             Some("0.1")
         );
         assert_eq!(
-            v02.compatibility().adapter_protocol.selected_version.as_deref(),
+            v02.compatibility()
+                .adapter_protocol
+                .selected_version
+                .as_deref(),
             Some("0.2")
         );
     }
@@ -312,10 +324,8 @@ mod tests {
 
     #[test]
     fn v01_only_live_description_does_not_silently_gain_v02_runtime_support() {
-        let evidence = evidence_from_fixture_for(
-            DUAL_COMPATIBLE,
-            RuntimeContractProfile::realization_v02(),
-        );
+        let evidence =
+            evidence_from_fixture_for(DUAL_COMPATIBLE, RuntimeContractProfile::realization_v02());
 
         assert_eq!(
             evidence.compatibility_outcome(),
@@ -352,7 +362,10 @@ mod tests {
         let v02 = running
             .discover_live_evidence_for(RuntimeContractProfile::realization_v02())
             .unwrap();
-        assert_eq!(v02.compatibility_outcome(), CompatibilityOutcome::Incompatible);
+        assert_eq!(
+            v02.compatibility_outcome(),
+            CompatibilityOutcome::Incompatible
+        );
 
         assert!(running.shutdown().unwrap().success);
     }
