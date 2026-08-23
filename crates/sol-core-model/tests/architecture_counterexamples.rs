@@ -10,10 +10,8 @@ const PUBLIC_CONTRACT_INTERNAL_MARKERS: [&str; 4] = [
     "sol-cli",
 ];
 
-const RUNTIME_ALLOWED_ADAPTER_INFRASTRUCTURE: [&str; 2] = [
-    "sol-adapter-protocol",
-    "sol-adapter-transport",
-];
+const RUNTIME_ALLOWED_ADAPTER_INFRASTRUCTURE: [&str; 2] =
+    ["sol-adapter-protocol", "sol-adapter-transport"];
 
 const PROTOCOL_OPERATION_CANDIDATES: [&str; 3] =
     ["describe_adapter", "validate_plan", "execute_plan"];
