@@ -121,9 +121,7 @@ impl RunningAdapter {
 mod tests {
     use std::path::{Path, PathBuf};
 
-    use sol_adapter_protocol::{
-        AdapterDescription, CompatibilityOutcome, CompatibilitySupport,
-    };
+    use sol_adapter_protocol::{AdapterDescription, CompatibilityOutcome, CompatibilitySupport};
 
     use crate::{
         AdapterCommand, AdapterInstanceId, AdapterRegistration, AdapterRegistrationId,
@@ -132,9 +130,8 @@ mod tests {
 
     use super::LiveAdapterEvidence;
 
-    const DUAL_COMPATIBLE: &str = include_str!(
-        "../../../fixtures/adapter-protocol/0.1/dual-compatible-description.json"
-    );
+    const DUAL_COMPATIBLE: &str =
+        include_str!("../../../fixtures/adapter-protocol/0.1/dual-compatible-description.json");
     const PROTOCOL_INCOMPATIBLE: &str = include_str!(
         "../../../fixtures/counterexamples/adapter-protocol-protocol-incompatible.json"
     );
@@ -176,11 +173,19 @@ mod tests {
             CompatibilityOutcome::Compatible
         );
         assert_eq!(
-            evidence.compatibility().adapter_protocol.selected_version.as_deref(),
+            evidence
+                .compatibility()
+                .adapter_protocol
+                .selected_version
+                .as_deref(),
             Some("0.1")
         );
         assert_eq!(
-            evidence.compatibility().public_contract.selected_version.as_deref(),
+            evidence
+                .compatibility()
+                .public_contract
+                .selected_version
+                .as_deref(),
             Some("0.1")
         );
 
@@ -215,7 +220,10 @@ mod tests {
     #[test]
     fn missing_live_support_is_unknown_not_compatible() {
         let evidence = evidence_from_fixture(MISSING_PROTOCOL);
-        assert_eq!(evidence.compatibility_outcome(), CompatibilityOutcome::Unknown);
+        assert_eq!(
+            evidence.compatibility_outcome(),
+            CompatibilityOutcome::Unknown
+        );
     }
 
     #[test]
