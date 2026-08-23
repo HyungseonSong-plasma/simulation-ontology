@@ -2,9 +2,9 @@ use std::path::{Path, PathBuf};
 
 use sol_adapter_protocol::{ExecutePlanRequest, SideEffectEvidence, ValidatePlanRequest};
 use sol_adapter_runtime::{
-    select_adapter, AdapterCommand, AdapterInstanceId, AdapterRegistration,
-    AdapterRegistrationId, AdapterRegistry, AdapterRuntimeError, AdapterRuntimeProjection,
-    AdapterSelectionOutcome, AdapterSelectionRequest, RunningAdapter,
+    select_adapter, AdapterCommand, AdapterInstanceId, AdapterRegistration, AdapterRegistrationId,
+    AdapterRegistry, AdapterRuntimeError, AdapterRuntimeProjection, AdapterSelectionOutcome,
+    AdapterSelectionRequest, RunningAdapter,
 };
 use sol_adapter_transport::{
     AdapterOperationResult, AdapterSessionError, AdapterTransportMethod, ReplayDisposition,
@@ -27,7 +27,11 @@ fn mock_adapter_binary() -> PathBuf {
         "sol-mock-adapter-stdio"
     };
     let path = workspace.join("target").join("debug").join(executable);
-    assert!(path.is_file(), "mock adapter binary missing at {}", path.display());
+    assert!(
+        path.is_file(),
+        "mock adapter binary missing at {}",
+        path.display()
+    );
     path
 }
 
@@ -56,7 +60,10 @@ fn explicit_registration_to_selected_external_protocol_dispatch_is_end_to_end() 
     .unwrap();
 
     let projection = AdapterRuntimeProjection::from_running(&running).unwrap();
-    let selected = select_adapter(&thermal_selection_request(), std::slice::from_ref(&projection));
+    let selected = select_adapter(
+        &thermal_selection_request(),
+        std::slice::from_ref(&projection),
+    );
     let AdapterSelectionOutcome::Selected(candidate) = selected else {
         panic!("one compatible external adapter must be selected");
     };
@@ -109,6 +116,8 @@ fn process_spawn_failure_remains_runtime_transport_evidence() {
             registry.get(&registration_id).unwrap(),
             AdapterInstanceId::new("instance.missing")
         ),
-        Err(AdapterRuntimeError::Transport(AdapterSessionError::Spawn(_)))
+        Err(AdapterRuntimeError::Transport(AdapterSessionError::Spawn(
+            _
+        )))
     ));
 }
