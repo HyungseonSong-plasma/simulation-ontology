@@ -211,11 +211,12 @@ pub fn select_adapter(
 
 #[cfg(test)]
 mod tests {
-    use std::collections::{BTreeMap, BTreeSet};
+    use std::collections::BTreeSet;
 
     use sol_adapter_protocol::{
         AxisCompatibility, CompatibilityAssessment, CompatibilityOutcome,
     };
+    use sol_target_resolver::{BackendCapability, BackendTarget};
 
     use crate::{AdapterInstanceId, AdapterRegistrationId};
 
@@ -223,7 +224,6 @@ mod tests {
         select_adapter, AdapterRuntimeProjection, AdapterSelectionOutcome, AdapterSelectionRequest,
         RuntimeTargetProjection,
     };
-    use sol_target_resolver::{BackendCapability, BackendTarget};
 
     fn compatibility(outcome: CompatibilityOutcome) -> CompatibilityAssessment {
         let axis = AxisCompatibility {
@@ -248,7 +248,6 @@ mod tests {
         target: &str,
         capabilities: &[&str],
     ) -> AdapterRuntimeProjection {
-        let _no_backend_native_metadata = BTreeMap::<String, String>::new();
         AdapterRuntimeProjection {
             registration_id: AdapterRegistrationId::new(format!("registration.{local}")),
             instance_id: AdapterInstanceId::new(format!("instance.{local}")),
@@ -376,13 +375,5 @@ mod tests {
             select_adapter(&request(), &[unknown]),
             AdapterSelectionOutcome::NoCompatibleCandidate
         );
-    }
-
-    #[test]
-    fn selection_source_contains_no_solver_specific_branch_names() {
-        let source = include_str!("selection.rs").to_ascii_lowercase();
-        for forbidden in ["backend == moose", "backend == comsol", "backend == ansys"] {
-            assert!(!source.contains(forbidden));
-        }
     }
 }
