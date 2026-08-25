@@ -13,6 +13,8 @@ SCHEMA_DIR = ROOT / "schemas" / "public-contract" / "0.1"
 FIXTURE_DIR = ROOT / "fixtures" / "public-contract" / "0.1"
 SCHEMA_DIR_V02 = ROOT / "schemas" / "public-contract" / "0.2"
 FIXTURE_DIR_V02 = ROOT / "fixtures" / "public-contract" / "0.2"
+SCHEMA_DIR_V03 = ROOT / "schemas" / "public-contract" / "0.3"
+FIXTURE_DIR_V03 = ROOT / "fixtures" / "public-contract" / "0.3"
 COUNTEREXAMPLE_DIR = ROOT / "fixtures" / "counterexamples"
 DIALECT = "https://json-schema.org/draft/2020-12/schema"
 
@@ -206,11 +208,80 @@ def main() -> None:
             details = "\n".join(f"  - {error.json_path}: {error.message}" for error in errors)
             raise AssertionError(f"0.2 schema smoke failed for {schema_name}:\n{details}")
 
+    # Public Contract 0.3 Phase 1 adds only the compact scalar/run/outcome surface.
+    # Dataset/field payload semantics remain a later M0.10 Phase 2 decision.
+    validate_schema_set(
+        SCHEMA_DIR_V03,
+        {
+            "shared.schema.json",
+            "scalar-observation-result.schema.json",
+            "simulation-run-record.schema.json",
+        },
+    )
+
+    positive_v03 = [
+        (
+            "scalar-observation-result.schema.json",
+            FIXTURE_DIR_V03 / "thermal-maximum-temperature-result.json",
+        ),
+        (
+            "simulation-run-record.schema.json",
+            FIXTURE_DIR_V03 / "thermal-run-record-produced.json",
+        ),
+        (
+            "simulation-run-record.schema.json",
+            FIXTURE_DIR_V03 / "thermal-run-record-not-produced.json",
+        ),
+    ]
+    for schema_name, fixture in positive_v03:
+        require_valid_in(SCHEMA_DIR_V03, schema_name, fixture)
+
+    # These 0.3 counterexamples deliberately satisfy JSON shape. Typed Public Contract
+    # validation must reject their semantic identity/coverage/leakage violations.
+    semantic_counterexamples_v03 = [
+        (
+            "simulation-run-record.schema.json",
+            COUNTEREXAMPLE_DIR / "public-contract-v03-missing-observation-outcome.json",
+        ),
+        (
+            "simulation-run-record.schema.json",
+            COUNTEREXAMPLE_DIR
+            / "public-contract-v03-backend-native-observation-substitution.json",
+        ),
+        (
+            "simulation-run-record.schema.json",
+            COUNTEREXAMPLE_DIR / "public-contract-v03-run-result-mismatch.json",
+        ),
+        (
+            "scalar-observation-result.schema.json",
+            COUNTEREXAMPLE_DIR / "public-contract-v03-backend-native-result-extension.json",
+        ),
+    ]
+    for schema_name, fixture in semantic_counterexamples_v03:
+        require_valid_in(SCHEMA_DIR_V03, schema_name, fixture)
+
+    smoke_v03 = {
+        "public_contract_version": "0.3",
+        "observation": "observation.smoke",
+        "run_id": "run.smoke",
+        "source": "field.smoke",
+        "scope": "scope.smoke",
+        "value": 1.0,
+        "unit": "unit.dimensionless",
+    }
+    validator = make_validator(SCHEMA_DIR_V03, "scalar-observation-result.schema.json")
+    errors = sorted(validator.iter_errors(smoke_v03), key=lambda error: list(error.path))
+    if errors:
+        details = "\n".join(f"  - {error.json_path}: {error.message}" for error in errors)
+        raise AssertionError(f"0.3 schema smoke failed:\n{details}")
+
     print(
         "Public Contract schema validation passed: "
         f"0.1={len(positive)} positive/{len(structurally_invalid)} structural-negative/"
         f"{len(schema_valid_semantic_counterexamples)} semantic-boundary fixtures; "
-        f"0.2 realization subset=4 schemas/{len(positive_v02)} thermal fixtures + ref-resolution smoke"
+        f"0.2 realization subset=4 schemas/{len(positive_v02)} thermal fixtures + ref-resolution smoke; "
+        f"0.3 Phase 1=3 schemas/{len(positive_v03)} positive/"
+        f"{len(semantic_counterexamples_v03)} semantic-boundary fixtures + ref-resolution smoke"
     )
 
 

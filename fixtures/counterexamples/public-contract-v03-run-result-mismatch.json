@@ -1,0 +1,24 @@
+{
+  "public_contract_version": "0.3",
+  "run_id": "run.thermal_reference_001",
+  "source_model": "model.thermal_reference",
+  "task": "task.stationary_thermal",
+  "analysis": "analysis.stationary",
+  "requested_observations": [
+    "observation.maximum_temperature"
+  ],
+  "observation_outcomes": [
+    {
+      "status": "produced",
+      "result": {
+        "public_contract_version": "0.3",
+        "observation": "observation.maximum_temperature",
+        "run_id": "run.thermal_reference_999",
+        "source": "thermal.temperature_field",
+        "scope": "scope.main_domain",
+        "value": 400.0,
+        "unit": "unit.kelvin"
+      }
+    }
+  ]
+}

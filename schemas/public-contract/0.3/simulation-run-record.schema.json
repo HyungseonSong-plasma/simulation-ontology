@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.3 simulation run record",
+  "type": "object",
+  "required": [
+    "public_contract_version",
+    "run_id",
+    "source_model",
+    "task",
+    "analysis",
+    "requested_observations",
+    "observation_outcomes"
+  ],
+  "properties": {
+    "public_contract_version": { "$ref": "shared.schema.json#/$defs/publicContractVersion" },
+    "run_id": { "$ref": "shared.schema.json#/$defs/canonicalReference" },
+    "source_model": { "$ref": "shared.schema.json#/$defs/canonicalReference" },
+    "task": { "$ref": "shared.schema.json#/$defs/canonicalReference" },
+    "analysis": { "$ref": "shared.schema.json#/$defs/canonicalReference" },
+    "requested_observations": {
+      "type": "array",
+      "items": { "$ref": "shared.schema.json#/$defs/canonicalReference" }
+    },
+    "observation_outcomes": {
+      "type": "array",
+      "items": { "$ref": "shared.schema.json#/$defs/observationOutcome" }
+    }
+  }
+}

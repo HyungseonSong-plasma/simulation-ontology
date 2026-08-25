@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.3 scalar observation result",
+  "$ref": "shared.schema.json#/$defs/scalarObservationResult"
+}

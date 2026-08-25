@@ -1,0 +1,11 @@
+{
+  "public_contract_version": "0.3",
+  "run_id": "run.thermal_reference_003",
+  "source_model": "model.thermal_reference",
+  "task": "task.stationary_thermal",
+  "analysis": "analysis.stationary",
+  "requested_observations": [
+    "observation.maximum_temperature"
+  ],
+  "observation_outcomes": []
+}
