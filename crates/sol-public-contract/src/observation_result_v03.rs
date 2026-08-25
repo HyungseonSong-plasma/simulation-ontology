@@ -77,7 +77,9 @@ impl ScalarObservationResultDtoV03 {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "status", rename_all = "snake_case")]
 pub enum ObservationOutcomeDtoV03 {
-    Produced { result: ScalarObservationResultDtoV03 },
+    Produced {
+        result: ScalarObservationResultDtoV03,
+    },
     NotProduced {
         observation: String,
         diagnostics: Vec<Diagnostic>,
