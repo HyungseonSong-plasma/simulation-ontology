@@ -1,11 +1,13 @@
 #![forbid(unsafe_code)]
 
 mod model;
+mod observation_result_v03;
 mod realization_spec_v02;
 mod realization_v2;
 mod validation;
 
 pub use model::*;
+pub use observation_result_v03::*;
 pub use realization_spec_v02::*;
 pub use realization_v2::*;
 pub use validation::*;
@@ -16,6 +18,7 @@ use std::fmt::{Display, Formatter};
 
 pub const PUBLIC_CONTRACT_VERSION_0_1: &str = "0.1";
 pub const PUBLIC_CONTRACT_VERSION_0_2: &str = "0.2";
+pub const PUBLIC_CONTRACT_VERSION_0_3: &str = "0.3";
 
 /// Backward-compatible default for the already-published Public Contract 0.1 surface.
 pub const PUBLIC_CONTRACT_VERSION: &str = PUBLIC_CONTRACT_VERSION_0_1;
@@ -39,6 +42,11 @@ impl ContractVersion {
     /// Explicit Public Contract 0.2 realization boundary introduced by M0.8.
     pub const fn realization_v02() -> Self {
         Self::new(0, 2)
+    }
+
+    /// Explicit Public Contract 0.3 run/result boundary introduced by M0.10.
+    pub const fn result_v03() -> Self {
+        Self::new(0, 3)
     }
 
     pub const fn major(self) -> u64 {
@@ -140,7 +148,7 @@ impl CanonicalDocument {
     ///
     /// This is intentionally not an "accept any supported version" parser: callers choose
     /// the semantic contract they intend to consume, preventing a 0.1 DTO from silently
-    /// accepting a 0.2 document (or vice versa).
+    /// accepting a 0.2/0.3 document (or vice versa).
     pub fn parse_for(
         input: &str,
         expected: ContractVersion,
@@ -235,6 +243,7 @@ mod tests {
     use super::{
         CanonicalDocument, ContractDocumentError, ContractVersion, VersionSyntaxError,
         PUBLIC_CONTRACT_VERSION, PUBLIC_CONTRACT_VERSION_0_1, PUBLIC_CONTRACT_VERSION_0_2,
+        PUBLIC_CONTRACT_VERSION_0_3,
     };
 
     #[test]
@@ -262,6 +271,28 @@ mod tests {
                 .unwrap()
                 .version(),
             ContractVersion::realization_v02()
+        );
+    }
+
+    #[test]
+    fn result_v03_is_explicit_and_does_not_change_older_defaults() {
+        assert_eq!(ContractVersion::result_v03().to_string(), "0.3");
+        assert_eq!(PUBLIC_CONTRACT_VERSION_0_3, "0.3");
+
+        let v03 = r#"{"public_contract_version":"0.3","payload":true}"#;
+        assert_eq!(
+            CanonicalDocument::parse(v03),
+            Err(ContractDocumentError::UnsupportedVersion("0.3".to_owned()))
+        );
+        assert_eq!(
+            CanonicalDocument::parse_for(v03, ContractVersion::realization_v02()),
+            Err(ContractDocumentError::UnsupportedVersion("0.3".to_owned()))
+        );
+        assert_eq!(
+            CanonicalDocument::parse_for(v03, ContractVersion::result_v03())
+                .unwrap()
+                .version(),
+            ContractVersion::result_v03()
         );
     }
 

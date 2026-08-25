@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SOL Public Contract 0.3 observation-result shared definitions",
+  "$defs": {
+    "publicContractVersion": { "type": "string", "const": "0.3" },
+    "canonicalReference": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)+$"
+    },
+    "diagnosticSeverity": {
+      "type": "string",
+      "enum": ["error", "warning", "info"]
+    },
+    "diagnostic": {
+      "type": "object",
+      "required": ["code", "severity", "detail"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9_-]+(?:\\.[a-z0-9_-]+)*$"
+        },
+        "severity": { "$ref": "#/$defs/diagnosticSeverity" },
+        "subject": { "$ref": "#/$defs/canonicalReference" },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    },
+    "scalarObservationResult": {
+      "type": "object",
+      "required": [
+        "public_contract_version",
+        "observation",
+        "run_id",
+        "source",
+        "scope",
+        "value",
+        "unit"
+      ],
+      "properties": {
+        "public_contract_version": { "$ref": "#/$defs/publicContractVersion" },
+        "observation": { "$ref": "#/$defs/canonicalReference" },
+        "run_id": { "$ref": "#/$defs/canonicalReference" },
+        "source": { "$ref": "#/$defs/canonicalReference" },
+        "scope": { "$ref": "#/$defs/canonicalReference" },
+        "value": { "type": "number" },
+        "unit": { "$ref": "#/$defs/canonicalReference" }
+      }
+    },
+    "observationOutcome": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["status", "result"],
+          "properties": {
+            "status": { "const": "produced" },
+            "result": { "$ref": "#/$defs/scalarObservationResult" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["status", "observation", "diagnostics"],
+          "properties": {
+            "status": { "const": "not_produced" },
+            "observation": { "$ref": "#/$defs/canonicalReference" },
+            "diagnostics": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/diagnostic" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

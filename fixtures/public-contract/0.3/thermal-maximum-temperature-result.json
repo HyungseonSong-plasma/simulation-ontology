@@ -1,0 +1,9 @@
+{
+  "public_contract_version": "0.3",
+  "observation": "observation.maximum_temperature",
+  "run_id": "run.thermal_reference_001",
+  "source": "thermal.temperature_field",
+  "scope": "scope.main_domain",
+  "value": 400.0,
+  "unit": "unit.kelvin"
+}
