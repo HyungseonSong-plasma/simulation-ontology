@@ -4,23 +4,20 @@ use sol_public_contract::{
     ScalarObservationResultDtoV03, SimulationRunRecordDtoV03,
 };
 
-const MAXIMUM_TEMPERATURE_RESULT: &str = include_str!(
-    "../../../fixtures/public-contract/0.3/thermal-maximum-temperature-result.json"
-);
+const MAXIMUM_TEMPERATURE_RESULT: &str =
+    include_str!("../../../fixtures/public-contract/0.3/thermal-maximum-temperature-result.json");
 const PRODUCED_RUN: &str =
     include_str!("../../../fixtures/public-contract/0.3/thermal-run-record-produced.json");
-const NOT_PRODUCED_RUN: &str = include_str!(
-    "../../../fixtures/public-contract/0.3/thermal-run-record-not-produced.json"
-);
+const NOT_PRODUCED_RUN: &str =
+    include_str!("../../../fixtures/public-contract/0.3/thermal-run-record-not-produced.json");
 const MISSING_OUTCOME: &str = include_str!(
     "../../../fixtures/counterexamples/public-contract-v03-missing-observation-outcome.json"
 );
 const BACKEND_SUBSTITUTION: &str = include_str!(
     "../../../fixtures/counterexamples/public-contract-v03-backend-native-observation-substitution.json"
 );
-const RUN_MISMATCH: &str = include_str!(
-    "../../../fixtures/counterexamples/public-contract-v03-run-result-mismatch.json"
-);
+const RUN_MISMATCH: &str =
+    include_str!("../../../fixtures/counterexamples/public-contract-v03-run-result-mismatch.json");
 const BACKEND_EXTENSION: &str = include_str!(
     "../../../fixtures/counterexamples/public-contract-v03-backend-native-result-extension.json"
 );
@@ -37,7 +34,10 @@ fn maximum_temperature_scalar_result_roundtrips_canonically() {
     let result = ScalarObservationResultDtoV03::from_json(MAXIMUM_TEMPERATURE_RESULT).unwrap();
     assert_eq!(
         result.identity_key(),
-        ("run.thermal_reference_001", "observation.maximum_temperature")
+        (
+            "run.thermal_reference_001",
+            "observation.maximum_temperature"
+        )
     );
     assert_eq!(result.source, "thermal.temperature_field");
     assert_eq!(result.scope, "scope.main_domain");
