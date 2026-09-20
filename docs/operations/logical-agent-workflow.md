@@ -26,9 +26,11 @@ The project defines one project-level work mode before role-specific work begins
 
 ### 0.1 `init`
 
-`init` reconstructs the operating context for a new, resumed, or uncertain session from canonical repository documents and current GitHub evidence. It exists because conversational memory is not an authoritative or durable project-state store.
+`init` reconstructs the operating context for a new, resumed, or uncertain session from the consumer-pinned `chatgpt-operation` OS/skill source, canonical repository documents, and current GitHub evidence. It exists because conversational memory is not an authoritative or durable project-state store.
 
-`init` is a read-only bootstrap. It identifies the repository and current `main` head, reloads the logical roles and authority hierarchy, inspects the current milestone/parent/Phase/PR/CI state, identifies the first real gate, and recommends the next explicit mode: `meeting`, `resume`, or `update`.
+`init` is a read-only bootstrap. It resolves the exact central operating revision from `docs/operations/chatgpt-operation-binding.json`, loads the central OS index plus the minimal `init` skill working set, identifies the repository and current `main` head, reloads the logical roles and authority hierarchy, inspects the current milestone/parent/Phase/PR/CI state, identifies the first real gate, and recommends the next explicit mode: `meeting`, `resume`, or `update`.
+
+Central operating mechanics do not override SOL domain semantics or repository-specific acceptance authority. The central revision remains fixed for the operating decision cycle until the consumer binding is explicitly changed.
 
 `init` MUST NOT create or modify branches, files, issues, pull requests, milestones, reviews, or merges. It MUST NOT silently continue into another mode. A stale README, old chat summary, branch name, or GitHub Milestone percentage is not sufficient current-state evidence.
 
@@ -41,6 +43,9 @@ new or uncertain session
         |
         v
        init
+        |
+        v
+pinned central OS + init skill working set
         |
         v
 canonical roles + current repository evidence
@@ -342,9 +347,12 @@ When a session is new or its context may be stale, the normal entry flow is:
 
 ```text
 init
+  -> resolve consumer-pinned chatgpt-operation revision
+  -> load minimal init skill working set
   -> canonical role/work-mode reload
   -> current GitHub state and real-gate snapshot
   -> explicit meeting | resume | update selection
+  -> load selected-mode skills before execution/mutation
 ```
 
 For architecture, Public Contract, Adapter Protocol, roadmap, or other decision-heavy work, the normal flow is:
