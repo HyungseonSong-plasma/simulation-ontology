@@ -22,40 +22,22 @@ GitHub Milestones are the repository execution projection of accepted roadmap mi
 
 ## 0. Project session bootstrap
 
-The project defines one project-level work mode before role-specific work begins: `init`.
+`init` is the project-level entry mode.
 
-### 0.1 `init`
-
-`init` reconstructs the operating context for a new, resumed, or uncertain session from the consumer-pinned `chatgpt-operation` OS/skill source, canonical repository documents, and current GitHub evidence. It exists because conversational memory is not an authoritative or durable project-state store.
-
-`init` is a read-only bootstrap. It resolves the exact central operating revision from `docs/operations/chatgpt-operation-binding.json`, loads the central OS index plus the minimal `init` skill working set, identifies the repository and current `main` head, reloads the logical roles and authority hierarchy, inspects the current milestone/parent/Phase/PR/CI state, identifies the first real gate, and recommends the next explicit mode: `meeting`, `resume`, or `update`.
-
-Central operating mechanics do not override SOL domain semantics or repository-specific acceptance authority. The central revision remains fixed for the operating decision cycle until the consumer binding is explicitly changed.
-
-`init` MUST NOT create or modify branches, files, issues, pull requests, milestones, reviews, or merges. It MUST NOT silently continue into another mode. A stale README, old chat summary, branch name, or GitHub Milestone percentage is not sufficient current-state evidence.
-
-The detailed bootstrap sequence, output contract, failure behavior, and persistent chat-entry hook are defined in [`project-session-init.md`](project-session-init.md).
-
-Conceptually:
+Generic initialization mechanics are owned by the exact pinned Paul `session-bootstrap` skill. This repository supplies SOL-specific authority sources, roles, current-state locators, and next-mode interpretation through `project-session-init.md`.
 
 ```text
-new or uncertain session
-        |
-        v
-       init
-        |
-        v
-pinned central OS + init skill working set
-        |
-        v
-canonical roles + current repository evidence
-        |
-        +--> meeting  # unresolved decision
-        |
-        +--> resume   # accepted executable work
-        |
-        +--> update   # accepted-state documentation synchronization
+init
+  -> exact Paul binding
+  -> Paul essential rules
+  -> session-bootstrap + state-refresh
+  -> SOL-local roles / authority / current GitHub evidence
+  -> first real gate
+  -> meeting | resume | update recommendation
+  -> stop read-only
 ```
+
+Paul essential rules govern pinning, memory/current-evidence boundaries, evidence-class boundaries, real gates, and interruption recovery. Do not restate those generic rules here.
 
 ## 1. Manager
 
