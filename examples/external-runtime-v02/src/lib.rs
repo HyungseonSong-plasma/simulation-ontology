@@ -13,8 +13,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 const TARGET: &str = "mock";
-const REQUIRED_CAPABILITIES: [&str; 3] =
-    ["thermal.domain", "thermal.material", "thermal.solve"];
+const REQUIRED_CAPABILITIES: [&str; 3] = ["thermal.domain", "thermal.material", "thermal.solve"];
 
 pub fn adapter_from_env(name: &str) -> Result<PathBuf, String> {
     std::env::var_os(name)
@@ -91,8 +90,7 @@ pub fn run_consumer_v02(adapter: &Path, request: &Value) -> Result<Value, String
 
         let validate_request =
             ValidatePlanRequestV02::from_json(&plan_json).map_err(debug_error)?;
-        let execute_request =
-            ExecutePlanRequestV02::from_json(&plan_json).map_err(debug_error)?;
+        let execute_request = ExecutePlanRequestV02::from_json(&plan_json).map_err(debug_error)?;
         let validate_response = match running
             .validate_plan_v02(&validate_request)
             .map_err(debug_error)?
@@ -125,10 +123,10 @@ pub fn run_consumer_v02(adapter: &Path, request: &Value) -> Result<Value, String
             ));
         }
 
-        let no_replay =
-            RunningAdapter::response_loss_policy(AdapterTransportMethod::ExecutePlan).replay()
-                == ReplayDisposition::TransportMustNotReplayExecution
-                && !RunningAdapter::execution_response_loss_allows_transport_replay();
+        let no_replay = RunningAdapter::response_loss_policy(AdapterTransportMethod::ExecutePlan)
+            .replay()
+            == ReplayDisposition::TransportMustNotReplayExecution
+            && !RunningAdapter::execution_response_loss_allows_transport_replay();
 
         Ok(json!({
             "status": "completed",
