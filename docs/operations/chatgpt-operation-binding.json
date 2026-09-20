@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "operating_system": {
+    "repository": "HyungseonSong-plasma/chatgpt-operation",
+    "revision": "51763866518a58dc5a1b65e1e579e8f255442931",
+    "index": "docs/operating_system/README.md",
+    "expected_version": "Calvin"
+  },
+  "skill_catalog": "README.md",
+  "working_set": {
+    "init": [
+      "skills/state-refresh/README.md"
+    ],
+    "meeting": [],
+    "resume": [
+      "skills/repository-mutation/README.md"
+    ],
+    "update": [
+      "skills/repository-mutation/README.md"
+    ]
+  },
+  "conditional_skills": {
+    "governed_work_manifest_execution": [
+      "skills/governed-work/README.md"
+    ],
+    "scheduled_controller": [
+      "skills/state-refresh/README.md",
+      "skills/controller-throughput/README.md",
+      "skills/controller-lifecycle/README.md"
+    ]
+  }
+}
