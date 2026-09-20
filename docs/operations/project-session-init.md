@@ -72,7 +72,7 @@ From the exact revision in `chatgpt-operation-binding.json`:
 
 The current SOL binding initializes `state-refresh` during `init`. Other portable skills stay dormant until their declared mode/trigger becomes active. In particular, mutation skills do not grant mutation authority during `init`.
 
-If the pinned central revision or required init skill cannot be verified, do not fall back to conversation memory, a different central revision, or floating `main`. Report the operating-source uncertainty as the real gate and stop read-only.
+If the pinned central revision, declared OS version, or required init skill cannot be verified, do not fall back to conversation memory, a different central revision, or floating `main`. Report the operating-source uncertainty as the real gate and stop read-only.
 
 ### 3. Reload the logical operating model
 
