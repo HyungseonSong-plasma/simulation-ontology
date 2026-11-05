@@ -46,10 +46,16 @@ impl Display for DataResolutionErrorV03 {
                 write!(f, "immutable data object cannot change bytes: {id}")
             }
             Self::ByteLengthMismatch { expected, actual } => {
-                write!(f, "dataset byte length mismatch: expected {expected}, got {actual}")
+                write!(
+                    f,
+                    "dataset byte length mismatch: expected {expected}, got {actual}"
+                )
             }
             Self::IntegrityMismatch { expected, actual } => {
-                write!(f, "dataset SHA-256 mismatch: expected {expected}, got {actual}")
+                write!(
+                    f,
+                    "dataset SHA-256 mismatch: expected {expected}, got {actual}"
+                )
             }
             Self::InvalidProfile(error) => write!(f, "invalid dataset payload: {error}"),
             Self::NoncanonicalEncoding => write!(f, "noncanonical dataset-profile byte encoding"),
@@ -156,7 +162,9 @@ impl InMemoryFieldPayloadResolverV03 {
     /// Explicit authorization grant, independent of whether the object still exists.
     pub fn grant(&mut self, object_id: &str) -> Result<(), DataResolutionErrorV03> {
         if !is_canonical_reference(object_id) {
-            return Err(DataResolutionErrorV03::InvalidReference(object_id.to_owned()));
+            return Err(DataResolutionErrorV03::InvalidReference(
+                object_id.to_owned(),
+            ));
         }
         self.granted.insert(object_id.to_owned());
         Ok(())
@@ -175,7 +183,9 @@ impl InMemoryFieldPayloadResolverV03 {
 impl FieldPayloadResolverV03 for InMemoryFieldPayloadResolverV03 {
     fn resolve_bytes(&self, object_id: &str) -> Result<Vec<u8>, DataResolutionErrorV03> {
         if !is_canonical_reference(object_id) {
-            return Err(DataResolutionErrorV03::InvalidReference(object_id.to_owned()));
+            return Err(DataResolutionErrorV03::InvalidReference(
+                object_id.to_owned(),
+            ));
         }
         if !self.granted.contains(object_id) {
             return Err(DataResolutionErrorV03::AccessDenied(object_id.to_owned()));
