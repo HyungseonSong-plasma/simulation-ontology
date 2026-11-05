@@ -19,8 +19,9 @@ const PAYLOAD_INTERFACE: &str =
 
 const SOURCE_2D: &str =
     include_str!("../../../fixtures/source-evidence/moose/m010/field_2d_potential_exodus.json");
-const SOURCE_INTERFACE: &str =
-    include_str!("../../../fixtures/source-evidence/moose/m010/field_1d_interface_sigma_s_exodus.json");
+const SOURCE_INTERFACE: &str = include_str!(
+    "../../../fixtures/source-evidence/moose/m010/field_1d_interface_sigma_s_exodus.json"
+);
 const SOURCE_PROVENANCE: &str =
     include_str!("../../../fixtures/source-evidence/moose/m010/source_provenance.json");
 
@@ -62,9 +63,15 @@ fn vertex_and_lower_dimensional_element_association_remain_distinct() {
     assert_eq!(face.manifest.support.carrier_dimension, 1);
     assert_eq!(node.manifest.support.entity_dimension, 0);
     assert_eq!(face.manifest.support.entity_dimension, 1);
-    assert_eq!(node.manifest.support.location, FieldAssociationDtoV03::Vertex);
+    assert_eq!(
+        node.manifest.support.location,
+        FieldAssociationDtoV03::Vertex
+    );
     assert_eq!(face.manifest.support.location, FieldAssociationDtoV03::Cell);
-    assert_eq!(node.manifest.sampling.kind, FieldSamplingKindDtoV03::TimePoint);
+    assert_eq!(
+        node.manifest.sampling.kind,
+        FieldSamplingKindDtoV03::TimePoint
+    );
 }
 
 #[test]
@@ -148,13 +155,19 @@ fn actual_moose_evidence_has_valid_array_structure_but_no_claimed_canonical_unit
     let expected_sha = provenance["source_sha256"].as_str().unwrap();
     assert_eq!(volume["source_sha256"].as_str(), Some(expected_sha));
     assert_eq!(interface["source_sha256"].as_str(), Some(expected_sha));
-    assert_eq!(volume["time_value_as_stored"], interface["time_value_as_stored"]);
+    assert_eq!(
+        volume["time_value_as_stored"],
+        interface["time_value_as_stored"]
+    );
 
     for (record, coordinates, cells, count, dimension) in [
         (&volume, 1721, "cells_tri3", 3155, 0),
         (&interface, 54, "cells_edge2", 53, 1),
     ] {
-        assert_eq!(record["coordinates_xy"].as_array().unwrap().len(), coordinates);
+        assert_eq!(
+            record["coordinates_xy"].as_array().unwrap().len(),
+            coordinates
+        );
         assert_eq!(record[cells].as_array().unwrap().len(), count);
         assert_eq!(record["entity_dimension"].as_i64(), Some(dimension));
         assert!(record["unit_from_file"].is_null());
