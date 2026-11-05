@@ -221,6 +221,7 @@ fn actual_moose_field_arrays_fit_profile_v1_without_claiming_canonical_units() {
         result.manifest.value.value_count = values.len();
         result.manifest.payload_layout.coordinate_count = payload.coordinates.len();
         result.manifest.payload_layout.cell_count = payload.cells.len();
+        result.manifest.payload_layout.element_types = vec![kind.to_owned()];
         result.validate_payload(&payload).unwrap();
         assert!(!payload.to_profile_json().unwrap().contains("block_id"));
     }
