@@ -1,12 +1,17 @@
 #![forbid(unsafe_code)]
 
+mod dataset_outcome_v03;
+mod field_resolution_v03;
 mod field_result_v03;
+mod field_sha256;
 mod model;
 mod observation_result_v03;
 mod realization_spec_v02;
 mod realization_v2;
 mod validation;
 
+pub use dataset_outcome_v03::*;
+pub use field_resolution_v03::*;
 pub use field_result_v03::*;
 pub use model::*;
 pub use observation_result_v03::*;
