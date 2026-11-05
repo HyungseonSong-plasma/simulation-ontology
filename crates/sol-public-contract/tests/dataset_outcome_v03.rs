@@ -118,7 +118,7 @@ fn explicit_dataset_type_roundtrips_with_scalar_and_not_produced() {
         .iter()
         .find(|x| x["status"] == "not_produced")
         .unwrap();
-    assert!(absent["diagnostics"].as_array().unwrap().len() > 0);
+    assert!(!absent["diagnostics"].as_array().unwrap().is_empty());
 }
 
 #[test]
