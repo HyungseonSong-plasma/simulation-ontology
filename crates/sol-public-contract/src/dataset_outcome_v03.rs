@@ -2,7 +2,7 @@
 //! This module does not change the existing scalar-only Rust DTO or its wire format.
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 use crate::observation_result_v03::{
     reject_backend_native_extensions, require_canonical_reference, require_v03,
