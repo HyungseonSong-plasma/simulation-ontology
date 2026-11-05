@@ -274,6 +274,9 @@ impl DatasetObservationResultDtoV03 {
         }
         layout.element_types.sort();
         let data = &self.data_reference;
+        if !data.object_id.starts_with("data.") {
+            return Err(bad("data reference must use SOL-managed data namespace"));
+        }
         if data.payload_profile != FIELD_JSON_PROFILE_V1
             || data.byte_length == 0
             || data.integrity.algorithm != "sha256"
