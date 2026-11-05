@@ -219,6 +219,7 @@ def main() -> None:
             "simulation-run-record.schema.json",
             "dataset-observation-result.schema.json",
             "field-json-v1.schema.json",
+            "dataset-capable-run-record.schema.json",
         },
     )
 
@@ -256,6 +257,29 @@ def main() -> None:
         assert hashlib.sha256(canonical_bytes).hexdigest() == (
             result["data_reference"]["integrity"]["digest"]
         ), stem
+
+
+    # D-02: explicit Dataset opt-in has a separate schema so the published
+    # scalar-only v0.3 schema keeps its exact prior acceptance surface.
+    mixed_path = FIXTURE_DIR_V03 / "mixed-run-record-dataset-opt-in.json"
+    require_valid_in(SCHEMA_DIR_V03, "dataset-capable-run-record.schema.json", mixed_path)
+    mixed = load_json(mixed_path)
+    mixed_validator = make_validator(SCHEMA_DIR_V03, "dataset-capable-run-record.schema.json")
+    scalar_only_validator = make_validator(SCHEMA_DIR_V03, "simulation-run-record.schema.json")
+    assert list(scalar_only_validator.iter_errors(mixed)), (
+        "old scalar-only run schema must not silently opt into Dataset"
+    )
+    for mutation in ("missing_marker", "unknown_marker", "hybrid", "unknown_status"):
+        damaged = json.loads(json.dumps(mixed))
+        if mutation == "missing_marker":
+            del damaged["observation_outcomes"][1]["result_type"]
+        elif mutation == "unknown_marker":
+            damaged["observation_outcomes"][1]["result_type"] = "future"
+        elif mutation == "hybrid":
+            damaged["observation_outcomes"][0]["result_type"] = "dataset"
+        else:
+            damaged["observation_outcomes"][1]["status"] = "produced_dataset"
+        assert list(mixed_validator.iter_errors(damaged)), mutation
 
     # These 0.3 counterexamples deliberately satisfy JSON shape. Typed Public Contract
     # validation must reject their semantic identity/coverage/leakage violations.
@@ -301,7 +325,7 @@ def main() -> None:
         f"0.1={len(positive)} positive/{len(structurally_invalid)} structural-negative/"
         f"{len(schema_valid_semantic_counterexamples)} semantic-boundary fixtures; "
         f"0.2 realization subset=4 schemas/{len(positive_v02)} thermal fixtures + ref-resolution smoke; "
-        f"0.3 Phase 2=5 schemas/{len(positive_v03)} scalar positives + 6 field fixtures/"
+        f"0.3 Phase 2/D-02=6 schemas/{len(positive_v03)} scalar positives + 6 field + mixed opt-in fixtures/"
         f"{len(semantic_counterexamples_v03)} semantic-boundary fixtures + ref-resolution smoke"
     )
 
