@@ -60,7 +60,7 @@ pub struct NotProducedOutcomeOptInDtoV03 {
 #[serde(untagged)]
 pub enum DatasetCapableObservationOutcomeDtoV03 {
     Scalar(ScalarProducedOutcomeOptInDtoV03),
-    Dataset(DatasetProducedOutcomeOptInDtoV03),
+    Dataset(Box<DatasetProducedOutcomeOptInDtoV03>),
     NotProduced(NotProducedOutcomeOptInDtoV03),
 }
 
