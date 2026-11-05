@@ -1,10 +1,9 @@
 use serde_json::{json, Value};
 use sol_public_contract::{
-    DataResolutionErrorV03, DatasetCapableSimulationRunRecordDtoV03,
-    DatasetPublicationErrorV03, DatasetObservationResultDtoV03,
-    FieldContractError, FieldPayloadDtoV1, FieldSemanticAuthorityV03,
-    InMemoryFieldPayloadResolverV03, ObservationResultError, SimulationRunRecordDtoV03,
-    resolve_verified_field,
+    resolve_verified_field, DataResolutionErrorV03, DatasetCapableSimulationRunRecordDtoV03,
+    DatasetObservationResultDtoV03, DatasetPublicationErrorV03, FieldContractError,
+    FieldPayloadDtoV1, FieldSemanticAuthorityV03, InMemoryFieldPayloadResolverV03,
+    ObservationResultError, SimulationRunRecordDtoV03,
 };
 
 const MIXED: &str =
@@ -38,9 +37,10 @@ fn sample_field() -> (DatasetObservationResultDtoV03, Vec<u8>) {
     (field, data)
 }
 
-fn resolver_for(result: &DatasetObservationResultDtoV03, bytes: Vec<u8>)
-    -> InMemoryFieldPayloadResolverV03
-{
+fn resolver_for(
+    result: &DatasetObservationResultDtoV03,
+    bytes: Vec<u8>,
+) -> InMemoryFieldPayloadResolverV03 {
     let mut resolver = InMemoryFieldPayloadResolverV03::new();
     resolver
         .insert_immutable(&result.data_reference.object_id, bytes)
@@ -67,7 +67,9 @@ impl FieldSemanticAuthorityV03 for FixtureOntology {
                 != vec!["unit.meter".to_owned(), "unit.meter".to_owned()]
             || result.manifest.sampling.time_unit.as_deref() != Some("unit.second")
         {
-            return Err(FieldContractError("unapproved fixture ontology mapping".into()));
+            return Err(FieldContractError(
+                "unapproved fixture ontology mapping".into(),
+            ));
         }
         Ok(())
     }
@@ -98,7 +100,10 @@ fn explicit_dataset_type_roundtrips_with_scalar_and_not_produced() {
     );
     let raw: Value = serde_json::from_str(&canonical).unwrap();
     let outcomes = raw["observation_outcomes"].as_array().unwrap();
-    let scalar = outcomes.iter().find(|x| x["result"]["value"] == 400.0).unwrap();
+    let scalar = outcomes
+        .iter()
+        .find(|x| x["result"]["value"] == 400.0)
+        .unwrap();
     assert!(scalar.get("result_type").is_none());
     let dataset = outcomes
         .iter()
@@ -109,24 +114,37 @@ fn explicit_dataset_type_roundtrips_with_scalar_and_not_produced() {
         dataset["result"]["data_reference"]["payload_profile"],
         "sol.field-json.v1"
     );
-    let absent = outcomes.iter().find(|x| x["status"] == "not_produced").unwrap();
+    let absent = outcomes
+        .iter()
+        .find(|x| x["status"] == "not_produced")
+        .unwrap();
     assert!(absent["diagnostics"].as_array().unwrap().len() > 0);
 }
 
 #[test]
 fn unknown_and_ambiguous_type_markers_are_not_silently_downgraded() {
     for changed in [
-        edit(MIXED, |v| v["observation_outcomes"][1]["result_type"] = "future".into()),
+        edit(MIXED, |v| {
+            v["observation_outcomes"][1]["result_type"] = "future".into()
+        }),
         edit(MIXED, |v| {
             v["observation_outcomes"][1]
                 .as_object_mut()
                 .unwrap()
                 .remove("result_type");
         }),
-        edit(MIXED, |v| v["observation_outcomes"][0]["result_type"] = "dataset".into()),
-        edit(MIXED, |v| v["observation_outcomes"][1]["status"] = "produced_dataset".into()),
-        edit(MIXED, |v| v["observation_outcomes"][1]["result"]["value"] = 1.into()),
-        edit(MIXED, |v| v["observation_outcomes"][1]["native_file"] = "plasma.e".into()),
+        edit(MIXED, |v| {
+            v["observation_outcomes"][0]["result_type"] = "dataset".into()
+        }),
+        edit(MIXED, |v| {
+            v["observation_outcomes"][1]["status"] = "produced_dataset".into()
+        }),
+        edit(MIXED, |v| {
+            v["observation_outcomes"][1]["result"]["value"] = 1.into()
+        }),
+        edit(MIXED, |v| {
+            v["observation_outcomes"][1]["native_file"] = "plasma.e".into()
+        }),
     ] {
         assert!(DatasetCapableSimulationRunRecordDtoV03::from_json(&changed).is_err());
     }
@@ -136,7 +154,10 @@ fn unknown_and_ambiguous_type_markers_are_not_silently_downgraded() {
 fn exact_terminal_coverage_holds_across_all_result_categories() {
     let duplicated = edit(MIXED, |v| {
         let duplicate = v["observation_outcomes"][0].clone();
-        v["observation_outcomes"].as_array_mut().unwrap().push(duplicate);
+        v["observation_outcomes"]
+            .as_array_mut()
+            .unwrap()
+            .push(duplicate);
     });
     assert!(matches!(
         DatasetCapableSimulationRunRecordDtoV03::from_json(&duplicated),
@@ -178,7 +199,10 @@ fn in_memory_resolver_is_authorized_and_immutable() {
     ));
     resolver.grant(id).unwrap();
     assert_eq!(
-        resolve_verified_field(&result, &resolver).unwrap().values.len(),
+        resolve_verified_field(&result, &resolver)
+            .unwrap()
+            .values
+            .len(),
         4
     );
     assert!(matches!(
@@ -204,7 +228,9 @@ fn only_verified_bytes_and_semantic_binding_can_publish_dataset() {
     let record = parsed();
     let (result, bytes) = sample_field();
     let mut resolver = resolver_for(&result, bytes);
-    let published = record.publish_verified(&resolver, &FixtureOntology).unwrap();
+    let published = record
+        .publish_verified(&resolver, &FixtureOntology)
+        .unwrap();
     let frozen = published.to_canonical_json();
     assert_eq!(
         DatasetCapableSimulationRunRecordDtoV03::from_json(&frozen).unwrap(),
@@ -228,7 +254,9 @@ fn byte_corruption_missing_data_and_wrong_length_block_publication() {
     resolver.grant(&field.data_reference.object_id).unwrap();
     assert!(matches!(
         record.publish_verified(&resolver, &FixtureOntology),
-        Err(DatasetPublicationErrorV03::Resolution(DataResolutionErrorV03::ObjectNotFound(_)))
+        Err(DatasetPublicationErrorV03::Resolution(
+            DataResolutionErrorV03::ObjectNotFound(_)
+        ))
     ));
 
     let mut changed = bytes.clone();
@@ -237,13 +265,17 @@ fn byte_corruption_missing_data_and_wrong_length_block_publication() {
     let corrupt = resolver_for(&field, changed);
     assert!(matches!(
         record.publish_verified(&corrupt, &FixtureOntology),
-        Err(DatasetPublicationErrorV03::Resolution(DataResolutionErrorV03::IntegrityMismatch { .. }))
+        Err(DatasetPublicationErrorV03::Resolution(
+            DataResolutionErrorV03::IntegrityMismatch { .. }
+        ))
     ));
 
-    let short = resolver_for(&field, bytes[..bytes.len()-1].to_vec());
+    let short = resolver_for(&field, bytes[..bytes.len() - 1].to_vec());
     assert!(matches!(
         record.publish_verified(&short, &FixtureOntology),
-        Err(DatasetPublicationErrorV03::Resolution(DataResolutionErrorV03::ByteLengthMismatch { .. }))
+        Err(DatasetPublicationErrorV03::Resolution(
+            DataResolutionErrorV03::ByteLengthMismatch { .. }
+        ))
     ));
 }
 
@@ -267,7 +299,9 @@ fn meaning_mismatch_prevents_publication_even_when_sha256_is_valid() {
 fn old_scalar_run_publishes_without_needing_dataset_resolver() {
     let record = DatasetCapableSimulationRunRecordDtoV03::from_json(LEGACY).unwrap();
     let resolver = InMemoryFieldPayloadResolverV03::new();
-    let published = record.publish_verified(&resolver, &FixtureOntology).unwrap();
+    let published = record
+        .publish_verified(&resolver, &FixtureOntology)
+        .unwrap();
     assert_eq!(
         published.to_canonical_json(),
         SimulationRunRecordDtoV03::from_json(LEGACY)
@@ -295,5 +329,8 @@ fn publication_syntax_validation_does_not_override_real_ontology_mapping() {
         Err(DatasetPublicationErrorV03::Semantic(_))
     ));
     // This probe is synthetic and is NOT a validated MOOSE quantity mapping.
-    assert_eq!(json!("unit.kelvin"), wrong["observation_outcomes"][1]["result"]["manifest"]["unit"]);
+    assert_eq!(
+        json!("unit.kelvin"),
+        wrong["observation_outcomes"][1]["result"]["manifest"]["unit"]
+    );
 }
