@@ -72,10 +72,12 @@ pub(crate) fn sha256_hex(data: &[u8]) -> String {
             *slot = slot.wrapping_add(next);
         }
     }
-    state
-        .iter()
-        .map(|word| format!("{word:08x}"))
-        .collect::<String>()
+    let mut digest = String::with_capacity(64);
+    use std::fmt::Write;
+    for word in state {
+        write!(&mut digest, "{word:08x}").expect("writing to String cannot fail");
+    }
+    digest
 }
 
 #[cfg(test)]
