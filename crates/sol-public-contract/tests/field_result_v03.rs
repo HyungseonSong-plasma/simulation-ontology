@@ -178,3 +178,51 @@ fn actual_moose_evidence_has_valid_array_structure_but_no_claimed_canonical_unit
     // Neither evidence blob constitutes an independent 1D MOOSE execution.
     assert_eq!(interface["embedding_dimension"].as_i64(), Some(2));
 }
+
+
+#[test]
+fn actual_moose_field_arrays_fit_profile_v1_without_claiming_canonical_units() {
+    for (source_text, exemplar_json, cells_key, kind, association) in [
+        (SOURCE_2D, RESULT_2D, "cells_tri3", "tri3", "vertex"),
+        (
+            SOURCE_INTERFACE,
+            RESULT_INTERFACE,
+            "cells_edge2",
+            "line2",
+            "cell",
+        ),
+    ] {
+        let source: Value = serde_json::from_str(source_text).unwrap();
+        let cells: Vec<Value> = source[cells_key]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|cell| serde_json::json!({"type": kind, "vertices": cell["vertices"]}))
+            .collect();
+        let values = source["values"].as_array().unwrap();
+        let upper = if association == "vertex" {
+            source["coordinates_xy"].as_array().unwrap().len()
+        } else {
+            cells.len()
+        };
+        let payload: FieldPayloadDtoV1 = serde_json::from_value(serde_json::json!({
+            "profile": "sol.field-json.v1",
+            "coordinates": source["coordinates_xy"],
+            "cells": cells,
+            "support_indices": (0..upper).collect::<Vec<_>>(),
+            "values": values,
+        }))
+        .unwrap();
+
+        // This exemplar is only a geometry/cardinality envelope for the raw
+        // actual values; it is NOT an assertion that actual physical unit or
+        // canonical quantity/scope has been verified by Physics.
+        let mut result = DatasetObservationResultDtoV03::from_json(exemplar_json).unwrap();
+        result.manifest.support.entity_count = upper;
+        result.manifest.value.value_count = values.len();
+        result.manifest.payload_layout.coordinate_count = payload.coordinates.len();
+        result.manifest.payload_layout.cell_count = payload.cells.len();
+        result.validate_payload(&payload).unwrap();
+        assert!(!payload.to_profile_json().unwrap().contains("block_id"));
+    }
+}
