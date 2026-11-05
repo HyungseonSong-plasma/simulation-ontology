@@ -1,7 +1,7 @@
 //! Bounded Public Contract 0.3 field dataset support (M0.10 Phase 2).
 //! No backend artifact is a canonical identity; byte equality is not scientific equality.
 use serde::{Deserialize, Serialize};
-use serde_json::{Number, Value};
+use serde_json::Number;
 use std::collections::BTreeSet;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
