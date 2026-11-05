@@ -228,7 +228,14 @@
       "additionalProperties": false,
       "properties": {
         "object_id": {
-          "$ref": "shared.schema.json#/$defs/canonicalReference"
+          "allOf": [
+            {
+              "$ref": "shared.schema.json#/$defs/canonicalReference"
+            },
+            {
+              "pattern": "^data\\."
+            }
+          ]
         },
         "payload_profile": {
           "const": "sol.field-json.v1"
