@@ -179,7 +179,6 @@ fn actual_moose_evidence_has_valid_array_structure_but_no_claimed_canonical_unit
     assert_eq!(interface["embedding_dimension"].as_i64(), Some(2));
 }
 
-
 #[test]
 fn actual_moose_field_arrays_fit_profile_v1_without_claiming_canonical_units() {
     for (source_text, exemplar_json, cells_key, kind, association) in [
