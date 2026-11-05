@@ -184,7 +184,9 @@ impl DatasetCapableSimulationRunRecordDtoV03 {
         for outcome in &self.observation_outcomes {
             let observation = outcome.observation().to_owned();
             if !actual.insert(observation.clone()) {
-                return Err(ObservationResultError::DuplicateObservationOutcome(observation));
+                return Err(ObservationResultError::DuplicateObservationOutcome(
+                    observation,
+                ));
             }
             if let Some(run) = outcome.produced_run_id() {
                 if run != self.run_id {
@@ -214,10 +216,12 @@ impl DatasetCapableSimulationRunRecordDtoV03 {
     }
 
     pub fn dataset_results(&self) -> impl Iterator<Item = &DatasetObservationResultDtoV03> {
-        self.observation_outcomes.iter().filter_map(|outcome| match outcome {
-            DatasetCapableObservationOutcomeDtoV03::Dataset(envelope) => Some(&envelope.result),
-            _ => None,
-        })
+        self.observation_outcomes
+            .iter()
+            .filter_map(|outcome| match outcome {
+                DatasetCapableObservationOutcomeDtoV03::Dataset(envelope) => Some(&envelope.result),
+                _ => None,
+            })
     }
 
     /// Only a resolved-and-semantically-verified record may be issued as
