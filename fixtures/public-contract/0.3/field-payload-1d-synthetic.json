@@ -1,0 +1,40 @@
+{
+  "profile": "sol.field-json.v1",
+  "coordinates": [
+    [
+      0
+    ],
+    [
+      1
+    ],
+    [
+      2
+    ]
+  ],
+  "cells": [
+    {
+      "type": "line2",
+      "vertices": [
+        0,
+        1
+      ]
+    },
+    {
+      "type": "line2",
+      "vertices": [
+        1,
+        2
+      ]
+    }
+  ],
+  "support_indices": [
+    0,
+    1,
+    2
+  ],
+  "values": [
+    0,
+    12,
+    0
+  ]
+}
