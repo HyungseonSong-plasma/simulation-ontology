@@ -83,6 +83,8 @@ gate. No backend-native or unknown fields are accepted in the bounded DTO.
 path), `payload_profile`, `byte_length`, and `integrity.sha256` lowercase
 hex digest.
 
+The bounded v1 DataReference `object_id` must be a canonical-looking locator in the SOL-managed `data.` namespace; this namespace is not physical-result identity. Syntactic namespace validation alone is not authority: the resolver must independently confirm the object is actually SOL-managed and access is permitted.
+
 The DTO validator checks integrity metadata shape. A **resolving transport/storage
 component MUST** retrieve the named bytes, enforce access authorization,
 require exact byte length, verify SHA-256 against actual bytes, deserialize the
