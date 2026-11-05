@@ -1,11 +1,13 @@
 #![forbid(unsafe_code)]
 
+mod field_result_v03;
 mod model;
 mod observation_result_v03;
 mod realization_spec_v02;
 mod realization_v2;
 mod validation;
 
+pub use field_result_v03::*;
 pub use model::*;
 pub use observation_result_v03::*;
 pub use realization_spec_v02::*;
