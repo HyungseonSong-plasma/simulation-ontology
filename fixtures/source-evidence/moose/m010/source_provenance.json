@@ -1,0 +1,151 @@
+{
+  "status": "actual field extracted, numeric round-trip verified, scientific and semantic validation NOT performed",
+  "repository": "HyungseonSong-plasma/moose-test-repo",
+  "run_id": 41739266674,
+  "github_run_url": "https://github.com/HyungseonSong-plasma/moose-test-repo/actions/runs/41739266674",
+  "head_sha": "e45e4879882fd5509d5e3e38c3634ed31e23ee2b",
+  "artifact_id": 13296715986,
+  "nested_path": "legacy6_restart_run_100000ns.tar.gz -> .../run/plasma.e",
+  "source_sha256": "ae62510bcff30d68759633e099be9fa75164cda69dd893c7ec2481885799223c",
+  "source_bytes": 126918792,
+  "exodus_dimensions": {
+    "coordinate_dimensions": 2,
+    "nodes": 1721,
+    "total_elements": 3236,
+    "total_element_blocks": 11,
+    "time_steps": 461
+  },
+  "exodus_variable_names": {
+    "nodal": [
+      "E_imag_rf_t6",
+      "E_real_rf_t6",
+      "electron_density_rf_state_t6",
+      "log_energy",
+      "log_energy_rf_state_t6",
+      "log_ne",
+      "log_ne_rf_state_t6",
+      "mean_energy_rf_state_t6",
+      "potential"
+    ],
+    "elemental": [
+      "d1_d_perp_m",
+      "d1_e_n_V_m",
+      "d1_electron_mean_speed_m_s",
+      "d1_gamma_electron",
+      "d1_gamma_o2_positive",
+      "d1_gamma_o_negative",
+      "d1_gamma_o_positive",
+      "d1_mean_energy_eV",
+      "d1_ne_m3",
+      "d1_normal_r",
+      "d1_normal_z",
+      "d1_owner",
+      "d1_sheath_drop_V",
+      "log_ni",
+      "log_nm",
+      "log_nop",
+      "p",
+      "pressure_rf_state_t6",
+      "sigma_focus_ring",
+      "sigma_s",
+      "sigma_wafer",
+      "u",
+      "v",
+      "w_O",
+      "w_O2s",
+      "w_Os",
+      "wafer_net_current_probe"
+    ]
+  },
+  "element_blocks": [
+    {
+      "name": "plasma",
+      "exodus_block_id": 10,
+      "elements": 1798
+    },
+    {
+      "name": "cover",
+      "exodus_block_id": 20,
+      "elements": 379
+    },
+    {
+      "name": "wafer",
+      "exodus_block_id": 21,
+      "elements": 128
+    },
+    {
+      "name": "focus_ring",
+      "exodus_block_id": 22,
+      "elements": 36
+    },
+    {
+      "name": "vacuum",
+      "exodus_block_id": 23,
+      "elements": 736
+    },
+    {
+      "name": "coil1",
+      "exodus_block_id": 24,
+      "elements": 26
+    },
+    {
+      "name": "coil2",
+      "exodus_block_id": 25,
+      "elements": 26
+    },
+    {
+      "name": "coil3",
+      "exodus_block_id": 26,
+      "elements": 26
+    },
+    {
+      "name": "cover_surface",
+      "exodus_block_id": 30,
+      "element_type": "EDGE2",
+      "elements": 53
+    },
+    {
+      "name": "wafer_surface",
+      "exodus_block_id": 31,
+      "element_type": "EDGE2",
+      "elements": 27
+    },
+    {
+      "name": "focus_ring_surface",
+      "exodus_block_id": 32,
+      "element_type": "EDGE2",
+      "elements": 1
+    }
+  ],
+  "snapshots": [
+    {
+      "file": "field_2d_potential_actual.json",
+      "sha256": "ae339a58965550615c5b6e7c69eb67eddd75c746d1886e3b966fc9bf5a743484",
+      "name": "potential",
+      "association": "vertex",
+      "field_count": 1721,
+      "tri3_count": 3155,
+      "min": -22.75392131097231,
+      "max": 26.54587517772336,
+      "time_value_as_stored": 0.0001
+    },
+    {
+      "file": "field_1d_cover_sigma_s_actual.json",
+      "sha256": "f302778ed956f4ade3518d7a088292d05cd18cdbe0771d5e61c5432278d73b46",
+      "name": "sigma_s",
+      "association": "line_cell",
+      "field_count": 53,
+      "edge2_count": 53,
+      "min": -0.000021713031237558347,
+      "max": 0.000021268867627978642,
+      "time_value_as_stored": 0.0001
+    }
+  ],
+  "pending_checks": [
+    "canonical quantity and unit ownership",
+    "coordinate system and axis unit from source input",
+    "MOOSE run reproducibility",
+    "scientific correctness",
+    "separate standalone 1D execution fixture"
+  ]
+}
