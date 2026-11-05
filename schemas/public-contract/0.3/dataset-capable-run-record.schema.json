@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Public Contract 0.3 explicit opt-in Dataset-capable run record",
+  "type": "object",
+  "required": [
+    "public_contract_version",
+    "run_id",
+    "source_model",
+    "task",
+    "analysis",
+    "requested_observations",
+    "observation_outcomes"
+  ],
+  "properties": {
+    "public_contract_version": {
+      "$ref": "shared.schema.json#/$defs/publicContractVersion"
+    },
+    "run_id": {
+      "$ref": "shared.schema.json#/$defs/canonicalReference"
+    },
+    "source_model": {
+      "$ref": "shared.schema.json#/$defs/canonicalReference"
+    },
+    "task": {
+      "$ref": "shared.schema.json#/$defs/canonicalReference"
+    },
+    "analysis": {
+      "$ref": "shared.schema.json#/$defs/canonicalReference"
+    },
+    "requested_observations": {
+      "type": "array",
+      "items": {
+        "$ref": "shared.schema.json#/$defs/canonicalReference"
+      },
+      "uniqueItems": true
+    },
+    "observation_outcomes": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "status",
+              "result"
+            ],
+            "properties": {
+              "status": {
+                "const": "produced"
+              },
+              "result": {
+                "$ref": "shared.schema.json#/$defs/scalarObservationResult"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "status",
+              "result_type",
+              "result"
+            ],
+            "properties": {
+              "status": {
+                "const": "produced"
+              },
+              "result_type": {
+                "const": "dataset"
+              },
+              "result": {
+                "$ref": "dataset-observation-result.schema.json"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "status",
+              "observation",
+              "diagnostics"
+            ],
+            "properties": {
+              "status": {
+                "const": "not_produced"
+              },
+              "observation": {
+                "$ref": "shared.schema.json#/$defs/canonicalReference"
+              },
+              "diagnostics": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "shared.schema.json#/$defs/diagnostic"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": true
+}
