@@ -373,7 +373,9 @@ pub(crate) fn require_canonical_reference(
     }
 }
 
-pub(crate) fn reject_backend_native_extensions(extensions: &Extensions) -> Result<(), ObservationResultError> {
+pub(crate) fn reject_backend_native_extensions(
+    extensions: &Extensions,
+) -> Result<(), ObservationResultError> {
     for (key, value) in extensions {
         if is_backend_native_key(key) {
             return Err(ObservationResultError::BackendNativeLeakage(key.clone()));
