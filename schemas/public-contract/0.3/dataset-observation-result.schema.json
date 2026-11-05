@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Public Contract 0.3 bounded dataset observation result (Phase 2)",
+  "type": "object",
+  "required": [
+    "public_contract_version",
+    "observation",
+    "run_id",
+    "source",
+    "scope",
+    "manifest",
+    "data_reference"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "public_contract_version": {
+      "const": "0.3"
+    },
+    "observation": {
+      "$ref": "shared.schema.json#/$defs/canonicalReference"
+    },
+    "run_id": {
+      "$ref": "shared.schema.json#/$defs/canonicalReference"
+    },
+    "source": {
+      "$ref": "shared.schema.json#/$defs/canonicalReference"
+    },
+    "scope": {
+      "$ref": "shared.schema.json#/$defs/canonicalReference"
+    },
+    "manifest": {
+      "type": "object",
+      "required": [
+        "quantity",
+        "unit",
+        "geometry",
+        "support",
+        "value",
+        "sampling",
+        "payload_layout"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "quantity": {
+          "$ref": "shared.schema.json#/$defs/canonicalReference"
+        },
+        "unit": {
+          "$ref": "shared.schema.json#/$defs/canonicalReference"
+        },
+        "geometry": {
+          "type": "object",
+          "required": [
+            "coordinate_system",
+            "coordinate_units",
+            "embedding_dimension",
+            "topological_dimension"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "coordinate_system": {
+              "$ref": "shared.schema.json#/$defs/canonicalReference"
+            },
+            "coordinate_units": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 2,
+              "items": {
+                "$ref": "shared.schema.json#/$defs/canonicalReference"
+              }
+            },
+            "embedding_dimension": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "topological_dimension": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            }
+          }
+        },
+        "support": {
+          "type": "object",
+          "required": [
+            "scope",
+            "carrier_dimension",
+            "entity_dimension",
+            "location",
+            "entity_count"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "scope": {
+              "$ref": "shared.schema.json#/$defs/canonicalReference"
+            },
+            "carrier_dimension": {
+              "type": "integer",
+              "enum": [
+                1,
+                2
+              ]
+            },
+            "entity_dimension": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2
+            },
+            "location": {
+              "enum": [
+                "vertex",
+                "cell"
+              ]
+            },
+            "entity_count": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "value": {
+          "type": "object",
+          "required": [
+            "rank",
+            "components",
+            "value_count"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rank": {
+              "const": 0
+            },
+            "components": {
+              "type": "array",
+              "maxItems": 0
+            },
+            "value_count": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "sampling": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [
+                "kind"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "stationary"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "kind",
+                "time_value",
+                "time_unit"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "const": "time_point"
+                },
+                "time_value": {
+                  "type": "number"
+                },
+                "time_unit": {
+                  "$ref": "shared.schema.json#/$defs/canonicalReference"
+                }
+              }
+            }
+          ]
+        },
+        "payload_layout": {
+          "type": "object",
+          "required": [
+            "coordinate_count",
+            "cell_count",
+            "element_types",
+            "index_base"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "coordinate_count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "cell_count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "element_types": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "line2",
+                  "tri3",
+                  "quad4"
+                ]
+              }
+            },
+            "index_base": {
+              "const": 0
+            }
+          }
+        }
+      }
+    },
+    "data_reference": {
+      "type": "object",
+      "required": [
+        "object_id",
+        "payload_profile",
+        "byte_length",
+        "integrity"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "object_id": {
+          "$ref": "shared.schema.json#/$defs/canonicalReference"
+        },
+        "payload_profile": {
+          "const": "sol.field-json.v1"
+        },
+        "byte_length": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "integrity": {
+          "type": "object",
+          "required": [
+            "algorithm",
+            "digest"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "algorithm": {
+              "const": "sha256"
+            },
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          }
+        }
+      }
+    }
+  }
+}
