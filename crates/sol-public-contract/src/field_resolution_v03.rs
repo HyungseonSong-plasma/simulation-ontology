@@ -142,7 +142,7 @@ impl InMemoryFieldPayloadResolverV03 {
         object_id: &str,
         bytes: Vec<u8>,
     ) -> Result<(), DataResolutionErrorV03> {
-        if !is_canonical_reference(object_id) {
+        if !is_canonical_reference(object_id) || !object_id.starts_with("data.") {
             return Err(DataResolutionErrorV03::InvalidReference(
                 object_id.to_owned(),
             ));
@@ -161,7 +161,7 @@ impl InMemoryFieldPayloadResolverV03 {
 
     /// Explicit authorization grant, independent of whether the object still exists.
     pub fn grant(&mut self, object_id: &str) -> Result<(), DataResolutionErrorV03> {
-        if !is_canonical_reference(object_id) {
+        if !is_canonical_reference(object_id) || !object_id.starts_with("data.") {
             return Err(DataResolutionErrorV03::InvalidReference(
                 object_id.to_owned(),
             ));
@@ -182,7 +182,7 @@ impl InMemoryFieldPayloadResolverV03 {
 
 impl FieldPayloadResolverV03 for InMemoryFieldPayloadResolverV03 {
     fn resolve_bytes(&self, object_id: &str) -> Result<Vec<u8>, DataResolutionErrorV03> {
-        if !is_canonical_reference(object_id) {
+        if !is_canonical_reference(object_id) || !object_id.starts_with("data.") {
             return Err(DataResolutionErrorV03::InvalidReference(
                 object_id.to_owned(),
             ));
