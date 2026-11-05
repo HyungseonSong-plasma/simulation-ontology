@@ -165,8 +165,8 @@ impl DatasetObservationResultDtoV03 {
     pub fn from_json(input: &str) -> Result<Self, FieldContractError> {
         let document = CanonicalDocument::parse_for(input, ContractVersion::result_v03())
             .map_err(|error| bad(error.to_string()))?;
-        let mut result: Self =
-            serde_json::from_value(document.value().clone()).map_err(|error| bad(error.to_string()))?;
+        let mut result: Self = serde_json::from_value(document.value().clone())
+            .map_err(|error| bad(error.to_string()))?;
         result.validate_and_normalize()?;
         Ok(result)
     }
@@ -193,9 +193,15 @@ impl DatasetObservationResultDtoV03 {
             ("scope", self.scope.as_str()),
             ("quantity", self.manifest.quantity.as_str()),
             ("unit", self.manifest.unit.as_str()),
-            ("coordinate_system", self.manifest.geometry.coordinate_system.as_str()),
+            (
+                "coordinate_system",
+                self.manifest.geometry.coordinate_system.as_str(),
+            ),
             ("support.scope", self.manifest.support.scope.as_str()),
-            ("data_reference.object_id", self.data_reference.object_id.as_str()),
+            (
+                "data_reference.object_id",
+                self.data_reference.object_id.as_str(),
+            ),
         ] {
             reference(value, name)?;
         }
@@ -245,7 +251,10 @@ impl DatasetObservationResultDtoV03 {
                     return Err(bad("time_point field requires time_value"));
                 }
                 reference(
-                    sampling.time_unit.as_deref().ok_or_else(|| bad("missing time_unit"))?,
+                    sampling
+                        .time_unit
+                        .as_deref()
+                        .ok_or_else(|| bad("missing time_unit"))?,
                     "time_unit",
                 )?;
             }
@@ -269,9 +278,15 @@ impl DatasetObservationResultDtoV03 {
             || data.byte_length == 0
             || data.integrity.algorithm != "sha256"
             || data.integrity.digest.len() != 64
-            || !data.integrity.digest.bytes().all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
+            || !data
+                .integrity
+                .digest
+                .bytes()
+                .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
         {
-            return Err(bad("unsupported data reference, integrity or payload profile"));
+            return Err(bad(
+                "unsupported data reference, integrity or payload profile",
+            ));
         }
         Ok(())
     }
@@ -300,8 +315,8 @@ impl DatasetObservationResultDtoV03 {
         }
         let mut seen_types = BTreeSet::new();
         for cell in &payload.cells {
-            let (dimension, arity) = topology(&cell.cell_type)
-                .ok_or_else(|| bad("unsupported payload cell type"))?;
+            let (dimension, arity) =
+                topology(&cell.cell_type).ok_or_else(|| bad("unsupported payload cell type"))?;
             if dimension != geom.topological_dimension || cell.vertices.len() != arity {
                 return Err(bad("payload cell type or vertex arity mismatch"));
             }
