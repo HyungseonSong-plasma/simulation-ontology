@@ -1,0 +1,51 @@
+{
+  "public_contract_version": "0.3",
+  "observation": "observation.potential_1d",
+  "run_id": "run.synthetic_1d",
+  "source": "field.electric_potential",
+  "scope": "scope.domain_1d",
+  "manifest": {
+    "quantity": "quantity.electric_potential",
+    "unit": "unit.volt",
+    "geometry": {
+      "coordinate_system": "coordinate.cartesian_1d",
+      "coordinate_units": [
+        "unit.meter"
+      ],
+      "embedding_dimension": 1,
+      "topological_dimension": 1
+    },
+    "support": {
+      "scope": "scope.domain_1d",
+      "carrier_dimension": 1,
+      "entity_dimension": 0,
+      "location": "vertex",
+      "entity_count": 3
+    },
+    "value": {
+      "rank": 0,
+      "components": [],
+      "value_count": 3
+    },
+    "sampling": {
+      "kind": "stationary"
+    },
+    "payload_layout": {
+      "coordinate_count": 3,
+      "cell_count": 2,
+      "element_types": [
+        "line2"
+      ],
+      "index_base": 0
+    }
+  },
+  "data_reference": {
+    "object_id": "data.synthetic_1d",
+    "payload_profile": "sol.field-json.v1",
+    "byte_length": 181,
+    "integrity": {
+      "algorithm": "sha256",
+      "digest": "80c4cade3b13b508edf5a0dccd5fbcce567d6bc5e813af4d0b0cb639c67ef7a8"
+    }
+  }
+}
