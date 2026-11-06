@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "impl/**"
+      - "design/platform-boundary-package-local-smoke"
   pull_request:
     branches:
       - main
