@@ -3,9 +3,7 @@
 use sol_adapter_protocol::{
     AdapterBootstrap, ADAPTER_PROTOCOL_VERSION_0_1, ADAPTER_PROTOCOL_VERSION_0_2,
 };
-use sol_adapter_transport::{
-    DESCRIBE_ADAPTER_METHOD, EXECUTE_PLAN_METHOD, VALIDATE_PLAN_METHOD,
-};
+use sol_adapter_transport::{DESCRIBE_ADAPTER_METHOD, EXECUTE_PLAN_METHOD, VALIDATE_PLAN_METHOD};
 use sol_public_contract::{
     RealizationSpecDtoV02, SimulationRunRecordDtoV03, PUBLIC_CONTRACT_VERSION_0_1,
     PUBLIC_CONTRACT_VERSION_0_2, PUBLIC_CONTRACT_VERSION_0_3,
