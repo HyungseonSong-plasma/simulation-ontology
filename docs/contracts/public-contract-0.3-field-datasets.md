@@ -1,6 +1,6 @@
 # Public Contract 0.3 — Bounded Field Dataset Boundary (Phase 2 candidate)
 
-**Status:** Implementation candidate; D-01-R1 and D-02 architecture directions user-approved, detailed Validator gates OPEN.
+**Status:** Phase 2 Draft implementation candidate. Bounded Temperature Field ObservationModel meaning USER_APPROVED (2026-11-06); Physics mapping, production Resolver, final independent Human Validator and merge gates OPEN.
 **Parent:** #153; **Phase:** #156; **Architecture:** ADR-005.
 **Source of authority:** [#156 decision record](https://github.com/HyungseonSong-plasma/simulation-ontology/issues/156).
 
@@ -107,6 +107,17 @@ observation intent.
 ## Thermal Temperature Field Observation — bounded opt-in candidate
 
 **Status:** User-directed Phase 2 implementation candidate (2026-11-06); **Human Validator and Physics meaning gates OPEN**. The accepted existing Thermal reference fixture, Public Contract 0.1/0.2 and Phase 1 scalar-only 0.3 wire/Rust DTOs are **unchanged**. This section is not a new accepted universal ontology rule.
+
+### Limited Manager meaning approval — 2026-11-06
+
+**Decision:** The user explicitly APPROVED the **bounded, independent ObservationModel meaning** of `observation.temperature_field` as a request for a distributed temperature field. This is a Manager-level semantic direction for this Draft candidate, **not** a final independent Validator verdict, Public Contract release acceptance, Physics-unit sign-off, production Dataset publication, or PR merge authorization.
+
+The approved cut-line is:
+- `thermal.temperature_field` remains the mathematical/source Field; `observation.temperature_field` is a separate requested `ObservationModel` and `observation.maximum_temperature` remains a distinct scalar reduction request.
+- Both requests may observe the same source Field via existing `observed_by` relations, but each explicit `(run_id, observation)` requires its own independent terminal `produced` or typed `not_produced` outcome; a Dataset must not auto-produce a scalar maximum, or conversely.
+- The new request and mixed-result capability remain explicit opt-ins; original scalar-only 0.3 DTO/wire and Public Contract/Adapter Protocol 0.1/0.2 meanings are unchanged.
+
+**Unresolved and explicitly not approved:** real MOOSE `T`/CSV-to-canonical quantity, K/m/scope/coordinate/Steady mapping and scientific acceptance ([Adapter #39](https://github.com/HyungseonSong-plasma/sol-adapter-moose/issues/39)); trustworthy production data resolver/authorization/immutability/retention and real Adapter Protocol 0.3 result producer; independent Human Validator review ([SOL #175](https://github.com/HyungseonSong-plasma/simulation-ontology/issues/175)); final Phase #156 acceptance and PR #173 merge. Synthetic `CandidateFixtureAuthority` must not be promoted into production semantic authority.
 
 ### Requested meaning versus source Field
 
