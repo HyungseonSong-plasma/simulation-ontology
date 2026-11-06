@@ -151,9 +151,7 @@ fn backend_native_hit_identity_cannot_become_canonical_realization_identity() {
     let json = serde_json::to_string(&request).unwrap();
     assert!(matches!(
         ValidatePlanRequestV02::from_json(&json),
-        Err(RealizationRequestError::InvalidPublicPayload {
-            field: "realization_spec",
-            ..
-        })
+        Err(RealizationRequestError::ForbiddenField(field))
+            if field == "backend_native_id"
     ));
 }
