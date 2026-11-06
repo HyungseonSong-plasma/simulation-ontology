@@ -64,6 +64,26 @@ The CI job runs the same script on its own runner. **A local path source consume
 - Windows: D0 can be run from Git Bash with Cargo/Python 3 on PATH, or from WSL with Linux Rust. **Native PowerShell and Windows ABI release validation are not yet implemented** and must be tested independently before making a Windows support claim.
 - The script does not use sudo, install a solver, access personal experiment folders or change the default Rust toolchain.
 
+## P1 pilot: independently consumed immutable upstream Git revision (not a release)
+
+The P1 pilot is stronger than D0's same-checkout `path` dependencies. A genuinely independent Cargo project pins all three SOL contract crates to **the same immutable upstream Git SHA** `b6924e6556684eec9dd93677518821cc7adc84b6` in `examples/external-contract-git-consumer/Cargo.toml`.
+
+This SHA is a currently accepted upstream `main` baseline, **not a signed release/tag**. It contains Public Contract 0.1/0.2 plus previously accepted **scalar-only** Public Contract 0.3, and Adapter Protocol 0.1/0.2. This pilot does not include experimental M0.10 Field/Dataset Draft PR #173 or Adapter Protocol 0.3.
+
+On the CI runner or a local macOS/Linux workstation with Git, Cargo/Rust and Python 3 installed:
+
+```bash
+# From the SOL source checkout of Draft PR #177:
+export SOL_EVIDENCE_DIR="$HOME/sol-local-evidence"
+bash scripts/verify-git-contract-consumer.sh
+```
+
+The script copies an external Cargo project to a temporary directory, downloads its `git+https` dependencies from SOL's pinned upstream commit (never `vendor/sol-*`, current workspace crates or local `path` replacements), checks Cargo metadata for all three Git source IDs and exact commit/Crate version `0.1.0`, and reads the test fixtures **from that pinned upstream Git checkout**. It runs four real Rust tests against supported contract behavior, then deliberately requires an incompatible upstream crate version `=0.2.0` and checks Cargo rejects that dependency resolution. A `cargo test --locked` is used after constructing the isolated lockfile.
+
+Optional evidence under `SOL_EVIDENCE_DIR`: `git-consumer.Cargo.lock`, Git package metadata, four-test stdout, negative dependency resolution log and environment metadata. These files may be supplied by the user to review the actual workstation test.
+
+**Limitations:** The test creates `Cargo.lock` at execution time rather than consuming a reviewed official release lock; the tested upstream commit is immutable but no package archive/checksum/SBOM, signed tag, crates.io publication, downstream adapter binary or installer exists from this pilot. The mismatch negative tests a Crate **package version** failure; a distinct runtime Adapter Protocol/Public Contract compatibility test remains mandatory. The user's own local computer has not been tested simply because GitHub Actions passes.
+
 ## D1: immutable source/contract package release (not done)
 
 Before promoting the source-checkout smoke to release evidence, a future follow-up must implement:
