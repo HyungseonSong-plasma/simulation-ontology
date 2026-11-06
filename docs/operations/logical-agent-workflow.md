@@ -24,20 +24,20 @@ GitHub Milestones are the repository execution projection of accepted roadmap mi
 
 `init` is the project-level entry mode.
 
-Generic initialization mechanics are owned by the exact pinned Paul `session-bootstrap` skill. This repository supplies SOL-specific authority sources, roles, current-state locators, and next-mode interpretation through `project-session-init.md`.
+Generic initialization mechanics are owned by the exact pinned Samuel `session-bootstrap` skill. This repository supplies SOL-specific authority sources, roles, current-state locators, and next-mode interpretation through `project-session-init.md`.
 
 ```text
 init
-  -> exact Paul binding
-  -> Paul essential rules
-  -> session-bootstrap + state-refresh
+  -> exact Samuel binding
+  -> Samuel essential rules
+  -> session-bootstrap + state-refresh + mandatory problem-oriented-response
   -> SOL-local roles / authority / current GitHub evidence
   -> first real gate
   -> meeting | resume | update recommendation
   -> stop read-only
 ```
 
-Paul essential rules govern pinning, memory/current-evidence boundaries, evidence-class boundaries, real gates, and interruption recovery. Do not restate those generic rules here.
+Samuel essential rules govern pinning, memory/current-evidence boundaries, evidence-class boundaries, real gates, and interruption recovery. Do not restate those generic rules here.
 
 ## 1. Manager
 
@@ -330,7 +330,7 @@ When a session is new or its context may be stale, the normal entry flow is:
 ```text
 init
   -> resolve consumer-pinned chatgpt-operation revision
-  -> load minimal init skill working set
+  -> load Samuel mandatory init skills and response contract
   -> canonical role/work-mode reload
   -> current GitHub state and real-gate snapshot
   -> explicit meeting | resume | update selection
