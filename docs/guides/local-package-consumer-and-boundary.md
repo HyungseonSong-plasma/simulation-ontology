@@ -107,9 +107,32 @@ A real local end-to-end acceptance must be run **on the user's workstation**, no
 
 Record **distinct** judgments for Package/ABI install, Contract/Protocol compatibility, Runtime interoperability, Scientific V&V and Human Validator acceptance. Do not equate green CI with the local-test evidence.
 
+## Local workstation candidate acceptance — user-reported snapshot (2026-11-06)
+
+**Evidence class: user-reported execution results from a real Apple Silicon workstation.** This section records outputs supplied by the owner in the project discussion, **not** independently downloaded/signed raw logs or official release acceptance. No private home directory, workstation identifier, secrets or solver data are published here.
+
+| Boundary/test | User-reported result | What the evidence establishes |
+| --- | --- | --- |
+| SOL D0 isolated source-`path` consumer | **PASS** (3 tests) | Local separate Cargo consumer builds against checked-out SDK sources |
+| SOL P1 immutable Git-revision consumer | **PASS** (4 tests + `=0.2.0` negative rejection) | All 3 SDK crates consumed from accepted SOL Git SHA `b6924e6556684eec9dd93677518821cc7adc84b6`; wrong package version rejected |
+| Adapter native macOS arm64 package build / archive verify | **PASS** | A self-built `darwin-arm64` candidate archive was produced and verified locally, not a published multi-platform release |
+| Adapter local package acceptance | **PASS** | Isolated install / `describe_adapter` / Protocol 0.3 rejection / safe uninstall |
+| SOL Runtime 0.2 → Adapter → real MOOSE application | **PASS** | User-provided `local-acceptance.json` reported `runtime_02: PASS` and `moose_backend: SOLVER_EXECUTION_COMPLETED_NOT_INDEPENDENT_SCIENTIFIC_SIGNOFF` |
+| Independently approved ontology semantics, released binary or scientific V&V | **NOT CLAIMED** | Separate human/contract/release/Physics gates remain |
+
+The local MOOSE application was INL's Conda `moose=2026.09.13`, `mpich`, `osx-arm64`, `CombinedTestApp` with `heat_transfer` reported by `--show-copyable-inputs`. User-provided Conda metadata listed `moose-2026.09.13-mpich.conda` and archive SHA-256 `2fcdc21ef5ebb7f416df89aa7e992c2f3c77c0e1ebfe39ab3d93705829b3ad73`. Adapter [Draft PR #43](https://github.com/HyungseonSong-plasma/sol-adapter-moose/pull/43) introduced an exact macOS Conda identity candidate at `0e66710063d2c150639d7926f57cb6f8ba9908b2`. These are user-observed local identities, not an independent binary notarization or supported-release policy.
+
+The reported E2E `local-acceptance.json` statuses were: `installed_adapter_describe: PASS`, `unsupported_protocol_03: PASS`, `contract_git_sha: b6924e6556684eec9dd93677518821cc7adc84b6`, `runtime_02: PASS`, `moose_backend: SOLVER_EXECUTION_COMPLETED_NOT_INDEPENDENT_SCIENTIFIC_SIGNOFF`, and `adapter_removed: PASS`. Local package work is **technically complete for this narrow experimental candidate test**, and no further workstation testing is requested by the user.
+
+Separate Physics-only diagnostics (not SOL acceptance): a modified generated input with added output showed uniform 400 K; a separately modified heat-source test (`Q=90 W/m³`) at `k=45` and `90 W/(m·K)` matched 1D analytical **nodal** temperatures to displayed precision. These tests did not execute through a new SOL semantic heat-source contract, did not approve scientific V&V and are **not required** for this packaging gate.
+
+**Current nonlocal gates remain OPEN:** published immutable SDK/Adapter releases (tag, verified distribution, supported ABI/platforms), cross-repo production adoption and review; independent Human Validator #175; and Adapter Linux native CI status. On Adapter exact PR #43 head `0e66710063d2c150639d7926f57cb6f8ba9908b2`, [package/Contract parity CI #42260284465](https://github.com/HyungseonSong-plasma/sol-adapter-moose/actions/runs/42260284465) succeeded, while [Rust CI #42260284458](https://github.com/HyungseonSong-plasma/sol-adapter-moose/actions/runs/42260284458) failed in the Linux `moose-backend` job during MOOSE `--version` MPI/UCX initialization (`MPIDI_UCX_init_worker: Address not valid`); the Rust formatting/tests/Clippy job itself passed. Treat this as a separate Linux environment/runtime blocker; do not waive/skip native backend CI because macOS passed. Confirm these runs against the exact current head before any future status decision.
+
+This update is a **candidate-evidence checkpoint**, not a change to SOL 0.1/0.2 contract semantics, a Public Contract 0.3 or Field Dataset approval, a merge/release authorization or closure of Platform #176 / Adapter #40.
+
 ## Exit / project status
 
 - D0 external source-consumer CI: candidate branch only; prove through exact-head CI.
 - D1 immutable distribution and real adapter vendor removal: **OPEN**.
-- D2 actual workstation end-to-end run: **OPEN**, Human to attest.
+- D2 candidate workstation end-to-end run: **user-reported PASS** on macOS arm64 (snapshot above); official released-package acceptance / independent Human attestation **OPEN**.
 - M0.10 #156/#175 independent human result meaning/validator: **OPEN**.
