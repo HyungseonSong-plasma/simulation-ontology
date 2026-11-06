@@ -11,8 +11,7 @@
     "init": [
       "skills/session-bootstrap/README.md",
       "skills/state-refresh/README.md",
-      "skills/problem-oriented-response/README.md",
-      "skills/problem-oriented-response/contract.json"
+      "skills/problem-oriented-response/README.md"
     ],
     "meeting": [],
     "resume": [
