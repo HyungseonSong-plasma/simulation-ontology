@@ -69,6 +69,9 @@ jobs:
           cargo run --manifest-path examples/external-runtime-v02/Cargo.toml --locked --quiet > "$second"
           cmp "$first" "$second"
 
+      - name: Smoke test isolated Contract SDK source consumer
+        run: bash scripts/local-contract-consumer-smoke.sh
+
       - name: Test workspace
         run: cargo test --workspace --locked
 
