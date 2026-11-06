@@ -1,0 +1,80 @@
+{
+  "public_contract_version": "0.3",
+  "run_id": "run.synthetic_thermal_1d",
+  "source_model": "model.thermal_reference",
+  "task": "task.stationary_thermal",
+  "analysis": "analysis.stationary",
+  "requested_observations": [
+    "observation.maximum_temperature",
+    "observation.temperature_field"
+  ],
+  "observation_outcomes": [
+    {
+      "status": "produced",
+      "result": {
+        "public_contract_version": "0.3",
+        "observation": "observation.maximum_temperature",
+        "run_id": "run.synthetic_thermal_1d",
+        "source": "thermal.temperature_field",
+        "scope": "scope.main_domain",
+        "value": 400,
+        "unit": "unit.kelvin"
+      }
+    },
+    {
+      "status": "produced",
+      "result_type": "dataset",
+      "result": {
+        "public_contract_version": "0.3",
+        "observation": "observation.temperature_field",
+        "run_id": "run.synthetic_thermal_1d",
+        "source": "thermal.temperature_field",
+        "scope": "scope.main_domain",
+        "manifest": {
+          "quantity": "quantity.temperature",
+          "unit": "unit.kelvin",
+          "geometry": {
+            "coordinate_system": "coordinate.cartesian_1d",
+            "coordinate_units": [
+              "unit.meter"
+            ],
+            "embedding_dimension": 1,
+            "topological_dimension": 1
+          },
+          "support": {
+            "scope": "scope.main_domain",
+            "carrier_dimension": 1,
+            "entity_dimension": 0,
+            "location": "vertex",
+            "entity_count": 3
+          },
+          "value": {
+            "rank": 0,
+            "components": [],
+            "value_count": 3
+          },
+          "sampling": {
+            "kind": "stationary"
+          },
+          "payload_layout": {
+            "coordinate_count": 3,
+            "cell_count": 2,
+            "element_types": [
+              "line2"
+            ],
+            "index_base": 0
+          }
+        },
+        "data_reference": {
+          "object_id": "data.synthetic_thermal_1d",
+          "payload_profile": "sol.field-json.v1",
+          "byte_length": 188,
+          "integrity": {
+            "algorithm": "sha256",
+            "digest": "7290d6bc732ed0191b583a78a6bed8b2941a676d3f9719193331b0d99e46ea0b"
+          }
+        }
+      }
+    }
+  ]
+}
