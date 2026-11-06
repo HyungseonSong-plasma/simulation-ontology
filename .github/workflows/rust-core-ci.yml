@@ -74,6 +74,11 @@ jobs:
           SOL_EXPECTED_SHA: ${{ github.sha }}
         run: bash scripts/local-contract-consumer-smoke.sh
 
+      - name: Verify immutable Git-revision Contract SDK consumer
+        run: |
+          cargo fmt --manifest-path examples/external-contract-git-consumer/Cargo.toml -- --check
+          bash scripts/verify-git-contract-consumer.sh
+
       - name: Test workspace
         run: cargo test --workspace --locked
 
