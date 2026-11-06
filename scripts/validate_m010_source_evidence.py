@@ -73,6 +73,32 @@ def main() -> None:
     assert volume["time_value_as_stored"] == interface["time_value_as_stored"]
     assert origin["exodus_dimensions"]["total_elements"] == 3236
     assert origin["exodus_dimensions"]["nodes"] == 1721
+    thermal = read("thermal_1d_same_run_scalar_field_provenance.json")
+    assert thermal["evidence_kind"] == "backend_source_only_not_canonical_dataset"
+    assert thermal["scientific_acceptance"] is False
+    assert thermal["canonical_publication"] is False
+    assert thermal["workflow_run_id"] == 42200001106
+    assert thermal["workflow_status"] == "success"
+    assert thermal["source_ref_sha"] == "28b15c351623b4ff05dd589e6bbf5624ecafae12"
+    assert thermal["evidence_artifact"]["zip_sha256"] == (
+        "fb629aac9f74b7479a511bd3b71c9926225375fea02974afacc1277d20695e38"
+    )
+    thermal_field = thermal["native_exodus"]
+    thermal_scalar = thermal["native_scalar_csv"]
+    assert thermal_field["solver_mesh_dimension"] == 1
+    assert thermal_field["solver_spatial_dimension"] == 1
+    assert thermal_field["exodus_coordinate_component_count"] == 3
+    assert thermal_field["node_count"] == 5
+    assert thermal_field["element_count"] == 4
+    assert thermal_field["variable_shape"] == [2, 5]
+    assert thermal_field["nodal_variable"] == "T"
+    assert len(thermal_field["final_values"]) == thermal_field["node_count"]
+    assert all(math.isfinite(v) for v in thermal_field["final_values"])
+    assert abs(max(thermal_field["final_values"]) - thermal_scalar["final_max"]) <= 1e-8
+    assert abs(min(thermal_field["final_values"]) - thermal_scalar["final_min"]) <= 1e-8
+    # Metadata consistency only; source ZIP/Exodus bytes are not stored in Git.
+    # Canonical units/quantity/scope and Physics/Validator gates remain OPEN.
+
     print("M0.10 MOOSE source evidence: structural arrays PASS; semantic/physics gates OPEN")
 
 
