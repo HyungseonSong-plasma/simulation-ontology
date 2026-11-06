@@ -314,6 +314,48 @@ fn wrong_field_meaning_or_shape_does_not_pass_fixture_publication() {
 }
 
 #[test]
+fn dataset_production_does_not_implicitly_produce_missing_scalar_maximum() {
+    // The candidate's approved meaning permits independent terminal outcomes.
+    // This is synthetic fixture validation, NOT a real MOOSE scalar producer.
+    let mut no_scalar = raw();
+    no_scalar["observation_outcomes"][0] = json!({
+        "status":"not_produced",
+        "observation":SCALAR_OBSERVATION,
+        "diagnostics":[{
+            "code":"result.no_data",
+            "severity":"error",
+            "subject":SCALAR_OBSERVATION,
+            "detail":"No scalar maximum temperature was produced for this run."
+        }]
+    });
+    let record = parse(&no_scalar).unwrap();
+    assert_eq!(record.dataset_results().count(), 1);
+    assert_eq!(record.observation_outcomes.len(), 2);
+
+    // A present field still requires actual authorized payload resolution.
+    assert!(record
+        .publish_verified(
+            &InMemoryFieldPayloadResolverV03::new(),
+            &CandidateFixtureAuthority,
+        )
+        .is_err());
+
+    let published = record
+        .publish_verified(&allowed_resolver(), &CandidateFixtureAuthority)
+        .unwrap();
+    let output: Value = serde_json::from_str(&published.to_canonical_json()).unwrap();
+    assert_eq!(output["observation_outcomes"][0]["status"], "not_produced");
+    assert_eq!(
+        output["observation_outcomes"][0]["observation"],
+        json!(SCALAR_OBSERVATION)
+    );
+    assert_eq!(output["observation_outcomes"][1]["status"], "produced");
+    assert_eq!(output["observation_outcomes"][1]["result_type"], "dataset");
+    // Publishing a Dataset does not synthesize a ScalarObservationResult.
+    assert!(output["observation_outcomes"][0].get("result").is_none());
+}
+
+#[test]
 fn legacy_scalar_contract_is_not_redefined_by_new_observation_candidate() {
     let legacy = SimulationRunRecordDtoV03::from_json(ORIGINAL_SCALAR).unwrap();
     let opted = DatasetCapableSimulationRunRecordDtoV03::from_json(ORIGINAL_SCALAR).unwrap();
