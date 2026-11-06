@@ -26,6 +26,7 @@ SUBDIRS = (
     "schemas",
     "fixtures",
     "docs/contracts",
+    "docs/implementation",
 )
 WORKSPACE = """[workspace]
 resolver = "2"
