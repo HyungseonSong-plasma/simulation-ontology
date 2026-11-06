@@ -27,6 +27,7 @@ SUBDIRS = (
     "fixtures",
     "docs/contracts",
     "docs/implementation",
+    "docs/templates",
 )
 WORKSPACE = """[workspace]
 resolver = "2"
