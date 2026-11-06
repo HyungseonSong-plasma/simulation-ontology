@@ -13,8 +13,10 @@ tmp="$(mktemp -d "${TMPDIR:-/tmp}/sol-git-consumer.XXXXXX")"
 trap 'rm -rf "$tmp"' EXIT INT TERM
 mkdir -p "$tmp/positive" "$tmp/negative"
 cp "$example/Cargo.toml" "$tmp/positive/Cargo.toml"
+cp -R "$example/src" "$tmp/positive/src"
 cp -R "$example/tests" "$tmp/positive/tests"
 cp "$example/Cargo.toml" "$tmp/negative/Cargo.toml"
+cp -R "$example/src" "$tmp/negative/src"
 cp -R "$example/tests" "$tmp/negative/tests"
 
 pin="$(python3 - "$tmp/positive/Cargo.toml" <<'PY'
