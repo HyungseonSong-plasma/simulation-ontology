@@ -1,8 +1,8 @@
 # SOL Project Session Initialization
 
-**Status:** consumer-local Paul bootstrap configuration  
+**Status:** consumer-local Samuel bootstrap configuration  
 **Command:** `init`  
-**Scope:** Simulation Ontology repository additions to the central Paul `session-bootstrap` skill
+**Scope:** Simulation Ontology repository additions to the central Samuel `session-bootstrap` skill
 
 ## Central authority
 
@@ -15,13 +15,16 @@ docs/operations/chatgpt-operation-binding.json
 A valid initialization requires:
 
 ```text
-OS = Paul
-Paul essential rules loaded
+OS = Samuel
+Samuel essential rules loaded
 session-bootstrap loaded
 state-refresh loaded
+problem-oriented-response README and contract loaded
+response_contract = samuel.problem-first-response.v1
+central skill catalog and capability registry indexed
 ```
 
-The generic bootstrap algorithm, fail-closed behavior, exact-pin rule, memory/current-evidence rules, and read-only boundary are owned by the pinned Paul OS and `skills/session-bootstrap/README.md`.
+The generic bootstrap algorithm, fail-closed behavior, exact-pin rule, memory/current-evidence rules, and read-only boundary are owned by the pinned Samuel OS and `skills/session-bootstrap/README.md`. Mandatory post-init problem-first presentation is defined by the pinned `skills/problem-oriented-response` contract.
 
 Do not duplicate those algorithms locally.
 
@@ -89,10 +92,10 @@ The recommendation does not itself execute that mode.
 
 Report:
 
-1. Paul central revision and loaded init skills;
+1. Samuel central revision, mandatory response contract and loaded init skills;
 2. repository/ref;
 3. local roles/modes;
-4. current milestone/parent/Phase/PR/CI state;
+4. current milestone/parent/Phase/PR/CI state and immediate triggered capabilities;
 5. first real gate;
 6. recommended next mode;
 7. unresolved evidence uncertainty.
@@ -105,9 +108,9 @@ A minimal stable hook is sufficient:
 
 ```text
 For the Simulation Ontology project, when the user sends "init", use GitHub to open
-HyungseonSong-plasma/simulation-ontology, read the exact Paul binding in
+HyungseonSong-plasma/simulation-ontology, read the exact Samuel binding in
 docs/operations/chatgpt-operation-binding.json, follow the pinned central
-session-bootstrap skill, then apply docs/operations/project-session-init.md
+session-bootstrap and mandatory problem-oriented-response contracts, then apply docs/operations/project-session-init.md
 for SOL-specific additions. Stop read-only after the initialization report.
 ```
 
