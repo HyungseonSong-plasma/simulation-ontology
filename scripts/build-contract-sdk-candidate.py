@@ -23,10 +23,8 @@ SUBDIRS = (
     "crates/sol-public-contract",
     "crates/sol-adapter-protocol",
     "crates/sol-adapter-transport",
-    "schemas/public-contract",
-    "schemas/adapter-protocol",
-    "fixtures/public-contract",
-    "fixtures/adapter-protocol",
+    "schemas",
+    "fixtures",
     "docs/contracts",
 )
 WORKSPACE = """[workspace]
