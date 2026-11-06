@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "impl/**"
+      - "design/platform-boundary-package-local-smoke"
   pull_request:
     branches:
       - main
@@ -68,6 +69,37 @@ jobs:
           cargo run --manifest-path examples/external-runtime-v02/Cargo.toml --locked --quiet > "$first"
           cargo run --manifest-path examples/external-runtime-v02/Cargo.toml --locked --quiet > "$second"
           cmp "$first" "$second"
+
+      - name: Smoke test isolated Contract SDK source consumer
+        env:
+          SOL_EXPECTED_SHA: ${{ github.sha }}
+        run: bash scripts/local-contract-consumer-smoke.sh
+
+      - name: Verify immutable Git-revision Contract SDK consumer
+        run: |
+          cargo fmt --manifest-path examples/external-contract-git-consumer/Cargo.toml -- --check
+          bash scripts/verify-git-contract-consumer.sh
+
+      - name: Build and test checksum-verified Contract SDK source candidate
+        run: |
+          output="$RUNNER_TEMP/sol-contract-sdk-candidate"
+          python3 scripts/build-contract-sdk-candidate.py --output-dir "$output"
+          python3 scripts/build-contract-sdk-candidate.py --output-dir "$output" --verify-only
+          mkdir -p "$RUNNER_TEMP/sdk-consumer"
+          tar -xzf "$output/sol-contract-sdk-candidate.tar.gz" -C "$RUNNER_TEMP/sdk-consumer"
+          package="$RUNNER_TEMP/sdk-consumer/sol-contract-sdk-candidate"
+          cargo generate-lockfile --manifest-path "$package/Cargo.toml"
+          cargo test --manifest-path "$package/Cargo.toml" --workspace --locked
+
+      - name: Upload Contract SDK candidate (not official release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: sol-contract-sdk-candidate-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/sol-contract-sdk-candidate/sol-contract-sdk-candidate.tar.gz
+            ${{ runner.temp }}/sol-contract-sdk-candidate/sol-contract-sdk-candidate.sha256
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Test workspace
         run: cargo test --workspace --locked

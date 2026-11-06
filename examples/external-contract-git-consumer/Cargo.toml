@@ -1,0 +1,16 @@
+# P1 Git-revision consumer candidate. This is NOT a published release/tag.
+# Resolve the three SOL crates from their sole upstream repository at an immutable
+# mainline commit, NOT from the current workspace or Adapter vendor/ paths.
+[package]
+name = "sol-external-contract-git-consumer"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.80"
+publish = false
+
+[workspace]
+
+[dependencies]
+sol-public-contract = { git = "https://github.com/HyungseonSong-plasma/simulation-ontology.git", rev = "b6924e6556684eec9dd93677518821cc7adc84b6", version = "=0.1.0" }
+sol-adapter-protocol = { git = "https://github.com/HyungseonSong-plasma/simulation-ontology.git", rev = "b6924e6556684eec9dd93677518821cc7adc84b6", version = "=0.1.0" }
+sol-adapter-transport = { git = "https://github.com/HyungseonSong-plasma/simulation-ontology.git", rev = "b6924e6556684eec9dd93677518821cc7adc84b6", version = "=0.1.0" }
