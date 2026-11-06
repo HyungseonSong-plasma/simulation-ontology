@@ -70,6 +70,8 @@ jobs:
           cmp "$first" "$second"
 
       - name: Smoke test isolated Contract SDK source consumer
+        env:
+          SOL_EXPECTED_SHA: ${{ github.sha }}
         run: bash scripts/local-contract-consumer-smoke.sh
 
       - name: Test workspace
