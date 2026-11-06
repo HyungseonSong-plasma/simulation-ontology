@@ -1,0 +1,44 @@
+{
+  "profile": "sol.field-json.v1",
+  "coordinates": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      0,
+      1
+    ]
+  ],
+  "cells": [
+    {
+      "type": "quad4",
+      "vertices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "support_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "values": [
+    0,
+    1,
+    2,
+    3
+  ]
+}

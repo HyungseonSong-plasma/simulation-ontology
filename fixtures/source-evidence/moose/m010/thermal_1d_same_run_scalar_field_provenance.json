@@ -1,0 +1,107 @@
+{
+  "evidence_kind": "backend_source_only_not_canonical_dataset",
+  "source_owner_repository": "HyungseonSong-plasma/sol-adapter-moose",
+  "scientific_acceptance": false,
+  "canonical_publication": false,
+  "test_case": "steady_1d_constant_temperature_natural_zero_flux",
+  "source_ref_sha": "28b15c351623b4ff05dd589e6bbf5624ecafae12",
+  "source_pr": "https://github.com/HyungseonSong-plasma/sol-adapter-moose/pull/38",
+  "workflow_run": "https://github.com/HyungseonSong-plasma/sol-adapter-moose/actions/runs/42200001106",
+  "workflow_run_id": 42200001106,
+  "workflow_status": "success",
+  "workflow_job": "moose-backend",
+  "evidence_artifact": {
+    "id": 13493163467,
+    "name": "moose-backend-evidence",
+    "zip_sha256": "fb629aac9f74b7479a511bd3b71c9926225375fea02974afacc1277d20695e38",
+    "zip_byte_length": 28532,
+    "crc_verified_entries": 30
+  },
+  "native_input": {
+    "path": "phase5-vv-evidence/runs/thermal-constant-field-vv/input.i",
+    "sha256": "cc7dff7944affa21407b329e3b25b39e95c7d53e56d02f40b6fa4692af1fdaf3",
+    "byte_length": 888
+  },
+  "native_exodus": {
+    "path": "phase5-vv-evidence/runs/thermal-constant-field-vv/input_out.e",
+    "sha256": "8915ceb43c1c26a16d4dec537f26cf32c47c2cdaf3f4f750505cc5b0fdfcdcd6",
+    "byte_length": 44672,
+    "container_format": "ExodusII_netCDF_CDF2",
+    "exodus_coordinate_component_count": 3,
+    "solver_mesh_dimension": 1,
+    "solver_spatial_dimension": 1,
+    "node_count": 5,
+    "element_count": 4,
+    "element_arity": 2,
+    "nodal_variable": "T",
+    "variable_shape": [
+      2,
+      5
+    ],
+    "stored_time_records": [
+      0,
+      1
+    ],
+    "initial_values": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "final_values": [
+      400,
+      400.00000000001097,
+      400.00000000001097,
+      400.00000000001097,
+      400.00000000001097
+    ],
+    "coordinates_x": [
+      0,
+      0.25,
+      0.5,
+      0.75,
+      1
+    ],
+    "coordinates_y_all_zero": true,
+    "coordinates_z_all_zero": true
+  },
+  "native_scalar_csv": {
+    "path": "phase5-vv-evidence/runs/thermal-constant-field-vv/input_out.csv",
+    "sha256": "30feedd0d9a53813166c82c49482d3011a323197a22e7678297e6574c11d3113",
+    "byte_length": 71,
+    "postprocessor_max": "temperature_max_vv",
+    "final_max": 400.00000000001,
+    "postprocessor_min": "temperature_min_vv",
+    "final_min": 400
+  },
+  "vv_evidence": {
+    "path": "phase5-vv-evidence/thermal-vv.json",
+    "sha256": "381f499d50bd688ee96edb4ad65e89b4d5eb66486b62e8626db4f112f20c57b0",
+    "expected_temperature_k": 400,
+    "max_abs_error_k": 1.000444171950221e-11,
+    "tolerance_k": 1e-8,
+    "source_label": "backend_owned_vv_only_nodal_extreme_value_csv"
+  },
+  "solver_input_facts": {
+    "executioner": "Steady",
+    "generated_mesh_dim": 1,
+    "mesh_xmin_as_stored": 0,
+    "mesh_xmax_as_stored": 1,
+    "temperature_variable_fe_family": "LAGRANGE",
+    "temperature_variable_fe_order": "FIRST",
+    "thermal_operator": "HeatConduction",
+    "thermal_conductivity_value_as_stored": 45,
+    "left_boundary_temperature_as_stored": 400,
+    "right_boundary_condition": "natural_zero_flux"
+  },
+  "evidence_limitations": [
+    "Same-run source-native scalar and nodal Field observed; no claim this is already a SOL 0.3 canonical produced result.",
+    "MOOSE Exodus num_dim=3 is stored xyz coordinate component count; runtime logs explicitly verify true 1D mesh and spatial dimension.",
+    "The final Exodus time index 1 is a Steady output step; do not assign a physical time unit without Physics approval.",
+    "Native input and test V&V assume nominal K and physical values; solver-native file provides no general canonical units or coordinate-unit guarantee.",
+    "No Physics owner signed canonical Quantity/Unit/Scope/Coordinate/Time mapping, no formal independent Validator approval.",
+    "Native SHA-256 digests are byte provenance only, not SOL dataset content identity. Original ZIP stored in private offsite archive; no private location embedded in public repository.",
+    "Source PR #38 remains draft/unmerged; CI success is exact PR-head evidence, not adapter release acceptance."
+  ]
+}

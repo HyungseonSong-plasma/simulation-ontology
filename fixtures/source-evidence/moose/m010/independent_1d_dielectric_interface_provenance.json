@@ -1,0 +1,67 @@
+{
+  "evidence_kind": "backend_source_only_not_canonical_dataset",
+  "scientific_acceptance": false,
+  "canonical_publication": false,
+  "source_repository": "HyungseonSong-plasma/moose-test-repo",
+  "source_commit": "0ba36e7a45242610ce4f4098e4f6557ced78fa46",
+  "workflow_run_url": "https://github.com/HyungseonSong-plasma/moose-test-repo/actions/runs/37837869260",
+  "workflow_input": "experiments/Issue202_maxwell_scalar_fem_m0/dielectric_interface.i",
+  "workflow_artifact": {
+    "id": 11576112485,
+    "name": "Issue_202_Maxwell_M2_validation",
+    "zip_byte_length": 2784670,
+    "zip_sha256": "4576a7a561584e54fcfd62a1b756c13976dab9ccbfb28a7f4da901c2d3c13cdd",
+    "expires_at": "2026-11-07T20:14:33Z"
+  },
+  "simulation": {
+    "independent_1d": true,
+    "executioner": "Steady",
+    "native_variable": "E",
+    "association": "nodal",
+    "native_time_records": [
+      0,
+      1
+    ],
+    "native_time_unit": "unverified",
+    "coordinate_unit": "unverified",
+    "quantity_unit": "unverified",
+    "canonical_scope": "unverified"
+  },
+  "source_outputs": [
+    {
+      "path": "results_dielectric/dielectric_0.e",
+      "sha256": "e49856265df876c20ab094b50343298eb57ac9a4048e242f3bece1cb0b899c3b",
+      "byte_length": 68360,
+      "node_count": 101,
+      "element_count": 100,
+      "element_nodes": 2,
+      "field_shape": [
+        2,
+        101
+      ],
+      "final_min": 0,
+      "final_max": 1.0587081195935515
+    },
+    {
+      "path": "results_dielectric/dielectric_1.e",
+      "sha256": "bdb9fdda032e65442383694795837afa7db230dbc66152855599d1c5bb2c4988",
+      "byte_length": 73960,
+      "node_count": 201,
+      "element_count": 200,
+      "element_nodes": 2,
+      "field_shape": [
+        2,
+        201
+      ],
+      "final_min": 0,
+      "final_max": 1.0587160581972508
+    }
+  ],
+  "evidence_limitations": [
+    "Recorded byte and array findings from Issue #156 2026-11-06 02:02 UTC checkpoint; this commit does not contain Exodus payload bytes.",
+    "Exodus num_dim=3 is xyz storage; solver logs identify mesh/spatial dimension 1.",
+    "Native hashes and paths are provenance only, never SOL DataReference or scientific equality.",
+    "No Physics-authoritative quantity/unit/coordinate/time/scope mapping established.",
+    "No real thermal scalar+field evidence and no Validator acceptance established."
+  ]
+}

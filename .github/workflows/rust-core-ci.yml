@@ -84,5 +84,8 @@ jobs:
       - name: Validate Public Contract JSON schemas
         run: python3 scripts/validate_public_contract_schemas.py
 
+      - name: Validate M0.10 actual MOOSE field source evidence
+        run: python3 scripts/validate_m010_source_evidence.py
+
       - name: Validate Adapter Protocol JSON schemas
         run: python3 scripts/validate_adapter_protocol_schemas.py

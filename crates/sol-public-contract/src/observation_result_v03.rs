@@ -94,7 +94,7 @@ impl ObservationOutcomeDtoV03 {
         }
     }
 
-    fn normalize(&mut self) -> Result<(), ObservationResultError> {
+    pub(crate) fn normalize(&mut self) -> Result<(), ObservationResultError> {
         match self {
             Self::Produced { result } => result.normalize(),
             Self::NotProduced {
@@ -349,7 +349,7 @@ fn canonical_json_v03<T: Serialize>(value: &T) -> Result<String, ObservationResu
     Ok(raw)
 }
 
-fn require_v03(version: &str) -> Result<(), ObservationResultError> {
+pub(crate) fn require_v03(version: &str) -> Result<(), ObservationResultError> {
     if version == PUBLIC_CONTRACT_VERSION_0_3 {
         Ok(())
     } else {
@@ -359,7 +359,7 @@ fn require_v03(version: &str) -> Result<(), ObservationResultError> {
     }
 }
 
-fn require_canonical_reference(
+pub(crate) fn require_canonical_reference(
     field: &'static str,
     value: &str,
 ) -> Result<(), ObservationResultError> {
@@ -373,7 +373,9 @@ fn require_canonical_reference(
     }
 }
 
-fn reject_backend_native_extensions(extensions: &Extensions) -> Result<(), ObservationResultError> {
+pub(crate) fn reject_backend_native_extensions(
+    extensions: &Extensions,
+) -> Result<(), ObservationResultError> {
     for (key, value) in extensions {
         if is_backend_native_key(key) {
             return Err(ObservationResultError::BackendNativeLeakage(key.clone()));

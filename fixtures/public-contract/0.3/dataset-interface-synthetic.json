@@ -1,0 +1,54 @@
+{
+  "public_contract_version": "0.3",
+  "observation": "observation.surface_charge",
+  "run_id": "run.synthetic_2d",
+  "source": "field.surface_charge_density",
+  "scope": "scope.interface",
+  "manifest": {
+    "quantity": "quantity.surface_charge_density",
+    "unit": "unit.coulomb_per_square_meter",
+    "geometry": {
+      "coordinate_system": "coordinate.cartesian_2d",
+      "coordinate_units": [
+        "unit.meter",
+        "unit.meter"
+      ],
+      "embedding_dimension": 2,
+      "topological_dimension": 1
+    },
+    "support": {
+      "scope": "scope.interface",
+      "carrier_dimension": 1,
+      "entity_dimension": 1,
+      "location": "cell",
+      "entity_count": 2
+    },
+    "value": {
+      "rank": 0,
+      "components": [],
+      "value_count": 2
+    },
+    "sampling": {
+      "kind": "time_point",
+      "time_value": 0,
+      "time_unit": "unit.second"
+    },
+    "payload_layout": {
+      "coordinate_count": 3,
+      "cell_count": 2,
+      "element_types": [
+        "line2"
+      ],
+      "index_base": 0
+    }
+  },
+  "data_reference": {
+    "object_id": "data.synthetic_interface",
+    "payload_profile": "sol.field-json.v1",
+    "byte_length": 182,
+    "integrity": {
+      "algorithm": "sha256",
+      "digest": "65bb1f6380c5294650fafdcea7f18e1876a175d5ca7859572cb96cf89829b22a"
+    }
+  }
+}
