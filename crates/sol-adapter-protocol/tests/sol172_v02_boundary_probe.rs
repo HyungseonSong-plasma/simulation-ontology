@@ -74,23 +74,31 @@ fn malformed_unit_reference_is_rejected_by_both_v02_request_parsers() {
     let json = serde_json::to_string(&request).unwrap();
     assert!(matches!(
         ValidatePlanRequestV02::from_json(&json),
-        Err(RealizationRequestError::InvalidPublicPayload { field: "realization_spec", .. })
+        Err(RealizationRequestError::InvalidPublicPayload {
+            field: "realization_spec",
+            ..
+        })
     ));
     assert!(matches!(
         ExecutePlanRequestV02::from_json(&json),
-        Err(RealizationRequestError::InvalidPublicPayload { field: "realization_spec", .. })
+        Err(RealizationRequestError::InvalidPublicPayload {
+            field: "realization_spec",
+            ..
+        })
     ));
 }
 
 #[test]
 fn non_spatial_scope_member_fails_before_adapter_execution() {
     let mut request = request_value();
-    request["realization_spec"]["scopes"][1]["members"] =
-        json!(["thermal.energy_conservation"]);
+    request["realization_spec"]["scopes"][1]["members"] = json!(["thermal.energy_conservation"]);
     let json = serde_json::to_string(&request).unwrap();
     assert!(matches!(
         ExecutePlanRequestV02::from_json(&json),
-        Err(RealizationRequestError::InvalidPublicPayload { field: "realization_spec", .. })
+        Err(RealizationRequestError::InvalidPublicPayload {
+            field: "realization_spec",
+            ..
+        })
     ));
 }
 
@@ -143,6 +151,9 @@ fn backend_native_hit_identity_cannot_become_canonical_realization_identity() {
     let json = serde_json::to_string(&request).unwrap();
     assert!(matches!(
         ValidatePlanRequestV02::from_json(&json),
-        Err(RealizationRequestError::InvalidPublicPayload { field: "realization_spec", .. })
+        Err(RealizationRequestError::InvalidPublicPayload {
+            field: "realization_spec",
+            ..
+        })
     ));
 }
