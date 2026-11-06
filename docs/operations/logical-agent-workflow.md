@@ -30,7 +30,7 @@ Generic initialization mechanics are owned by the exact pinned Samuel `session-b
 init
   -> exact Samuel binding
   -> Samuel essential rules
-  -> session-bootstrap + state-refresh + mandatory problem-oriented-response
+  -> session-bootstrap + state-refresh + mandatory problem-oriented-response + mandatory problem-oriented-response
   -> SOL-local roles / authority / current GitHub evidence
   -> first real gate
   -> meeting | resume | update recommendation
