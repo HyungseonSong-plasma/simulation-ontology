@@ -11,10 +11,12 @@ use sol_public_contract::{
 const MODEL: &str =
     include_str!("../../../fixtures/thermal/thermal-reference-field-observations-candidate.json");
 const ORIGINAL_MODEL: &str = include_str!("../../../fixtures/thermal/thermal-reference.json");
-const MIXED: &str =
-    include_str!("../../../fixtures/public-contract/0.3/thermal-mixed-run-synthetic-candidate.json");
-const PAYLOAD: &str =
-    include_str!("../../../fixtures/public-contract/0.3/thermal-field-payload-synthetic-candidate.json");
+const MIXED: &str = include_str!(
+    "../../../fixtures/public-contract/0.3/thermal-mixed-run-synthetic-candidate.json"
+);
+const PAYLOAD: &str = include_str!(
+    "../../../fixtures/public-contract/0.3/thermal-field-payload-synthetic-candidate.json"
+);
 const ORIGINAL_SCALAR: &str =
     include_str!("../../../fixtures/public-contract/0.3/thermal-run-record-produced.json");
 const FIELD_OBSERVATION: &str = "observation.temperature_field";
@@ -59,19 +61,15 @@ fn model_has_distinct_source_bindings(model: &Value) -> bool {
     let Some(relations) = model["relations"].as_array() else {
         return false;
     };
-    [FIELD_OBSERVATION, SCALAR_OBSERVATION]
-        .iter()
-        .all(|obs| {
-            relations
-                .iter()
-                .filter(|r| {
-                    r["kind"] == "observed_by"
-                        && r["source"] == SOURCE_FIELD
-                        && r["target"] == *obs
-                })
-                .count()
-                == 1
-        })
+    [FIELD_OBSERVATION, SCALAR_OBSERVATION].iter().all(|obs| {
+        relations
+            .iter()
+            .filter(|r| {
+                r["kind"] == "observed_by" && r["source"] == SOURCE_FIELD && r["target"] == *obs
+            })
+            .count()
+            == 1
+    })
 }
 
 // Fixture-only binding: these values are synthetic, not approved real MOOSE results.
@@ -92,8 +90,7 @@ impl FieldSemanticAuthorityV03 for CandidateFixtureAuthority {
             || manifest.geometry.coordinate_units != ["unit.meter"]
             || manifest.geometry.embedding_dimension != 1
             || manifest.geometry.topological_dimension != 1
-            || manifest.sampling.kind
-                != sol_public_contract::FieldSamplingKindDtoV03::Stationary
+            || manifest.sampling.kind != sol_public_contract::FieldSamplingKindDtoV03::Stationary
         {
             return Err(FieldContractError(
                 "unapproved candidate thermal field binding".to_owned(),
@@ -128,9 +125,15 @@ fn allowed_resolver() -> InMemoryFieldPayloadResolverV03 {
 fn candidate_intent_is_distinct_from_legacy_field_source_and_scalar_observation() {
     let original: Value = serde_json::from_str(ORIGINAL_MODEL).unwrap();
     let model = candidate_model();
-    assert_eq!(original["model"]["observations"].as_array().unwrap().len(), 1);
+    assert_eq!(
+        original["model"]["observations"].as_array().unwrap().len(),
+        1
+    );
     assert_eq!(model["model"]["observations"].as_array().unwrap().len(), 2);
-    assert_eq!(original["model"]["mathematical"], model["model"]["mathematical"]);
+    assert_eq!(
+        original["model"]["mathematical"],
+        model["model"]["mathematical"]
+    );
     assert!(model_has_distinct_source_bindings(&model));
 
     // Run the existing public model reference validation without changing it.
@@ -191,7 +194,10 @@ fn two_distinct_requested_observations_have_one_same_run_terminal_outcome_each()
 #[test]
 fn missing_duplicate_unrequested_and_wrong_run_outcomes_fail_closed() {
     let mut missing = raw();
-    missing["observation_outcomes"].as_array_mut().unwrap().pop();
+    missing["observation_outcomes"]
+        .as_array_mut()
+        .unwrap()
+        .pop();
     assert!(matches!(
         parse(&missing),
         Err(ObservationResultError::MissingObservationOutcome(id)) if id == FIELD_OBSERVATION
@@ -199,7 +205,10 @@ fn missing_duplicate_unrequested_and_wrong_run_outcomes_fail_closed() {
 
     let mut duplicate = raw();
     let already = duplicate["observation_outcomes"][0].clone();
-    duplicate["observation_outcomes"].as_array_mut().unwrap().push(already);
+    duplicate["observation_outcomes"]
+        .as_array_mut()
+        .unwrap()
+        .push(already);
     assert!(matches!(
         parse(&duplicate),
         Err(ObservationResultError::DuplicateObservationOutcome(id)) if id == SCALAR_OBSERVATION
