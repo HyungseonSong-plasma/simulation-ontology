@@ -104,6 +104,44 @@ permutation normalization are **deferred**. Equal byte digests do not imply
 scientifically equivalent results, and changed digests do not imply different
 observation intent.
 
+## Thermal Temperature Field Observation — bounded opt-in candidate
+
+**Status:** User-directed Phase 2 implementation candidate (2026-11-06); **Human Validator and Physics meaning gates OPEN**. The accepted existing Thermal reference fixture, Public Contract 0.1/0.2 and Phase 1 scalar-only 0.3 wire/Rust DTOs are **unchanged**. This section is not a new accepted universal ontology rule.
+
+### Requested meaning versus source Field
+
+- Mathematical/source Field: `thermal.temperature_field` (pre-existing mathematical-model entity).
+- Existing compact ObservationModel: `observation.maximum_temperature` (`MaximumTemperature`), a scalar reduction over the requested domain.
+- **New bounded candidate ObservationModel:** `observation.temperature_field` (`TemperatureFieldObservation`), requesting the distributed, spatially associated temperature values on an explicit scope. It is **not** the underlying mathematical Field itself and is not interchangeable with the maximum-temperature scalar.
+- Both ObservationModels observe the **same** mathematical Field through existing `observed_by` vocabulary (source `thermal.temperature_field` to each ObservationModel); no new relation kind is introduced.
+- Candidate source-binding: `quantity.temperature`, `unit.kelvin`, `scope.main_domain`, `coordinate.cartesian_1d`, `unit.meter`, vertex-associated scalar LINE2, `stationary` sampling. **Actual canonical reference authority/physical-unit mapping requires Physics/SOL human review**; names in this section are candidate bindings, not proof that a source-native Exodus variable is Kelvin.
+
+### One Run, two independently requested terminal outcomes
+
+A result-capable *opt-in* Public Contract 0.3 Run can contain exactly these two **distinct** requested observation references:
+
+```
+run.synthetic_thermal_1d
+  requested_observations:
+    - observation.maximum_temperature  -> Scalar result (inline)
+    - observation.temperature_field     -> Dataset result (Manifest + DataReference)
+```
+
+The result occurrences are distinct `(run_id, observation)` pairs even though the run ID, Field source and scope can be shared. **One outcome per requested observation** remains mandatory. Neither producing the Scalar nor producing the Dataset implies the other was produced. If either requested result is absent, return its own typed `not_produced` evidence; do not invent a missing result from solver completion or from the other observation. No implicit request or automatic reduction/expansion is introduced.
+
+An actual `MaximumTemperature` is a reduction/aggregation of the final temperature Field over the specified domain (not necessarily an arbitrary native postprocessor label). Here the synthetic scalar is 400 and synthetic nodal values are `[400,400,400]`. This is a **conformance example only**; it does **not** assert that an adapter has emitted a Public Contract 0.3 result from actual MOOSE output.
+
+### Candidate fixtures and adversarial checks
+
+- `fixtures/thermal/thermal-reference-field-observations-candidate.json` — separate ontology candidate with two ObservationModels and two `observed_by` edges; the original `fixtures/thermal/thermal-reference.json` remains intact.
+- `fixtures/public-contract/0.3/thermal-mixed-run-synthetic-candidate.json` — opt-in mixed run, one Scalar `produced`, one Dataset `produced`, exact same run/source/scope.
+- `fixtures/public-contract/0.3/thermal-field-payload-synthetic-candidate.json` — three-node/2-element **synthetic** field with `sol.field-json.v1` canonical byte-integrity metadata.
+- `crates/sol-public-contract/tests/thermal_field_observation_candidate.rs` — actual typed DTO parsing and in-memory verified-publication tests under a **test-only, manually pinned FixtureAuthority**; rejects duplicate/missing/unrequested/wrong-run outcomes, wrong field meaning, scope, time sampling, value counts and absent dataset marker; tests independently typed `not_produced`.
+
+These tests verify source-level structural semantics *under the explicitly artificial authority*, not scientific approval of actual MOOSE data, production resolver authorization, Phase 3 Adapter Protocol 0.3, or Phase 4 transport. A separate real `TemperatureFieldObservation` producer, authorized SOL-managed resolver and end-to-end Physics-signed mapping are later work.
+
+**Gates:** Physics/Adapter sign-off [#39](https://github.com/HyungseonSong-plasma/sol-adapter-moose/issues/39); human independent Validator [SOL #175](https://github.com/HyungseonSong-plasma/simulation-ontology/issues/175); final user acceptance, CI at exact final head and existing GitHub review/merge rules. Do not reclassify this candidate as accepted simply because the synthetic tests pass.
+
 ## Actual-source evidence vs publishable SOL fixtures
 
 The repository includes:
