@@ -1,8 +1,6 @@
 //! SOL #172: live runtime selection rejection, without inventing plasma support.
 use serde_json::{json, Value};
-use sol_external_runtime_v02_consumer::{
-    adapter_from_env, fixture_from_env, run_consumer_v02,
-};
+use sol_external_runtime_v02_consumer::{adapter_from_env, fixture_from_env, run_consumer_v02};
 use std::fs;
 
 #[test]
